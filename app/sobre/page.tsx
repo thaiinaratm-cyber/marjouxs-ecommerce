@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Gem, HeartHandshake, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Sobre | Antoér Joalheria"
+  title: "Sobre | Marjouxs"
 };
 
 export default function AboutPage() {
@@ -10,10 +10,10 @@ export default function AboutPage() {
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Sobre a Antoér</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Sobre a Marjouxs</p>
           <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">Joias para marcar histórias com elegância</h1>
           <p className="mt-4 leading-7 text-taupe">
-            A Antoér Joalheria e Relojoaria nasce para unir curadoria, confiança e atendimento humano. A loja virtual foi pensada para facilitar a escolha de peças especiais e aproximar o cliente da equipe antes da finalização.
+            A Marjouxs nasce para unir curadoria, confiança e atendimento humano. A loja virtual foi pensada para facilitar a escolha de peças especiais e aproximar o cliente da equipe antes da finalização.
           </p>
           <p className="mt-4 leading-7 text-taupe">
             Trabalhamos com produtos de preço fixo, itens sob orçamento e serviços técnicos que exigem avaliação individual, sempre com confirmação pelo WhatsApp.

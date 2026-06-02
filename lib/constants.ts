@@ -1,5 +1,5 @@
 export const WHATSAPP_NUMBER = "5511919964393";
-export const STORE_NAME = "Antoér Joalheria e Relojoaria";
+export const STORE_NAME = "Marjouxs";
 
 export const paymentOptions = [
   "Pix",

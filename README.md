@@ -1,4 +1,4 @@
-# Antoér Joalheria e Relojoaria
+# Marjouxs
 
 E-commerce mobile-first em Next.js, TypeScript, Tailwind CSS, Context API e localStorage.
 

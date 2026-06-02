@@ -3,7 +3,7 @@ import { normalizeSortOrder } from "@/lib/product-sorting";
 import { getMaterials, getVisibleProducts } from "@/lib/products";
 
 export const metadata = {
-  title: "Produtos | Antoér Joalheria"
+  title: "Produtos | Marjouxs"
 };
 
 export default function ProductsPage({ searchParams }: { searchParams?: { busca?: string; ordem?: string } }) {
@@ -16,7 +16,7 @@ export default function ProductsPage({ searchParams }: { searchParams?: { busca?
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8 max-w-3xl">
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Catálogo</p>
-        <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">Produtos e serviços Antoér</h1>
+        <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">Produtos e serviços Marjouxs</h1>
         <p className="mt-4 leading-7 text-taupe">
           Explore joias, alianças, relógios e serviços. Use os filtros para encontrar por categoria, material ou termo.
         </p>

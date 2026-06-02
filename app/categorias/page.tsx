@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 import { categories } from "@/data/categories";
 
 export const metadata = {
-  title: "Categorias | Antoér Joalheria"
+  title: "Categorias | Marjouxs"
 };
 
 export default function CategoriesPage() {

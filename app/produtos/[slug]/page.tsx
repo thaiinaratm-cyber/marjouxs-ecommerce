@@ -12,7 +12,7 @@ import { buildQuoteUrl } from "@/lib/whatsapp";
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const product = getProductBySlug(params.slug);
   return {
-    title: product ? `${product.name} | Antoér Joalheria` : "Produto | Antoér Joalheria"
+    title: product ? `${product.name} | Marjouxs` : "Produto | Marjouxs"
   };
 }
 

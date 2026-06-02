@@ -53,6 +53,6 @@ export const faqItems = [
   {
     question: "Como faço para solicitar troca, ajuste ou reparo?",
     answer:
-      "Entre em contato pelo WhatsApp da Antoér, envie fotos da peça e explique o ocorrido. Nossa equipe irá orientar o próximo passo."
+      "Entre em contato pelo WhatsApp da Marjouxs, envie fotos da peça e explique o ocorrido. Nossa equipe irá orientar o próximo passo."
   }
 ];

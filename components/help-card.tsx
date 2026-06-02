@@ -13,7 +13,7 @@ export function HelpCard() {
           </p>
         </div>
         <a
-          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá, Antoér Joalheria e Relojoaria! Gostaria de falar com um especialista.")}`}
+          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá, Marjouxs! Gostaria de falar com um especialista.")}`}
           target="_blank"
           rel="noreferrer"
           className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink lg:mt-0"

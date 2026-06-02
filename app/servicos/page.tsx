@@ -5,7 +5,7 @@ import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { getProductsByCategory } from "@/lib/products";
 
 export const metadata = {
-  title: "Serviços | Antoér Joalheria"
+  title: "Serviços | Marjouxs"
 };
 
 export default function ServicesPage() {

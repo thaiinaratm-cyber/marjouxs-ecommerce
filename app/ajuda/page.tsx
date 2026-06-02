@@ -2,7 +2,7 @@ import { FaqSection } from "@/components/faq-section";
 import { HelpCard } from "@/components/help-card";
 
 export const metadata = {
-  title: "Ajuda | Antoér Joalheria"
+  title: "Ajuda | Marjouxs"
 };
 
 export default function HelpPage() {

@@ -114,7 +114,7 @@ function matchesProductFilter(product: Product, selectedFilter: string) {
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const category = getCategoryBySlug(params.slug);
   return {
-    title: category ? `${category.name} | Antoér Joalheria` : "Categoria | Antoér Joalheria"
+    title: category ? `${category.name} | Marjouxs` : "Categoria | Marjouxs"
   };
 }
 
@@ -157,7 +157,7 @@ export default function CategoryPage({
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8 max-w-3xl">
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">{category.name}</p>
-        <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">{category.name} Antoér</h1>
+        <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">{category.name} Marjouxs</h1>
         <p className="mt-4 leading-7 text-taupe">{category.description}</p>
       </div>
       {filterOptions.length > 0 && (

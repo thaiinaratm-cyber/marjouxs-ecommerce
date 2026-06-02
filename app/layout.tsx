@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Antoér Joalheria e Relojoaria",
+  title: "Marjouxs | Joias e Alianças",
   description: "E-commerce premium de joias, alianças, relógios e serviços de joalheria e relojoaria.",
   metadataBase: new URL("https://antoer.com.br")
 };

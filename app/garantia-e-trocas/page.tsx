@@ -1,7 +1,7 @@
 import { HelpCard } from "@/components/help-card";
 
 export const metadata = {
-  title: "Garantia e Trocas | Antoér Joalheria"
+  title: "Garantia e Trocas | Marjouxs"
 };
 
 export default function WarrantyPage() {
@@ -12,7 +12,7 @@ export default function WarrantyPage() {
         <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">Garantia e Trocas</h1>
         <div className="mt-6 grid gap-5 text-sm leading-7 text-taupe sm:text-base">
           <p>
-            A Antoér Joalheria e Relojoaria oferece garantia para produtos adquiridos em nossa loja, conforme as condições
+            A Marjouxs oferece garantia para produtos adquiridos em nossa loja, conforme as condições
             de cada peça e serviço.
           </p>
           <p>
@@ -24,7 +24,7 @@ export default function WarrantyPage() {
             uso inadequado ou danos causados por terceiros.
           </p>
           <p>
-            Para solicitar atendimento, o cliente deve entrar em contato pelo WhatsApp da Antoér e enviar fotos da peça,
+            Para solicitar atendimento, o cliente deve entrar em contato pelo WhatsApp da Marjouxs e enviar fotos da peça,
             comprovante de compra e descrição do ocorrido.
           </p>
         </div>

@@ -11,7 +11,7 @@ import { ProductGrid } from "@/components/product-grid";
 export default function HomePage() {
   const featuredProducts = getHomeFeaturedProducts(5);
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-    "Olá, Antoér Joalheria e Relojoaria! Gostaria de falar sobre alianças sob medida."
+    "Olá, Marjouxs! Gostaria de falar sobre alianças sob medida."
   )}`;
 
   return (
@@ -20,7 +20,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <Image
             src="/produtos/alianca-ouro-18k-pedra-4200.png"
-            alt="Alianças em destaque da Antoér"
+            alt="Alianças em destaque da Marjouxs"
             fill
             priority
             sizes="100vw"

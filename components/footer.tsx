@@ -5,7 +5,7 @@ import { WHATSAPP_NUMBER } from "@/lib/constants";
 const atendimentoLinks = [
   { href: `https://wa.me/${WHATSAPP_NUMBER}`, label: "Falar no WhatsApp", external: true },
   { href: "/contato", label: "Contato" },
-  { href: "/sobre", label: "Sobre a Antoér" },
+  { href: "/sobre", label: "Sobre a Marjouxs" },
   { href: "/servicos", label: "Serviços" }
 ];
 
@@ -32,7 +32,7 @@ export function Footer() {
     <footer className="border-t border-black/10 bg-ink text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.15fr_0.8fr_0.8fr_0.8fr] lg:px-8">
         <div>
-          <p className="font-serif text-3xl font-semibold">Antoér Joalheria e Relojoaria</p>
+          <p className="font-serif text-3xl font-semibold">Marjouxs</p>
           <p className="mt-3 max-w-md text-sm leading-6 text-white/70">
             Joias, alianças, relógios e serviços de joalheria com atendimento personalizado.
           </p>
@@ -44,11 +44,11 @@ export function Footer() {
               <MapPin size={16} /> Atendimento em São Paulo
             </span>
             <span className="inline-flex items-center gap-2">
-              <Instagram size={16} /> @antoerjoalheria
+              <Instagram size={16} /> @marjouxs
             </span>
           </div>
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá, Antoér Joalheria e Relojoaria! Gostaria de falar com um especialista.")}`}
+            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá, Marjouxs! Gostaria de falar com um especialista.")}`}
             target="_blank"
             rel="noreferrer"
             className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink"
@@ -103,7 +103,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-white/50">
-        © 2026 Antoér Joalheria e Relojoaria. Estrutura preparada para catálogo, pedidos e integrações futuras.
+        © 2026 Marjouxs. Estrutura preparada para catálogo, pedidos e integrações futuras.
       </div>
     </footer>
   );

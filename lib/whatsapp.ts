@@ -12,7 +12,7 @@ export type CheckoutPayload = {
 
 export function buildQuoteUrl(product: Product) {
   const message = [
-    "Ola, Antoer Joalheria e Relojoaria!",
+    "Ola, Marjouxs!",
     "Gostaria de solicitar um orcamento.",
     "",
     `Produto: ${product.name}`,
@@ -34,10 +34,10 @@ export function buildCheckoutUrl(items: CartItem[], payload: CheckoutPayload) {
 
     return `- ${item.quantity}x ${item.product.name}\n  Unitario: ${unitPrice}\n  Total: ${itemTotal}`;
   });
-  const orderCode = `ANTOER-${Date.now().toString().slice(-6)}`;
+  const orderCode = `MARJOUXS-${Date.now().toString().slice(-6)}`;
 
   const message = [
-    "Ola, Antoer Joalheria e Relojoaria!",
+    "Ola, Marjouxs!",
     `Quero finalizar meu pedido ${orderCode}.`,
     "",
     "Resumo do pedido:",

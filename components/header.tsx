@@ -147,8 +147,8 @@ export function Header() {
       <div className="mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
           <Link href="/" className="leading-tight" onClick={closeMenus}>
-            <span className="block font-serif text-2xl font-semibold tracking-normal text-ink">Antoér</span>
-            <span className="block text-[11px] uppercase tracking-[0.24em] text-taupe">Joalheria e Relojoaria</span>
+            <span className="block font-serif text-2xl font-semibold tracking-normal text-ink">Marjouxs</span>
+            <span className="block text-[11px] uppercase tracking-[0.24em] text-taupe">JOIAS E ALIANÇAS</span>
           </Link>
 
           <div className="hidden justify-self-center md:block md:w-full md:max-w-xl">
