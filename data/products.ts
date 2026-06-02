@@ -6,7 +6,7 @@ export const products: Product[] = [
     "name": "Alianças em Ouro 18k Tradicional",
     "slug": "aliancas-em-ouro-18k-tradicional",
     "category": "Alianças",
-    "subcategory": "Alianças de Ouro 18k/750",
+    "subcategory": "Alianças Ouro 18k",
     "material": "Ouro 18k",
     "price": null,
     "oldPrice": null,
@@ -17,7 +17,7 @@ export const products: Product[] = [
     "installments": "Consulte condições de parcelamento",
     "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
     "images": [
-      "/produtos/aliancas-prata-950.png"
+      "/produtos/aliancas-ouro-18k-750-polida-3200.png"
     ],
     "featured": true,
     "isCustomOrder": true,
@@ -508,9 +508,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-380-2",
-    "name": "Aliança Prata 950 Namoro 380 (2)",
-    "slug": "alianca-prata-950-namoro-380-2",
+    "id": "alianca-prata-950-namoro",
+    "name": "Aliança Prata 950 Namoro",
+    "slug": "alianca-prata-950-namoro",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -531,9 +531,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro",
+    "id": "alianca-prata-950-namoro-2",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro",
+    "slug": "alianca-prata-950-namoro-2",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -554,9 +554,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-2",
+    "id": "alianca-prata-950-namoro-3",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-2",
+    "slug": "alianca-prata-950-namoro-3",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -577,9 +577,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-3",
+    "id": "alianca-prata-950-namoro-4",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-3",
+    "slug": "alianca-prata-950-namoro-4",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -922,9 +922,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-4",
+    "id": "alianca-prata-950-namoro-5",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-4",
+    "slug": "alianca-prata-950-namoro-5",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -945,9 +945,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-5",
+    "id": "alianca-prata-950-namoro-6",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-5",
+    "slug": "alianca-prata-950-namoro-6",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -1359,9 +1359,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-6",
+    "id": "alianca-prata-950-namoro-7",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-6",
+    "slug": "alianca-prata-950-namoro-7",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -1382,9 +1382,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-380-2-2",
-    "name": "Aliança Prata 950 Namoro 380 (2)",
-    "slug": "alianca-prata-950-namoro-380-2-2",
+    "id": "alianca-prata-950-namoro-8",
+    "name": "Aliança Prata 950 Namoro",
+    "slug": "alianca-prata-950-namoro-8",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -1405,9 +1405,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-380-3",
-    "name": "Aliança Prata 950 Namoro 380 (3)",
-    "slug": "alianca-prata-950-namoro-380-3",
+    "id": "alianca-prata-950-namoro-9",
+    "name": "Aliança Prata 950 Namoro",
+    "slug": "alianca-prata-950-namoro-9",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -1428,9 +1428,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-7",
+    "id": "alianca-prata-950-namoro-10",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-7",
+    "slug": "alianca-prata-950-namoro-10",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -1451,9 +1451,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-8",
+    "id": "alianca-prata-950-namoro-11",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-8",
+    "slug": "alianca-prata-950-namoro-11",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -1474,9 +1474,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-9",
+    "id": "alianca-prata-950-namoro-12",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-9",
+    "slug": "alianca-prata-950-namoro-12",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -1497,9 +1497,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-10",
+    "id": "alianca-prata-950-namoro-13",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-10",
+    "slug": "alianca-prata-950-namoro-13",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",
@@ -1520,9 +1520,9 @@ export const products: Product[] = [
     "stockStatus": "Disponível"
   },
   {
-    "id": "alianca-prata-950-namoro-11",
+    "id": "alianca-prata-950-namoro-14",
     "name": "Aliança Prata 950 Namoro",
-    "slug": "alianca-prata-950-namoro-11",
+    "slug": "alianca-prata-950-namoro-14",
     "category": "Alianças",
     "subcategory": "Alianças Prata",
     "material": "Prata 950",

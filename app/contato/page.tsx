@@ -20,10 +20,11 @@ export default function ContactPage() {
         <div className="grid gap-4">
           {[
             { icon: MessageCircle, title: "WhatsApp oficial", text: "+55 11 91581-8241", href: `https://wa.me/${WHATSAPP_NUMBER}` },
-            { icon: Instagram, title: "Instagram", text: "@marjouxs" },
-            { icon: Mail, title: "E-mail", text: "Atendimento via WhatsApp" },
-            { icon: Clock, title: "Atendimento", text: "Segunda a sábado, em horário comercial" },
-            { icon: MapPin, title: "Localização", text: "São Paulo, SP" }
+            { icon: Instagram, title: "Instagram", text: "@marjouxs", href: "https://www.instagram.com/marjouxs/" },
+            { icon: Mail, title: "E-mail", text: "marjouxsgold@gmail.com", href: "mailto:marjouxsgold@gmail.com" },
+            { icon: Clock, title: "Atendimento", text: "Segunda a sexta: 09:00h às 18:00h | Sábado: 09:00h às 13:00h" },
+            { icon: MapPin, title: "Endereço", text: "Avenida João Manoel, 600 - Prédio JM 600 - Térreo - Arujá - SP" },
+            { icon: MapPin, title: "Localização", text: "Arujá - SP" }
           ].map((item) => (
             <a
               key={item.title}

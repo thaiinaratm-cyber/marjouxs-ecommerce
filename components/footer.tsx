@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CreditCard, Instagram, MessageCircle, MapPin } from "lucide-react";
+import { Clock, CreditCard, Instagram, Mail, MessageCircle, MapPin } from "lucide-react";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const atendimentoLinks = [
@@ -40,11 +40,29 @@ export function Footer() {
             <a className="inline-flex items-center gap-2" href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer">
               <MessageCircle size={16} /> Atendimento pelo WhatsApp: 5511915818241
             </a>
-            <span className="inline-flex items-center gap-2">
-              <MapPin size={16} /> Atendimento em São Paulo
+            <span className="inline-flex items-start gap-2">
+              <MapPin className="mt-0.5 shrink-0" size={16} />
+              <span>
+                Avenida João Manoel, 600
+                <br />
+                Prédio JM 600 - Térreo
+                <br />
+                Arujá - SP
+              </span>
             </span>
-            <span className="inline-flex items-center gap-2">
+            <a className="inline-flex items-center gap-2" href="https://www.instagram.com/marjouxs/" target="_blank" rel="noreferrer">
               <Instagram size={16} /> @marjouxs
+            </a>
+            <a className="inline-flex items-center gap-2" href="mailto:marjouxsgold@gmail.com">
+              <Mail size={16} /> marjouxsgold@gmail.com
+            </a>
+            <span className="inline-flex items-start gap-2">
+              <Clock className="mt-0.5 shrink-0" size={16} />
+              <span>
+                Segunda a sexta: 09:00h às 18:00h
+                <br />
+                Sábado: 09:00h às 13:00h
+              </span>
             </span>
           </div>
           <a
