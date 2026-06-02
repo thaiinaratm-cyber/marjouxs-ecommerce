@@ -19,7 +19,7 @@ export default function ContactPage() {
       <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="grid gap-4">
           {[
-            { icon: MessageCircle, title: "WhatsApp oficial", text: "+55 11 91996-4393", href: `https://wa.me/${WHATSAPP_NUMBER}` },
+            { icon: MessageCircle, title: "WhatsApp oficial", text: "+55 11 91581-8241", href: `https://wa.me/${WHATSAPP_NUMBER}` },
             { icon: Instagram, title: "Instagram", text: "@marjouxs" },
             { icon: Mail, title: "E-mail", text: "Atendimento via WhatsApp" },
             { icon: Clock, title: "Atendimento", text: "Segunda a sábado, em horário comercial" },

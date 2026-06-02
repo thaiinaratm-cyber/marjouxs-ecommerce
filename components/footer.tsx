@@ -38,7 +38,7 @@ export function Footer() {
           </p>
           <div className="mt-5 grid gap-3 text-sm text-white/75">
             <a className="inline-flex items-center gap-2" href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer">
-              <MessageCircle size={16} /> Atendimento pelo WhatsApp: 5511919964393
+              <MessageCircle size={16} /> Atendimento pelo WhatsApp: 5511915818241
             </a>
             <span className="inline-flex items-center gap-2">
               <MapPin size={16} /> Atendimento em São Paulo

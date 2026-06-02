@@ -1,4 +1,4 @@
-export const WHATSAPP_NUMBER = "5511919964393";
+export const WHATSAPP_NUMBER = "5511915818241";
 export const STORE_NAME = "Marjouxs";
 
 export const paymentOptions = [
