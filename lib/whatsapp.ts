@@ -2,6 +2,8 @@ import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
 import type { CartItem, Product } from "@/types/product";
 
+const STORE_URL = "https://marjouxsjoias.com.br";
+
 export type CheckoutPayload = {
   name: string;
   whatsapp: string;
@@ -9,6 +11,20 @@ export type CheckoutPayload = {
   observation: string;
   paymentMethod: string;
 };
+
+function getAbsoluteProductImageUrl(product: Product) {
+  const [image] = product.images;
+
+  if (!image) {
+    return `${STORE_URL}/produtos`;
+  }
+
+  if (image.startsWith("http://") || image.startsWith("https://")) {
+    return image;
+  }
+
+  return `${STORE_URL}${image.startsWith("/") ? image : `/${image}`}`;
+}
 
 export function buildQuoteUrl(product: Product) {
   const message = [
@@ -28,31 +44,37 @@ export function buildQuoteUrl(product: Product) {
 
 export function buildCheckoutUrl(items: CartItem[], payload: CheckoutPayload) {
   const subtotal = items.reduce((total, item) => total + (item.product.price ?? 0) * item.quantity, 0);
+  const hasItemsPendingConfirmation = items.some(
+    (item) => item.product.price === null || item.product.stockStatus === "Sob encomenda"
+  );
   const lines = items.map((item) => {
     const unitPrice = item.product.price === null ? item.product.priceLabel : formatCurrency(item.product.price);
-    const itemTotal = item.product.price === null ? "Sob orcamento" : formatCurrency(item.product.price * item.quantity);
+    const itemTotal = item.product.price === null ? "Sob orçamento" : formatCurrency(item.product.price * item.quantity);
+    const imageUrl = getAbsoluteProductImageUrl(item.product);
 
-    return `- ${item.quantity}x ${item.product.name}\n  Unitario: ${unitPrice}\n  Total: ${itemTotal}`;
+    return `• ${item.quantity}x ${item.product.name}\nValor unitário: ${unitPrice}\nTotal: ${itemTotal}\nImagem do produto: ${imageUrl}`;
   });
   const orderCode = `MARJOUXS-${Date.now().toString().slice(-6)}`;
 
   const message = [
-    "Ola, Marjouxs!",
-    `Quero finalizar meu pedido ${orderCode}.`,
+    "Olá, Marjouxs Joias e Alianças!",
+    "",
+    `Quero finalizar meu pedido: ${orderCode}`,
     "",
     "Resumo do pedido:",
     ...lines,
     "",
-    `Total dos itens com preco fixo: ${formatCurrency(subtotal)}`,
+    `Total do pedido: ${formatCurrency(subtotal)}`,
+    ...(hasItemsPendingConfirmation ? ["Alguns itens precisam de confirmação da loja."] : []),
     "",
     "Dados do cliente:",
     `Nome: ${payload.name}`,
     `WhatsApp: ${payload.whatsapp}`,
-    `Endereco/retirada: ${payload.address}`,
+    `Entrega/retirada: ${payload.address}`,
     `Forma de pagamento: ${payload.paymentMethod}`,
-    payload.observation ? `Observacoes: ${payload.observation}` : "Observacoes: sem observacoes",
+    payload.observation ? `Observações: ${payload.observation}` : "Observações: sem observações",
     "",
-    "Aguardo a confirmacao de estoque, prazo e valores antes da finalizacao."
+    "Aguardo a confirmação da loja para seguir com o pagamento/retirada."
   ].join("\n");
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;

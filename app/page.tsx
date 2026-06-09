@@ -29,10 +29,10 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20" />
           <div className="absolute inset-0 bg-black/20" />
         </div>
-        <div className="relative mx-auto grid min-h-[78svh] max-w-7xl content-end px-4 pb-10 pt-28 sm:px-6 lg:px-8">
+        <div className="relative mx-auto grid min-h-[64svh] max-w-7xl content-end px-4 pb-8 pt-24 sm:min-h-[78svh] sm:px-6 sm:pb-10 sm:pt-28 lg:px-8">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-gold">Luxo moderno para momentos especiais</p>
-            <h1 className="mt-4 font-serif text-5xl font-semibold leading-tight sm:text-6xl lg:text-7xl">
+            <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight sm:text-6xl lg:text-7xl">
               Alianças sob medida em Ouro 18k, Prata 950, Banhado a Ouro e Moeda
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/78 sm:text-lg">
@@ -41,7 +41,7 @@ export default function HomePage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/categorias/aliancas"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink sm:w-auto"
               >
                 Ver alianças <ArrowRight size={18} />
               </Link>
@@ -49,7 +49,7 @@ export default function HomePage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:border-white hover:bg-white hover:text-ink"
+                className="hidden min-h-12 items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:border-white hover:bg-white hover:text-ink sm:inline-flex"
               >
                 <MessageCircle className="mr-2" size={18} />
                 Falar no WhatsApp
@@ -59,13 +59,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:px-6 lg:grid-cols-3 lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-3 px-4 py-6 sm:gap-4 sm:px-6 sm:py-8 lg:grid-cols-3 lg:px-8">
         {[
           { icon: Gem, title: "Curadoria premium", text: "Peças selecionadas para presentear e celebrar com sofisticação." },
           { icon: ShieldCheck, title: "Atendimento confiável", text: "Pedido finalizado pelo WhatsApp com confirmação da equipe." },
           { icon: BadgeCheck, title: "Serviços técnicos", text: "Ajustes, polimento, banho, gravação e manutenção de relógios." }
         ].map((item) => (
-          <div key={item.title} className="flex gap-4 rounded-lg border border-black/10 bg-white p-5 shadow-sm">
+          <div key={item.title} className="flex gap-3 rounded-lg border border-black/10 bg-white p-4 shadow-sm sm:gap-4 sm:p-5">
             <item.icon className="mt-1 shrink-0 text-gold" size={24} />
             <div>
               <h2 className="font-serif text-xl font-semibold text-ink">{item.title}</h2>
