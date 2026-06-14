@@ -28,7 +28,7 @@ export const categories: Category[] = [
     name: "Anéis",
     slug: "aneis",
     description: "Anéis femininos, masculinos e solitários com acabamento refinado.",
-    subcategories: ["Anéis em Ouro", "Anéis em Prata", "Solitários", "Anéis de Formatura", "Anéis femininos", "Anéis masculinos"]
+    subcategories: ["Anéis em Ouro", "Anéis em Prata", "Pérola", "Solitários", "Anéis de Formatura", "Anéis femininos", "Anéis masculinos"]
   },
   {
     name: "Brincos",

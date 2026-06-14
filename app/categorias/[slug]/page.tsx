@@ -16,6 +16,7 @@ const categoryFilters: Record<string, { label: string; slug: string }[]> = {
   aneis: [
     { label: "Ouro 18k", slug: "ouro-18k" },
     { label: "Prata 950", slug: "prata-950" },
+    { label: "Pérola", slug: "perola" },
     { label: "Formatura", slug: "formatura" }
   ],
   brincos: [
@@ -102,6 +103,10 @@ function matchesProductFilter(product: Product, selectedFilter: string) {
 
   if (selectedFilter === "formatura") {
     return text.includes("formatura") || subcategory.includes("formatura");
+  }
+
+  if (selectedFilter === "perola") {
+    return text.includes("perola") || subcategory.includes("perola");
   }
 
   if (selectedFilter === "infantil") {

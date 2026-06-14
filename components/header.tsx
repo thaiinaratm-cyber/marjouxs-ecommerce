@@ -31,6 +31,7 @@ const categoryMenu = [
     subcategories: [
       { label: "Ouro 18k", href: "/categorias/aneis?subcategoria=ouro-18k" },
       { label: "Prata 950", href: "/categorias/aneis?subcategoria=prata-950" },
+      { label: "Pérola", href: "/categorias/aneis?subcategoria=perola" },
       { label: "Formatura", href: "/categorias/aneis?subcategoria=formatura" }
     ]
   },
