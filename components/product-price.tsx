@@ -1,5 +1,5 @@
 import { formatCurrency } from "@/lib/format";
-import { hasValidPrice } from "@/lib/product-pricing";
+import { getInstallmentsText, hasValidPrice } from "@/lib/product-pricing";
 import type { Product } from "@/types/product";
 
 function getDiscountPercent(product: Product) {
@@ -16,18 +16,6 @@ function getCashPrice(product: Product) {
   }
 
   return product.price - product.price * (product.cashDiscountPercent / 100);
-}
-
-function getInstallmentsText(product: Product) {
-  if (!hasValidPrice(product) || !product.price) {
-    return null;
-  }
-
-  if (product.installmentsCount && product.installmentsCount > 0) {
-    return `ou ${product.installmentsCount}x de ${formatCurrency(product.price / product.installmentsCount)} sem juros`;
-  }
-
-  return product.installments;
 }
 
 export function ProductPrice({ product, compact = false }: { product: Product; compact?: boolean }) {

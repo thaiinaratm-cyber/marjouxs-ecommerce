@@ -1,13 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, MessageCircle } from "lucide-react";
+import { Check, ChevronLeft } from "lucide-react";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { ProductImage } from "@/components/product-image";
 import { ProductPrice } from "@/components/product-price";
 import { ProductGrid } from "@/components/product-grid";
-import { hasValidPrice } from "@/lib/product-pricing";
+import { hasIncludedEngravingAndBox, hasValidPrice } from "@/lib/product-pricing";
 import { getProductBySlug, getProductsByCategory } from "@/lib/products";
 import { buildQuoteUrl } from "@/lib/whatsapp";
+
+function WhatsappIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 32 32" width={size} height={size} fill="currentColor">
+      <path d="M16.01 3.2A12.66 12.66 0 0 0 5.22 22.5L3.6 28.8l6.45-1.56A12.67 12.67 0 1 0 16.01 3.2Zm0 22.98c-1.97 0-3.9-.56-5.56-1.62l-.4-.25-3.83.93.97-3.73-.26-.39a10.24 10.24 0 1 1 9.08 5.06Zm5.83-7.66c-.32-.16-1.9-.94-2.2-1.05-.3-.11-.51-.16-.73.16-.21.32-.83 1.05-1.02 1.27-.19.21-.38.24-.7.08-.32-.16-1.35-.5-2.57-1.59-.95-.85-1.59-1.89-1.78-2.21-.19-.32-.02-.5.14-.66.15-.15.32-.38.48-.57.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.73-1.76-1-2.41-.26-.63-.53-.54-.73-.55h-.62c-.21 0-.56.08-.86.4-.3.32-1.13 1.1-1.13 2.68s1.16 3.12 1.32 3.33c.16.21 2.28 3.48 5.52 4.88.77.33 1.37.53 1.84.68.77.24 1.48.21 2.04.13.62-.09 1.9-.78 2.17-1.53.27-.75.27-1.4.19-1.53-.08-.13-.29-.21-.61-.37Z" />
+    </svg>
+  );
+}
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const product = getProductBySlug(params.slug);
@@ -28,6 +36,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     product.category === "Alianças"
       ? "Imagem ilustrativa. Modelos sob encomenda podem variar conforme largura, numeração, acabamento e gravação escolhidos."
       : "Imagem ilustrativa. Produto sujeito a variações de modelo, acabamento e disponibilidade.";
+  const showIncludedBenefits = hasIncludedEngravingAndBox(product);
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -67,18 +76,29 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             </div>
           </div>
 
+          {showIncludedBenefits ? (
+            <div className="mt-4 grid gap-2 rounded-lg border border-gold/25 bg-gold/5 p-4 text-sm text-ink">
+              {["Gravação dos nomes inclusa", "Caixinha de joia inclusa"].map((benefit) => (
+                <p key={benefit} className="flex items-center gap-2">
+                  <Check className="shrink-0 text-gold" size={17} />
+                  <span>{benefit}</span>
+                </p>
+              ))}
+            </div>
+          ) : null}
+
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <AddToCartButton product={product} />
             {product.allowWhatsappQuote && hasValidPrice(product) && (
               <a
                 href={buildQuoteUrl(product)}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-gold hover:text-gold"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-sm ring-1 ring-black/5 transition hover:bg-[#1ebe5d] hover:shadow-soft sm:flex-[1.15]"
               >
-                <MessageCircle size={18} /> Falar no WhatsApp
+                <WhatsappIcon size={18} /> Comprar pelo WhatsApp
               </a>
             )}
+            <AddToCartButton product={product} className="w-full sm:flex-1" />
           </div>
         </div>
       </div>

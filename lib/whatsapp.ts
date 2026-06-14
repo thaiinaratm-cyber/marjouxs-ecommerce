@@ -27,16 +27,20 @@ function getAbsoluteProductImageUrl(product: Product) {
 }
 
 export function buildQuoteUrl(product: Product) {
+  const productUrl = `${STORE_URL}/produtos/${product.slug}`;
+  const imageUrl = getAbsoluteProductImageUrl(product);
   const message = [
-    "Ola, Marjouxs!",
-    "Gostaria de solicitar um orcamento.",
+    "Olá, Marjouxs Joias e Alianças!",
+    "Gostaria de comprar pelo WhatsApp.",
     "",
     `Produto: ${product.name}`,
     `Categoria: ${product.category}`,
     `Subcategoria: ${product.subcategory}`,
     `Material: ${product.material}`,
-    `Valor exibido: ${product.priceLabel}`,
-    `Referencia: ${product.slug}`
+    `Preço: ${product.priceLabel}`,
+    `Link do produto: ${productUrl}`,
+    `Imagem do produto: ${imageUrl}`,
+    `Referência: ${product.slug}`
   ].join("\n");
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
