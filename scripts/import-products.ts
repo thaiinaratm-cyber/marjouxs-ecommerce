@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawn } from "node:child_process";
 
 type CsvRow = Record<string, string>;
 
@@ -49,7 +50,23 @@ const REQUIRED_COLUMNS = [
 const ROOT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const INPUT_PATH = path.join(ROOT_DIR, "data", "import", "produtos.csv");
 const OUTPUT_PATH = path.join(ROOT_DIR, "data", "products.ts");
+const GENERATE_PRODUCTS_SCRIPT = path.join(ROOT_DIR, "scripts", "gerar-produtos.ts");
 const CSV_DELIMITER = ";";
+const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const GRADUATION_RING_DESCRIPTION = `Anel de formatura em Ouro 18k, personalizado de acordo com a área de formação do cliente.
+
+A cor da pedra central será definida conforme o curso escolhido, e o símbolo aplicado nas laterais do anel também será personalizado de acordo com a profissão ou área de formação.
+
+A imagem representa o modelo e o acabamento do anel. A cor da pedra e os símbolos laterais podem variar conforme a personalização solicitada.
+
+Após a compra, nossa equipe entrará em contato para confirmar:
+
+• Curso ou área de formação
+• Cor da pedra
+• Símbolo das laterais
+• Numeração do aro
+
+Produto personalizado e confeccionado sob encomenda.`;
 
 function detectDelimiter(headerLine: string) {
   const chars = headerLine.split("");
@@ -172,6 +189,48 @@ function parsePrice(value: string) {
   return price;
 }
 
+function getImageTokens(value: string) {
+  let baseName = path.basename(value.trim());
+
+  while (IMAGE_EXTENSIONS.has(path.extname(baseName).toLowerCase())) {
+    baseName = path.basename(baseName, path.extname(baseName));
+  }
+
+  return baseName
+    .split(/[-_\s]+/)
+    .map((token) => normalizeText(token))
+    .filter(Boolean);
+}
+
+function detectPriceFromImage(value: string) {
+  const tokens = getImageTokens(value);
+
+  for (let index = tokens.length - 1; index >= 0; index -= 1) {
+    const token = tokens[index];
+    if (/^\d{2,6}$/.test(token) && !["925", "950", "750", "18"].includes(token)) {
+      return Number(token);
+    }
+  }
+
+  return null;
+}
+
+function defaultInstallmentsCount(category: string, material: string, price: number | null) {
+  if (price === null) return null;
+  if ((category === "Alianças" || category === "Anéis") && material === "Ouro 18k") return 12;
+  if (category === "Alianças" && (material.includes("Prata") || material === "Banhado a ouro" || material === "Moeda")) return 6;
+  if (category === "Anéis" && material.includes("Prata")) return 6;
+  return null;
+}
+
+function defaultInstallments(category: string, material: string, price: number | null) {
+  if (price === null) return "Consulte condições de parcelamento";
+  if ((category === "Alianças" || category === "Anéis") && material === "Ouro 18k") return "Até 12x sem juros";
+  if (category === "Alianças" && (material.includes("Prata") || material === "Banhado a ouro" || material === "Moeda")) return "Até 6x sem juros";
+  if (category === "Anéis" && material.includes("Prata")) return "Até 6x sem juros";
+  return "Até 6x sem juros";
+}
+
 function parseOptionalNumber(value: string) {
   const normalized = value.trim();
   if (!normalized) {
@@ -194,8 +253,19 @@ function formatCurrency(value: number) {
 }
 
 function normalizeImagePath(value: string) {
-  const imageName = path.basename(value.trim());
-  return `/produtos/${imageName || "placeholder-joia.jpg"}`;
+  const normalizedPath = value
+    .trim()
+    .replace(/\\/g, "/")
+    .replace(/^\/?produtos\//, "")
+    .replace(/^importar\//, "")
+    .replace(/^\/+/, "");
+
+  return `/produtos/${normalizedPath || "placeholder-joia.jpg"}`;
+}
+
+function isGraduationRingImage(value: string) {
+  const imageName = path.basename(value.trim(), path.extname(value.trim()));
+  return normalizeText(imageName).startsWith("anel-formatura-");
 }
 
 function normalizeStockStatus(value: string, price: number | null) {
@@ -229,9 +299,20 @@ function rowToProduct(row: CsvRow, usedSlugs: Set<string>): ImportedProduct {
     throw new Error("Produto sem nome encontrado no CSV.");
   }
 
-  const price = parsePrice(row.price);
+  const price = parsePrice(row.price) ?? detectPriceFromImage(row.image);
   const slug = uniqueSlug(slugify(row.name), usedSlugs);
   const oldPrice = parseOptionalNumber(row.oldPrice ?? "");
+  const installmentsCount = parseOptionalNumber(row.installmentsCount ?? "") ?? defaultInstallmentsCount(row.category, row.material, price);
+  const normalizedPriceLabel = normalizeText(row.priceLabel ?? "");
+  const priceLabel =
+    price !== null && (!row.priceLabel || normalizedPriceLabel === "sob orcamento")
+      ? formatCurrency(price)
+      : row.priceLabel || (price === null ? "Sob orçamento" : formatCurrency(price));
+  const normalizedInstallments = normalizeText(row.installments ?? "");
+  const installments =
+    price !== null && (!row.installments || normalizedInstallments.startsWith("consulte"))
+      ? defaultInstallments(row.category, row.material, price)
+      : row.installments || defaultInstallments(row.category, row.material, price);
 
   return {
     id: slug,
@@ -244,10 +325,10 @@ function rowToProduct(row: CsvRow, usedSlugs: Set<string>): ImportedProduct {
     oldPrice,
     discountPercent: parseOptionalNumber(row.discountPercent ?? ""),
     cashDiscountPercent: parseOptionalNumber(row.cashDiscountPercent ?? ""),
-    installmentsCount: parseOptionalNumber(row.installmentsCount ?? ""),
-    priceLabel: row.priceLabel || (price === null ? "Sob orçamento" : formatCurrency(price)),
-    installments: row.installments,
-    description: row.description,
+    installmentsCount,
+    priceLabel,
+    installments,
+    description: isGraduationRingImage(row.image) ? GRADUATION_RING_DESCRIPTION : row.description,
     images: [normalizeImagePath(row.image)],
     featured: parseBoolean(row.featured),
     isCustomOrder: parseBoolean(row.isCustomOrder),
@@ -263,7 +344,27 @@ export const products: Product[] = ${JSON.stringify(products, null, 2)};
 `;
 }
 
+async function runGenerateProductsFromImages() {
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn(process.execPath, [GENERATE_PRODUCTS_SCRIPT], {
+      cwd: ROOT_DIR,
+      env: {
+        ...process.env,
+        SKIP_IMPORT_PRODUCTS: "1"
+      },
+      stdio: "inherit"
+    });
+
+    child.on("close", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`geração de produtos por imagem falhou com codigo ${code}`));
+    });
+  });
+}
+
 async function main() {
+  await runGenerateProductsFromImages();
+
   const csv = await readFile(INPUT_PATH, "utf8");
   const rows = parseCsv(csv);
   const usedSlugs = new Set<string>();

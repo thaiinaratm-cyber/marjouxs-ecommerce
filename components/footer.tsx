@@ -1,19 +1,24 @@
 import Link from "next/link";
-import { Clock, CreditCard, Instagram, Mail, MessageCircle, MapPin } from "lucide-react";
+import { Clock, CreditCard, Instagram, Mail, MessageCircle, MapPin, ShieldCheck, Truck } from "lucide-react";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const atendimentoLinks = [
   { href: `https://wa.me/${WHATSAPP_NUMBER}`, label: "Falar no WhatsApp", external: true },
-  { href: "/contato", label: "Contato" },
-  { href: "/sobre", label: "Sobre a Marjouxs" },
+  { href: "/contato", label: "Fale conosco" },
   { href: "/servicos", label: "Serviços" }
 ];
 
-const ajudaLinks = [
-  { href: "/ajuda", label: "Guia de tamanhos" },
-  { href: "/garantia-e-trocas", label: "Garantia e trocas" },
-  { href: "/ajuda", label: "Cuidados com joias" },
-  { href: "/ajuda", label: "Perguntas frequentes" }
+const institutionalLinks = [
+  { href: "/sobre", label: "Quem somos" },
+  { href: "/politica-de-privacidade", label: "Política de privacidade" },
+  { href: "/politica-de-pagamento", label: "Política de pagamento" },
+  { href: "/politica-de-entrega", label: "Política de entrega" },
+  { href: "/trocas-e-devolucoes", label: "Trocas e devoluções" },
+  { href: "/termo-de-garantia", label: "Termo de garantia" },
+  { href: "/guia-de-tamanhos", label: "Guia de tamanhos" },
+  { href: "/cuidados-com-joias", label: "Cuidados com joias" },
+  { href: "/perguntas-frequentes", label: "Perguntas frequentes" },
+  { href: "/contato", label: "Fale conosco" }
 ];
 
 const categoriaLinks = [
@@ -29,7 +34,37 @@ const categoriaLinks = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-black/10 bg-ink text-white">
+    <>
+      <section className="border-y border-black/10 bg-white/85 px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
+          {[
+            {
+              icon: CreditCard,
+              title: "Pagamento facilitado",
+              text: "Pix, cartão de débito e cartão de crédito."
+            },
+            {
+              icon: Truck,
+              title: "Envio e retirada",
+              text: "Entrega combinada pelo atendimento ou retirada na loja."
+            },
+            {
+              icon: ShieldCheck,
+              title: "Compra segura",
+              text: "Atendimento direto com nossa equipe pelo WhatsApp."
+            }
+          ].map((item) => (
+            <div key={item.title} className="flex gap-4 rounded-lg border border-black/10 bg-white p-5 shadow-sm">
+              <item.icon className="mt-0.5 shrink-0 text-gold" size={22} />
+              <div>
+                <h2 className="font-serif text-xl font-semibold text-ink">{item.title}</h2>
+                <p className="mt-1 text-sm leading-6 text-taupe">{item.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      <footer className="border-t border-black/10 bg-ink text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.15fr_0.8fr_0.8fr_0.8fr] lg:px-8">
         <div>
           <p className="font-serif text-3xl font-semibold">Marjouxs</p>
@@ -91,9 +126,9 @@ export function Footer() {
           </div>
         </div>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">Ajuda</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">Institucional</p>
           <div className="mt-4 grid gap-3 text-sm text-white/75">
-            {ajudaLinks.map((item) => (
+            {institutionalLinks.map((item) => (
               <Link key={item.label} href={item.href}>
                 {item.label}
               </Link>
@@ -121,8 +156,9 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-white/50">
-        © 2026 Marjouxs. Estrutura preparada para catálogo, pedidos e integrações futuras.
+        © 2026 Marjouxs Joias e Alianças. Todos os direitos reservados.
       </div>
     </footer>
+    </>
   );
 }

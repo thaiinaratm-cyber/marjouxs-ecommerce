@@ -49,6 +49,7 @@ const IMPORT_DIR = path.join(ROOT_DIR, "public", "produtos", "importar");
 const FINAL_IMAGE_DIR = path.join(ROOT_DIR, "public", "produtos");
 const CSV_PATH = path.join(ROOT_DIR, "data", "import", "produtos.csv");
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const SHOULD_RUN_IMPORT_PRODUCTS = process.env.SKIP_IMPORT_PRODUCTS !== "1";
 
 const ignoredWords = new Set([
   "de",
@@ -100,6 +101,21 @@ const accentWords: Record<string, string> = {
   "925": "925",
   "950": "950"
 };
+
+const GRADUATION_RING_DESCRIPTION = `Anel de formatura em Ouro 18k, personalizado de acordo com a área de formação do cliente.
+
+A cor da pedra central será definida conforme o curso escolhido, e o símbolo aplicado nas laterais do anel também será personalizado de acordo com a profissão ou área de formação.
+
+A imagem representa o modelo e o acabamento do anel. A cor da pedra e os símbolos laterais podem variar conforme a personalização solicitada.
+
+Após a compra, nossa equipe entrará em contato para confirmar:
+
+• Curso ou área de formação
+• Cor da pedra
+• Símbolo das laterais
+• Numeração do aro
+
+Produto personalizado e confeccionado sob encomenda.`;
 
 function normalizeText(value: string) {
   return value
@@ -209,8 +225,13 @@ function serializeCsv(rows: ProductRow[]) {
 }
 
 function getTokens(fileName: string) {
-  return path
-    .basename(fileName, path.extname(fileName))
+  let baseName = path.basename(fileName);
+
+  while (IMAGE_EXTENSIONS.has(path.extname(baseName).toLowerCase())) {
+    baseName = path.basename(baseName, path.extname(baseName));
+  }
+
+  return baseName
     .split(/[-_\s]+/)
     .map((token) => normalizeText(token))
     .filter(Boolean);
@@ -253,6 +274,22 @@ function hasAlliance(tokens: string[]) {
   return tokens.some((token) => token.startsWith("alianca"));
 }
 
+function isPearlRing(tokens: string[]) {
+  return tokens[0] === "anel" && tokens[1] === "perola";
+}
+
+function isGoldRing(tokens: string[]) {
+  return tokens[0] === "anel" && hasOuro18k(tokens) && !isPearlRing(tokens) && !isGraduationRingImportPattern(tokens);
+}
+
+function isGoldEarring(tokens: string[]) {
+  return tokens[0] === "brinco" && hasOuro18k(tokens);
+}
+
+function isParentheticalSequenceToken(token: string) {
+  return /^\(\d+\)$/.test(token);
+}
+
 function hasBanhadoOuro(tokens: string[]) {
   const joined = tokens.join("-");
   return (
@@ -284,6 +321,10 @@ function isGraduationRing(tokens: string[]) {
     tokens.includes("curso") ||
     joined.includes("pedra-formatura")
   );
+}
+
+function isGraduationRingImportPattern(tokens: string[]) {
+  return tokens[0] === "anel" && tokens[1] === "formatura";
 }
 
 function detectCategory(tokens: string[]) {
@@ -323,7 +364,8 @@ function detectSubcategory(category: string, tokens: string[], material: string)
     if (tokens.includes("sob") || tokens.includes("encomenda")) return "Alianças sob encomenda";
   }
   if (category === "Anéis") {
-    if (isGraduationRing(tokens)) return "Anéis de Formatura";
+    if (isPearlRing(tokens)) return "Anéis de Pérola";
+    if (isGraduationRingImportPattern(tokens) || isGraduationRing(tokens)) return "Anéis de Formatura";
     if (tokens.includes("solitario")) return "Solitários";
     if (material.includes("Ouro")) return "Anéis em Ouro";
     if (material.includes("Prata")) return "Anéis em Prata";
@@ -344,6 +386,22 @@ function detectSubcategory(category: string, tokens: string[], material: string)
 }
 
 function buildName(tokens: string[], price: number | null, oldPrice: number | null = null) {
+  if (isGraduationRingImportPattern(tokens)) {
+    return "Anel de Formatura em Ouro 18k";
+  }
+
+  if (isPearlRing(tokens)) {
+    return "Anel de Pérola Natural em Ouro 18k";
+  }
+
+  if (isGoldRing(tokens)) {
+    return "Anel em Ouro 18k";
+  }
+
+  if (isGoldEarring(tokens)) {
+    return "Brinco em Ouro 18k";
+  }
+
   if (isAllianceSolitaireCombo(tokens)) {
     const material = detectMaterial(tokens);
     const materialName = material === "Banhado a ouro" ? "Banhado a Ouro" : material;
@@ -353,10 +411,10 @@ function buildName(tokens: string[], price: number | null, oldPrice: number | nu
   }
 
   const cleanTokens = tokens.filter((token, index) => {
-    const isCurrentPrice = price !== null && token === String(price) && index === tokens.length - 1;
-    const isOldPrice = oldPrice !== null && token === String(oldPrice) && index === tokens.length - 2;
+    const isCurrentPrice = price !== null && token === String(price);
+    const isOldPrice = oldPrice !== null && token === String(oldPrice);
 
-    return !isCurrentPrice && !isOldPrice;
+    return !isCurrentPrice && !isOldPrice && !isParentheticalSequenceToken(token);
   });
   const displayTokens = cleanTokens.reduce<string[]>((accumulator, token, index) => {
     const next = cleanTokens[index + 1];
@@ -395,7 +453,7 @@ function formatPriceLabel(price: number | null) {
 }
 
 function keywordPhrase(tokens: string[]) {
-  const cleanTokens = tokens.filter((token) => !/^\d+$/.test(token));
+  const cleanTokens = tokens.filter((token) => !/^\d+$/.test(token) && !isParentheticalSequenceToken(token));
   return cleanTokens.join(" ");
 }
 
@@ -435,6 +493,9 @@ function generateDescription(category: string, material: string, tokens: string[
   }
 
   if (category === "Anéis") {
+    if (isGraduationRingImportPattern(tokens)) {
+      return GRADUATION_RING_DESCRIPTION;
+    }
     if (isGraduationRing(tokens)) {
       return "Anel de formatura com acabamento elegante, ideal para celebrar uma conquista especial. Consulte aro, pedra, disponibilidade e condições pelo WhatsApp.";
     }
@@ -515,6 +576,52 @@ function buildRowFromImage(fileName: string): ProductRow {
   };
 }
 
+async function listImportFiles(directory: string, baseDirectory = directory): Promise<string[]> {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files: string[] = [];
+
+  for (const entry of entries) {
+    const absolutePath = path.join(directory, entry.name);
+    const relativePath = path.relative(baseDirectory, absolutePath);
+
+    if (entry.isDirectory()) {
+      files.push(...(await listImportFiles(absolutePath, baseDirectory)));
+      continue;
+    }
+
+    if (!entry.isFile()) {
+      console.log(`Ignorado: ${relativePath} - não é um arquivo.`);
+      continue;
+    }
+
+    if (!IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+      console.log(`Ignorado: ${relativePath} - extensão não suportada.`);
+      continue;
+    }
+
+    files.push(relativePath);
+  }
+
+  return files.sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+function toImportPath(value: string) {
+  return value.replace(/\\/g, "/");
+}
+
+function buildUniqueImagePath(relativePath: string, existingImages: Set<string>) {
+  const parsed = path.parse(relativePath);
+  let suffix = 2;
+  let candidate = toImportPath(relativePath);
+
+  while (existingImages.has(normalizeText(candidate)) || existsSync(path.join(FINAL_IMAGE_DIR, candidate))) {
+    candidate = toImportPath(path.join(parsed.dir, `${parsed.name}-${suffix}${parsed.ext}`));
+    suffix += 1;
+  }
+
+  return candidate;
+}
+
 async function runImportProducts() {
   await new Promise<void>((resolve, reject) => {
     const command = process.platform === "win32" ? "cmd.exe" : "npm";
@@ -538,37 +645,43 @@ async function main() {
 
   const currentCsv = existsSync(CSV_PATH) ? await readFile(CSV_PATH, "utf8") : "";
   const rows = parseCsv(currentCsv);
-  const existingImages = new Set(rows.map((row) => normalizeText(path.basename(row.image))));
+  const existingImages = new Set(rows.map((row) => normalizeText(row.image.replace(/\\/g, "/"))));
 
-  const files = (await readdir(IMPORT_DIR)).filter((file) => IMAGE_EXTENSIONS.has(path.extname(file).toLowerCase()));
+  const files = await listImportFiles(IMPORT_DIR);
   const newRows: ProductRow[] = [];
 
   for (const file of files) {
-    const row = buildRowFromImage(file);
-    const imageKey = normalizeText(path.basename(row.image));
-
-    if (existingImages.has(imageKey)) {
-      console.log(`Ignorado duplicado: ${file}`);
-      continue;
-    }
+    const normalizedFile = toImportPath(file);
+    const imageKey = normalizeText(normalizedFile);
+    const targetImage = existingImages.has(imageKey) || existsSync(path.join(FINAL_IMAGE_DIR, normalizedFile))
+      ? buildUniqueImagePath(normalizedFile, existingImages)
+      : normalizedFile;
+    const row = {
+      ...buildRowFromImage(normalizedFile),
+      image: targetImage
+    };
 
     const from = path.join(IMPORT_DIR, file);
-    const to = path.join(FINAL_IMAGE_DIR, file);
+    const to = path.join(FINAL_IMAGE_DIR, targetImage);
 
-    if (existsSync(to)) {
-      console.log(`Imagem ja existe em public/produtos, produto ignorado: ${file}`);
-      continue;
+    if (targetImage !== normalizedFile) {
+      console.log(`Processado: ${normalizedFile} - nome de imagem já existia; produto cadastrado como ${targetImage}.`);
+    } else {
+      console.log(`Processado: ${normalizedFile} - produto cadastrado e imagem movida para public/produtos.`);
     }
 
+    await mkdir(path.dirname(to), { recursive: true });
     await rename(from, to);
     newRows.push(row);
-    existingImages.add(imageKey);
+    existingImages.add(normalizeText(targetImage));
   }
 
   await writeFile(CSV_PATH, serializeCsv([...rows, ...newRows]), "utf8");
   console.log(`Produtos novos gerados: ${newRows.length}`);
 
-  await runImportProducts();
+  if (SHOULD_RUN_IMPORT_PRODUCTS) {
+    await runImportProducts();
+  }
 }
 
 main().catch((error: unknown) => {
