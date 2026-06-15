@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, CreditCard, Gem, Hammer, HeartHandshake, PenLine, ShieldCheck, Sparkles } from "lucide-react";
 import { categories } from "@/data/categories";
@@ -122,13 +121,11 @@ export default function HomePage() {
     <>
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute inset-0">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/produtos/alianca-ouro-18k-pedra-4200.png"
             alt="Alianças em destaque da Marjouxs"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
+            className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20" />
           <div className="absolute inset-0 bg-black/20" />

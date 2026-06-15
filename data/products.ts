@@ -40,7 +40,7 @@ export const products: Product[] = [
     "installments": "Consulte condições de parcelamento",
     "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
     "images": [
-      "/produtos/aliancas-ouro-18k-anatomicas.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": true,
     "isCustomOrder": true,
@@ -63,7 +63,7 @@ export const products: Product[] = [
     "installments": "Até 3x sem juros",
     "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
     "images": [
-      "/produtos/aliancas-prata-namoro.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": true,
     "isCustomOrder": false,
@@ -86,7 +86,7 @@ export const products: Product[] = [
     "installments": "Até 10x sem juros",
     "description": "Solitário em ouro 18k com pedra central de presença elegante para momentos inesquecíveis.",
     "images": [
-      "/produtos/anel-solitario-ouro-18k.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": true,
     "isCustomOrder": false,
@@ -109,7 +109,7 @@ export const products: Product[] = [
     "installments": "Até 10x sem juros",
     "description": "Anel feminino em ouro com desenho leve, pensado para composições sofisticadas.",
     "images": [
-      "/produtos/anel-feminino-ouro.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": true,
     "isCustomOrder": false,
@@ -132,7 +132,7 @@ export const products: Product[] = [
     "installments": "Até 3x sem juros",
     "description": "Brinco ponto de luz com brilho discreto e acabamento limpo para uso diário.",
     "images": [
-      "/produtos/brinco-ponto-de-luz.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": true,
     "isCustomOrder": false,
@@ -155,7 +155,7 @@ export const products: Product[] = [
     "installments": "Até 3x sem juros",
     "description": "Argola de visual atemporal, com presença elegante e acabamento dourado premium.",
     "images": [
-      "/produtos/brinco-argola.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": false,
     "isCustomOrder": false,
@@ -178,7 +178,7 @@ export const products: Product[] = [
     "installments": "Até 5x sem juros",
     "description": "Corrente masculina em prata 925 com presença marcante e acabamento resistente.",
     "images": [
-      "/produtos/corrente-masculina-prata.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": false,
     "isCustomOrder": false,
@@ -201,7 +201,7 @@ export const products: Product[] = [
     "installments": "Até 8x sem juros",
     "description": "Pulseira infantil com chapinha para gravação, delicada e perfeita para presente.",
     "images": [
-      "/produtos/pulseira-infantil-chapinha.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": true,
     "isCustomOrder": false,
@@ -224,7 +224,7 @@ export const products: Product[] = [
     "installments": "Até 6x sem juros",
     "description": "Pingente religioso em ouro com acabamento fino, ideal para compor correntes clássicas.",
     "images": [
-      "/produtos/pingente-religioso.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": false,
     "isCustomOrder": false,
@@ -247,7 +247,7 @@ export const products: Product[] = [
     "installments": "Pagamento na retirada",
     "description": "Troca de bateria para relógios com conferência básica de funcionamento.",
     "images": [
-      "/produtos/troca-bateria-relogio.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": false,
     "isCustomOrder": false,
@@ -270,7 +270,7 @@ export const products: Product[] = [
     "installments": "Valor após avaliação",
     "description": "Banho de joias com avaliação do estado da peça para recuperar brilho e acabamento.",
     "images": [
-      "/produtos/banho-de-joia.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": true,
     "isCustomOrder": true,
@@ -293,7 +293,7 @@ export const products: Product[] = [
     "installments": "Valor após avaliação",
     "description": "Polimento profissional para alianças, removendo marcas leves e renovando o brilho.",
     "images": [
-      "/produtos/polimento-de-alianca.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": false,
     "isCustomOrder": false,
@@ -316,7 +316,7 @@ export const products: Product[] = [
     "installments": "Valor conforme gravação",
     "description": "Gravação personalizada em alianças com nomes, datas e mensagens curtas.",
     "images": [
-      "/produtos/gravacao-em-alianca.jpg"
+      "/produtos/placeholder-joia.svg"
     ],
     "featured": false,
     "isCustomOrder": true,

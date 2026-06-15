@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import { categories } from "@/data/categories";
 import { products } from "@/data/products";
 import { normalizeText } from "@/lib/format";
@@ -26,19 +24,7 @@ export function hasValidProductImage(product: Product) {
     return false;
   }
 
-  const publicProductsPath = path.resolve(process.cwd(), "public", "produtos");
-  const imagePath = path.resolve(process.cwd(), "public", image.replace(/^\/+/, ""));
-  const isInsideProductsFolder = imagePath === publicProductsPath || imagePath.startsWith(`${publicProductsPath}${path.sep}`);
-
-  if (!isInsideProductsFolder) {
-    return false;
-  }
-
-  try {
-    return fs.statSync(imagePath).isFile();
-  } catch {
-    return false;
-  }
+  return image.startsWith("/produtos/");
 }
 
 export function getVisibleProducts(productList: Product[] = products) {

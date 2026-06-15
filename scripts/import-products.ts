@@ -1,4 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
@@ -53,6 +54,7 @@ const OUTPUT_PATH = path.join(ROOT_DIR, "data", "products.ts");
 const GENERATE_PRODUCTS_SCRIPT = path.join(ROOT_DIR, "scripts", "gerar-produtos.ts");
 const CSV_DELIMITER = ";";
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const PRODUCT_IMAGE_PLACEHOLDER = "/produtos/placeholder-joia.svg";
 const GRADUATION_RING_DESCRIPTION = `Anel de formatura em Ouro 18k, personalizado de acordo com a área de formação do cliente.
 
 A cor da pedra central será definida conforme o curso escolhido, e o símbolo aplicado nas laterais do anel também será personalizado de acordo com a profissão ou área de formação.
@@ -263,6 +265,17 @@ function normalizeImagePath(value: string) {
   return `/produtos/${normalizedPath || "placeholder-joia.jpg"}`;
 }
 
+function resolveExistingProductImage(imagePath: string) {
+  const absoluteImagePath = path.join(ROOT_DIR, "public", imagePath.replace(/^\/+/, ""));
+
+  if (existsSync(absoluteImagePath)) {
+    return imagePath;
+  }
+
+  console.log(`Imagem ausente no catálogo: ${imagePath}. Usando ${PRODUCT_IMAGE_PLACEHOLDER}.`);
+  return PRODUCT_IMAGE_PLACEHOLDER;
+}
+
 function isGraduationRingImage(value: string) {
   const imageName = path.basename(value.trim(), path.extname(value.trim()));
   return normalizeText(imageName).startsWith("anel-formatura-");
@@ -302,6 +315,7 @@ function rowToProduct(row: CsvRow, usedSlugs: Set<string>): ImportedProduct {
   const price = parsePrice(row.price) ?? detectPriceFromImage(row.image);
   const slug = uniqueSlug(slugify(row.name), usedSlugs);
   const oldPrice = parseOptionalNumber(row.oldPrice ?? "");
+  const imagePath = resolveExistingProductImage(normalizeImagePath(row.image));
   const installmentsCount = parseOptionalNumber(row.installmentsCount ?? "") ?? defaultInstallmentsCount(row.category, row.material, price);
   const normalizedPriceLabel = normalizeText(row.priceLabel ?? "");
   const priceLabel =
@@ -329,7 +343,7 @@ function rowToProduct(row: CsvRow, usedSlugs: Set<string>): ImportedProduct {
     priceLabel,
     installments,
     description: isGraduationRingImage(row.image) ? GRADUATION_RING_DESCRIPTION : row.description,
-    images: [normalizeImagePath(row.image)],
+    images: [imagePath],
     featured: parseBoolean(row.featured),
     isCustomOrder: parseBoolean(row.isCustomOrder),
     allowWhatsappQuote: parseBoolean(row.allowWhatsappQuote),
