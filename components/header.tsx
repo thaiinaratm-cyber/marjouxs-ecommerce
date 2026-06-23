@@ -184,7 +184,7 @@ function SearchBarWithSuggestions({ onSearch }: { onSearch?: () => void }) {
           setIsSuggestionsOpen(event.target.value.trim().length >= 2);
         }}
         onFocus={() => setIsSuggestionsOpen(trimmedTerm.length >= 2)}
-        placeholder="O que vocÃª estÃ¡ procurando?"
+        placeholder="O que você está procurando?"
         autoComplete="off"
         className="h-12 w-full rounded-full border border-black/10 bg-white pl-11 pr-4 text-sm text-ink outline-none transition placeholder:text-taupe focus:border-gold focus:ring-2 focus:ring-gold/15"
       />
