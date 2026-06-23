@@ -10,19 +10,22 @@ export default function AboutPage() {
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Sobre a Marjouxs</p>
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">Joias para marcar histórias com elegância</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">SOBRE A MARJOUXS</p>
+          <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">Joias para eternizar momentos especiais</h1>
           <p className="mt-4 leading-7 text-taupe">
-            A Marjouxs nasce para unir curadoria, confiança e atendimento humano. A loja virtual foi pensada para facilitar a escolha de peças especiais e aproximar o cliente da equipe antes da finalização.
+            A Marjouxs nasceu para ajudar você a escolher joias que marcam histórias, sentimentos e conquistas. Trabalhamos com peças selecionadas, alianças, anéis, presentes especiais e serviços de joalheria, sempre com atendimento próximo e orientação personalizada.
           </p>
           <p className="mt-4 leading-7 text-taupe">
-            Trabalhamos com produtos de preço fixo, itens sob orçamento e serviços técnicos que exigem avaliação individual, sempre com confirmação pelo WhatsApp.
+            Nossa loja virtual foi pensada para facilitar a escolha de cada peça, aproximando o cliente da nossa equipe antes da finalização da compra. Pelo WhatsApp, ajudamos com dúvidas sobre modelos, materiais, tamanhos, prazos, gravações e formas de pagamento.
+          </p>
+          <p className="mt-4 leading-7 text-taupe">
+            Aqui, cada joia é tratada com cuidado, porque entendemos que uma aliança, um anel ou um presente especial não representa apenas uma compra, mas um momento importante na vida de quem escolhe e de quem recebe.
           </p>
         </div>
         <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-champagne shadow-soft">
           <Image
-            src="https://images.unsplash.com/photo-1584302179602-e4c3d3fd629d?auto=format&fit=crop&w=1200&q=80"
-            alt="Detalhe de joia sofisticada"
+            src="/images/sobre-marjouxs-joias.png"
+            alt="Joias da Marjouxs"
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
             className="object-cover"

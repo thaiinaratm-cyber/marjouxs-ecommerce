@@ -1,24 +1,16 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, CreditCard, Gem, Hammer, HeartHandshake, PenLine, ShieldCheck, Sparkles } from "lucide-react";
+import { BadgeCheck, CreditCard, Gem, Hammer, HeartHandshake, PenLine, ShieldCheck, Sparkles } from "lucide-react";
 import { categories } from "@/data/categories";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { normalizeText } from "@/lib/format";
 import { hasValidPrice } from "@/lib/product-pricing";
 import { getHomeFeaturedProducts, getVisibleProducts } from "@/lib/products";
 import { FaqSection } from "@/components/faq-section";
 import { HelpCard } from "@/components/help-card";
+import { HomeHeroSlider } from "@/components/home-hero-slider";
 import { ProductImage } from "@/components/product-image";
 import { ProductGrid } from "@/components/product-grid";
 import { ProductPrice } from "@/components/product-price";
 import type { Product } from "@/types/product";
-
-function WhatsappIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 32 32" width={size} height={size} fill="currentColor">
-      <path d="M16.01 3.2A12.66 12.66 0 0 0 5.22 22.5L3.6 28.8l6.45-1.56A12.67 12.67 0 1 0 16.01 3.2Zm0 22.98c-1.97 0-3.9-.56-5.56-1.62l-.4-.25-3.83.93.97-3.73-.26-.39a10.24 10.24 0 1 1 9.08 5.06Zm5.83-7.66c-.32-.16-1.9-.94-2.2-1.05-.3-.11-.51-.16-.73.16-.21.32-.83 1.05-1.02 1.27-.19.21-.38.24-.7.08-.32-.16-1.35-.5-2.57-1.59-.95-.85-1.59-1.89-1.78-2.21-.19-.32-.02-.5.14-.66.15-.15.32-.38.48-.57.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.73-1.76-1-2.41-.26-.63-.53-.54-.73-.55h-.62c-.21 0-.56.08-.86.4-.3.32-1.13 1.1-1.13 2.68s1.16 3.12 1.32 3.33c.16.21 2.28 3.48 5.52 4.88.77.33 1.37.53 1.84.68.77.24 1.48.21 2.04.13.62-.09 1.9-.78 2.17-1.53.27-.75.27-1.4.19-1.53-.08-.13-.29-.21-.61-.37Z" />
-    </svg>
-  );
-}
 
 function getProductText(product: Product) {
   return normalizeText([product.name, product.category, product.subcategory, product.material].join(" "));
@@ -107,9 +99,6 @@ function BestSellerCard({ product }: { product: Product }) {
 export default function HomePage() {
   const featuredProducts = getHomeFeaturedProducts(5);
   const bestSellerProducts = getBestSellerProducts();
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-    "Olá, Marjouxs! Gostaria de falar sobre alianças sob medida."
-  )}`;
   const featureItems = [
     { icon: HeartHandshake, label: "Atendimento personalizado" },
     { icon: Hammer, label: "Produção própria" },
@@ -119,46 +108,7 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-ink text-white">
-        <div className="absolute inset-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/produtos/alianca-ouro-18k-pedra-4200.png"
-            alt="Alianças em destaque da Marjouxs"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20" />
-          <div className="absolute inset-0 bg-black/20" />
-        </div>
-        <div className="relative mx-auto grid min-h-[64svh] max-w-7xl content-end px-4 pb-8 pt-24 sm:min-h-[78svh] sm:px-6 sm:pb-10 sm:pt-28 lg:px-8">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-gold">Luxo moderno para momentos especiais</p>
-            <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight sm:text-6xl lg:text-7xl">
-              Alianças sob medida em Ouro 18k, Prata 950, Banhado a Ouro e Moeda
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/78 sm:text-lg">
-              Confeccionamos diversos modelos em até 3 dias, com gravação dos nomes e caixinha inclusas como cortesia.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/categorias/aliancas"
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink sm:w-auto"
-              >
-                Ver alianças <ArrowRight size={18} />
-              </Link>
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="hidden min-h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white shadow-sm ring-1 ring-white/20 transition hover:bg-[#1ebe5d] hover:shadow-soft sm:inline-flex"
-              >
-                <WhatsappIcon size={18} />
-                Comprar pelo WhatsApp
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeHeroSlider />
 
       <section className="border-b border-black/10 bg-pearl">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 gap-y-3 px-4 py-4 sm:px-6 lg:grid-cols-4 lg:px-8">

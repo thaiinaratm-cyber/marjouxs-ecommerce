@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, Menu, Search, ShoppingBag, X } from "lucide-react";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/context/cart-context";
+import { formatCurrency, normalizeText } from "@/lib/format";
+import { getVisibleProducts } from "@/lib/products";
+import { getInstallmentsText, hasValidPrice } from "@/lib/product-pricing";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -63,6 +66,11 @@ const categoryMenu = [
   }
 ];
 
+const mobileOnlyCategoryLinks = [
+  { label: "Pingentes", href: "/categorias/pingentes" },
+  { label: "Relógios", href: "/categorias/relogios" }
+];
+
 const serviceItems = [
   "Conserto de joias",
   "Banho de joias",
@@ -73,7 +81,7 @@ const serviceItems = [
   "Troca de bateria"
 ];
 
-function SearchBar({ onSearch }: { onSearch?: () => void }) {
+function SearchBarLegacy({ onSearch }: { onSearch?: () => void }) {
   const router = useRouter();
   const [term, setTerm] = useState("");
 
@@ -100,6 +108,128 @@ function SearchBar({ onSearch }: { onSearch?: () => void }) {
         placeholder="O que você está procurando?"
         className="h-12 w-full rounded-full border border-black/10 bg-white pl-11 pr-4 text-sm text-ink outline-none transition placeholder:text-taupe focus:border-gold focus:ring-2 focus:ring-gold/15"
       />
+    </form>
+  );
+}
+
+function SearchBarWithSuggestions({ onSearch }: { onSearch?: () => void }) {
+  const router = useRouter();
+  const [term, setTerm] = useState("");
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+  const searchRef = useRef<HTMLFormElement>(null);
+  const trimmedTerm = term.trim();
+  const shouldShowSuggestions = trimmedTerm.length >= 2 && isSuggestionsOpen;
+  const suggestions = useMemo(() => {
+    if (trimmedTerm.length < 2) {
+      return [];
+    }
+
+    const normalizedTerm = normalizeText(trimmedTerm);
+
+    return getVisibleProducts()
+      .filter((product) => {
+        const searchable = normalizeText(
+          [product.name, product.category, product.subcategory, product.material, product.description].join(" ")
+        );
+
+        return searchable.includes(normalizedTerm);
+      })
+      .slice(0, 6);
+  }, [trimmedTerm]);
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSuggestionsOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsSuggestionsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmedTerm = term.trim();
+    setIsSuggestionsOpen(false);
+
+    if (!trimmedTerm) {
+      router.push("/produtos");
+      onSearch?.();
+      return;
+    }
+
+    router.push(`/produtos?busca=${encodeURIComponent(trimmedTerm)}`);
+    onSearch?.();
+  }
+
+  return (
+    <form ref={searchRef} onSubmit={handleSubmit} className="relative w-full">
+      <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-taupe" size={18} />
+      <input
+        value={term}
+        onChange={(event) => {
+          setTerm(event.target.value);
+          setIsSuggestionsOpen(event.target.value.trim().length >= 2);
+        }}
+        onFocus={() => setIsSuggestionsOpen(trimmedTerm.length >= 2)}
+        placeholder="O que vocÃª estÃ¡ procurando?"
+        autoComplete="off"
+        className="h-12 w-full rounded-full border border-black/10 bg-white pl-11 pr-4 text-sm text-ink outline-none transition placeholder:text-taupe focus:border-gold focus:ring-2 focus:ring-gold/15"
+      />
+      {shouldShowSuggestions && (
+        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[60] overflow-hidden rounded-lg border border-black/10 bg-white shadow-soft">
+          {suggestions.length > 0 ? (
+            <div className="max-h-[min(70vh,28rem)] overflow-y-auto py-2">
+              {suggestions.map((product) => {
+                const priceText = hasValidPrice(product) && product.price ? formatCurrency(product.price) : product.priceLabel;
+                const installmentsText = getInstallmentsText(product);
+
+                return (
+                  <Link
+                    key={product.id}
+                    href={`/produtos/${product.slug}`}
+                    onClick={() => {
+                      setIsSuggestionsOpen(false);
+                      onSearch?.();
+                    }}
+                    className="grid grid-cols-[56px_1fr] gap-3 px-3 py-2.5 text-left transition hover:bg-champagne/60 focus:bg-champagne/60 focus:outline-none"
+                  >
+                    <span className="relative block h-14 w-14 overflow-hidden rounded-md border border-black/10 bg-champagne">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-serif text-sm font-semibold text-ink">{product.name}</span>
+                      <span className="mt-0.5 block truncate text-xs text-taupe">{product.material}</span>
+                      <span className="mt-1 block text-sm font-semibold text-ink">{priceText}</span>
+                      {installmentsText ? <span className="mt-0.5 block truncate text-xs text-taupe">{installmentsText}</span> : null}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="px-4 py-4 text-sm text-taupe">Nenhum produto encontrado</p>
+          )}
+        </div>
+      )}
     </form>
   );
 }
@@ -153,7 +283,7 @@ export function Header() {
           </Link>
 
           <div className="hidden justify-self-center md:block md:w-full md:max-w-xl">
-            <SearchBar onSearch={closeMenus} />
+            <SearchBarWithSuggestions onSearch={closeMenus} />
           </div>
 
           <div className="flex items-center gap-2 justify-self-end">
@@ -182,7 +312,7 @@ export function Header() {
         </div>
 
         <div className="md:hidden">
-          <SearchBar onSearch={() => setIsOpen(false)} />
+          <SearchBarWithSuggestions onSearch={() => setIsOpen(false)} />
         </div>
 
         <nav className="hidden items-center justify-center gap-7 lg:flex">
@@ -255,7 +385,7 @@ export function Header() {
       </div>
 
       {isOpen && (
-        <nav className="border-t border-black/10 bg-pearl px-4 py-3 lg:hidden">
+        <nav className="max-h-[calc(100svh-8.5rem)] overflow-y-auto overscroll-contain border-t border-black/10 bg-pearl px-4 py-3 pb-28 lg:hidden">
           <div className="mx-auto grid max-w-7xl gap-2">
             {navItems.map((item) => (
               <Link
@@ -294,6 +424,17 @@ export function Header() {
                         </Link>
                       ))}
                     </div>
+                  </div>
+                ))}
+                {mobileOnlyCategoryLinks.map((category) => (
+                  <div key={category.href} className="grid gap-2 border-t border-black/10 pt-3">
+                    <Link
+                      href={category.href}
+                      onClick={() => setIsOpen(false)}
+                      className="font-serif text-lg font-semibold text-ink"
+                    >
+                      {category.label}
+                    </Link>
                   </div>
                 ))}
                 <div className="grid gap-2 border-t border-black/10 pt-3">
