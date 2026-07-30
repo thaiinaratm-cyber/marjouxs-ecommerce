@@ -4,9 +4,10 @@ import { ProductGrid } from "@/components/product-grid";
 import { SortSelect } from "@/components/sort-select";
 import { normalizeSortOrder, sortProducts } from "@/lib/product-sorting";
 import { getCategoryBySlug, getProductsByCategory } from "@/lib/products";
+import { matchesRingMaterial } from "@/lib/ring-filters";
 import type { Product } from "@/types/product";
 
-const categoryFilters: Record<string, { label: string; slug: string }[]> = {
+const categoryFilters: Record<string, { label: string; slug: string; href?: string }[]> = {
   aliancas: [
     { label: "Ouro 18k/750", slug: "ouro-18k-750" },
     { label: "Prata 950", slug: "prata-950" },
@@ -14,10 +15,8 @@ const categoryFilters: Record<string, { label: string; slug: string }[]> = {
     { label: "Moeda", slug: "moeda" }
   ],
   aneis: [
-    { label: "Ouro 18k", slug: "ouro-18k" },
-    { label: "Prata 950", slug: "prata-950" },
-    { label: "Pérola", slug: "perola" },
-    { label: "Formatura", slug: "formatura" }
+    { label: "Ouro 18k", slug: "ouro-18k", href: "/aneis/ouro-18k" },
+    { label: "Prata 950", slug: "prata-950", href: "/aneis/prata-950" }
   ],
   brincos: [
     { label: "Ouro 18k", slug: "ouro-18k" },
@@ -76,10 +75,18 @@ function matchesProductFilter(product: Product, selectedFilter: string) {
   const subcategory = filterSlug(product.subcategory);
 
   if (selectedFilter === "ouro-18k" || selectedFilter === "ouro-18k-750") {
+    if (product.category === "Anéis") {
+      return matchesRingMaterial(product, "ouro-18k");
+    }
+
     return hasGold18k(product);
   }
 
   if (selectedFilter === "prata-950") {
+    if (product.category === "Anéis") {
+      return matchesRingMaterial(product, "prata-950");
+    }
+
     return hasSilver950(product) || subcategory.includes("aliancas-prata") || subcategory.includes("aneis-em-prata");
   }
 
@@ -144,7 +151,11 @@ export default function CategoryPage({
     ? categoryProducts.filter((product) => matchesProductFilter(product, selectedSubcategory))
     : categoryProducts;
   const sortedProducts = sortProducts(filteredProducts, sortOrder);
-  const buildCategoryHref = (subcategory?: string) => {
+  const buildCategoryHref = (subcategory?: string, href?: string) => {
+    if (href) {
+      return href;
+    }
+
     const params = new URLSearchParams();
 
     if (subcategory) {
@@ -183,7 +194,7 @@ export default function CategoryPage({
             return (
               <Link
                 key={filter.slug}
-                href={buildCategoryHref(filter.slug)}
+                href={buildCategoryHref(filter.slug, filter.href)}
                 className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
                   isActive
                     ? "border-ink bg-ink text-white"

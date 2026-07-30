@@ -17,7 +17,17 @@ const navItems = [
   { href: "/contato", label: "Contato" }
 ];
 
-const categoryMenu = [
+type CategoryMenuItem = {
+  label: string;
+  href: string;
+  subcategories: {
+    label: string;
+    href: string;
+    children?: { label: string; href: string }[];
+  }[];
+};
+
+const categoryMenu: CategoryMenuItem[] = [
   {
     label: "Alianças",
     href: "/categorias/aliancas",
@@ -32,10 +42,24 @@ const categoryMenu = [
     label: "Anéis",
     href: "/categorias/aneis",
     subcategories: [
-      { label: "Ouro 18k", href: "/categorias/aneis?subcategoria=ouro-18k" },
-      { label: "Prata 950", href: "/categorias/aneis?subcategoria=prata-950" },
-      { label: "Pérola", href: "/categorias/aneis?subcategoria=perola" },
-      { label: "Formatura", href: "/categorias/aneis?subcategoria=formatura" }
+      {
+        label: "Ouro 18k",
+        href: "/aneis/ouro-18k",
+        children: [
+          { label: "Masculino", href: "/aneis/ouro-18k/masculino" },
+          { label: "Feminino", href: "/aneis/ouro-18k/feminino" },
+          { label: "Pérola", href: "/aneis/ouro-18k/perola" },
+          { label: "Formatura", href: "/aneis/ouro-18k/formatura" }
+        ]
+      },
+      {
+        label: "Prata 950",
+        href: "/aneis/prata-950",
+        children: [
+          { label: "Masculino", href: "/aneis/prata-950/masculino" },
+          { label: "Feminino", href: "/aneis/prata-950/feminino" }
+        ]
+      }
     ]
   },
   {
@@ -350,14 +374,29 @@ export function Header() {
                     </Link>
                     <div className="mt-3 grid gap-2">
                       {category.subcategories.map((subcategory) => (
-                        <Link
-                          key={subcategory.href}
-                          href={subcategory.href}
-                          onClick={closeMenus}
-                          className="text-sm leading-5 text-taupe transition hover:text-gold"
-                        >
-                          {subcategory.label}
-                        </Link>
+                        <div key={subcategory.href} className="grid gap-1">
+                          <Link
+                            href={subcategory.href}
+                            onClick={closeMenus}
+                            className="text-sm font-semibold leading-5 text-ink/80 transition hover:text-gold"
+                          >
+                            {subcategory.label}
+                          </Link>
+                          {subcategory.children ? (
+                            <div className="grid gap-1 pl-3">
+                              {subcategory.children.map((child) => (
+                                <Link
+                                  key={child.href}
+                                  href={child.href}
+                                  onClick={closeMenus}
+                                  className="text-sm leading-5 text-taupe transition hover:text-gold"
+                                >
+                                  {child.label}
+                                </Link>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -414,14 +453,29 @@ export function Header() {
                     </Link>
                     <div className="grid gap-2 pl-2">
                       {category.subcategories.map((subcategory) => (
-                        <Link
-                          key={subcategory.href}
-                          href={subcategory.href}
-                          onClick={() => setIsOpen(false)}
-                          className="text-sm text-taupe transition hover:text-gold"
-                        >
-                          {subcategory.label}
-                        </Link>
+                        <div key={subcategory.href} className="grid gap-1">
+                          <Link
+                            href={subcategory.href}
+                            onClick={() => setIsOpen(false)}
+                            className="text-sm font-semibold text-ink/80 transition hover:text-gold"
+                          >
+                            {subcategory.label}
+                          </Link>
+                          {subcategory.children ? (
+                            <div className="grid gap-1 pl-3">
+                              {subcategory.children.map((child) => (
+                                <Link
+                                  key={child.href}
+                                  href={child.href}
+                                  onClick={() => setIsOpen(false)}
+                                  className="text-sm text-taupe transition hover:text-gold"
+                                >
+                                  {child.label}
+                                </Link>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
                       ))}
                     </div>
                   </div>

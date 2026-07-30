@@ -50,6 +50,29 @@ const FINAL_IMAGE_DIR = path.join(ROOT_DIR, "public", "produtos");
 const CSV_PATH = path.join(ROOT_DIR, "data", "import", "produtos.csv");
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 const SHOULD_RUN_IMPORT_PRODUCTS = process.env.SKIP_IMPORT_PRODUCTS !== "1";
+const MASCULINE_RING_BATCH_FILES = new Set(
+  (process.env.MARJOUXS_MASCULINE_RING_BATCH_FILES ?? "")
+    .split("|")
+    .map((file) => normalizeText(file.replace(/\\/g, "/")))
+    .filter(Boolean)
+);
+
+const GRADUATION_BATCH_TERMS = new Set([
+  "formatura",
+  "direito",
+  "medicina",
+  "enfermagem",
+  "engenharia",
+  "odontologia",
+  "administracao",
+  "contabilidade",
+  "pedagogia",
+  "arquitetura",
+  "agronomia",
+  "veterinaria",
+  "profissao",
+  "curso"
+]);
 
 const ignoredWords = new Set([
   "de",
@@ -327,6 +350,14 @@ function isGraduationRingImportPattern(tokens: string[]) {
   return tokens[0] === "anel" && tokens[1] === "formatura";
 }
 
+function isCurrentMasculineRingBatchFile(fileName: string) {
+  return MASCULINE_RING_BATCH_FILES.has(normalizeText(toImportPath(fileName)));
+}
+
+function isCurrentMasculineRingBatchGraduation(tokens: string[]) {
+  return tokens.some((token) => GRADUATION_BATCH_TERMS.has(token)) || (tokens.includes("educacao") && tokens.includes("fisica"));
+}
+
 function detectCategory(tokens: string[]) {
   if (hasAlliance(tokens)) return "Alianças";
   if (tokens.some((token) => token.startsWith("anel") || token === "solitario")) return "Anéis";
@@ -364,12 +395,10 @@ function detectSubcategory(category: string, tokens: string[], material: string)
     if (tokens.includes("sob") || tokens.includes("encomenda")) return "Alianças sob encomenda";
   }
   if (category === "Anéis") {
-    if (isPearlRing(tokens)) return "Anéis de Pérola";
-    if (isGraduationRingImportPattern(tokens) || isGraduationRing(tokens)) return "Anéis de Formatura";
-    if (tokens.includes("solitario")) return "Solitários";
-    if (material.includes("Ouro")) return "Anéis em Ouro";
-    if (material.includes("Prata")) return "Anéis em Prata";
-    return "Anéis femininos";
+    if (isPearlRing(tokens)) return "Pérola";
+    if (isGraduationRingImportPattern(tokens) || isGraduationRing(tokens)) return "Formatura";
+    if (tokens.includes("masculino")) return "Masculino";
+    return "Feminino";
   }
   if (category === "Brincos") {
     if (tokens.includes("argola")) return "Argolas";
@@ -433,6 +462,17 @@ function buildName(tokens: string[], price: number | null, oldPrice: number | nu
     return accumulator;
   }, []);
   return titleCase(displayTokens.join(" "));
+}
+
+function buildMasculineRingBatchName(tokens: string[], price: number | null, oldPrice: number | null = null) {
+  const cleanTokens = tokens.filter((token) => {
+    const isCurrentPrice = price !== null && token === String(price);
+    const isOldPrice = oldPrice !== null && token === String(oldPrice);
+
+    return !isCurrentPrice && !isOldPrice && !isParentheticalSequenceToken(token);
+  });
+
+  return titleCase(cleanTokens.join(" "));
 }
 
 function formatPriceForCsv(price: number | null) {
@@ -551,12 +591,15 @@ function buildStockStatus(category: string, material: string, price: number | nu
 function buildRowFromImage(fileName: string): ProductRow {
   const tokens = getTokens(fileName);
   const { price, oldPrice } = detectPricing(tokens);
-  const category = detectCategory(tokens);
-  const material = detectMaterial(tokens);
-  const subcategory = detectSubcategory(category, tokens, material);
+  const isCurrentMasculineRingBatch = isCurrentMasculineRingBatchFile(fileName);
+  const category = isCurrentMasculineRingBatch ? "Anéis" : detectCategory(tokens);
+  const material = isCurrentMasculineRingBatch ? "Ouro 18k" : detectMaterial(tokens);
+  const subcategory = isCurrentMasculineRingBatch
+    ? isCurrentMasculineRingBatchGraduation(tokens) ? "Formatura" : "Masculino"
+    : detectSubcategory(category, tokens, material);
 
   return {
-    name: buildName(tokens, price, oldPrice),
+    name: isCurrentMasculineRingBatch ? buildMasculineRingBatchName(tokens, price, oldPrice) : buildName(tokens, price, oldPrice),
     category,
     subcategory,
     material,
@@ -567,7 +610,7 @@ function buildRowFromImage(fileName: string): ProductRow {
     installmentsCount: buildInstallmentsCount(category, material, price),
     priceLabel: formatPriceLabel(price),
     installments: buildInstallments(category, material, price),
-    description: generateDescription(category, material, tokens, price),
+    description: isCurrentMasculineRingBatch && subcategory === "Formatura" ? GRADUATION_RING_DESCRIPTION : generateDescription(category, material, tokens, price),
     image: fileName,
     featured: "não",
     isCustomOrder: isCustomOrder(category, subcategory, price),

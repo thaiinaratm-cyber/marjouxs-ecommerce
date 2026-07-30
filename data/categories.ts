@@ -27,8 +27,8 @@ export const categories: Category[] = [
   {
     name: "Anéis",
     slug: "aneis",
-    description: "Anéis femininos, masculinos e solitários com acabamento refinado.",
-    subcategories: ["Anéis em Ouro", "Anéis em Prata", "Pérola", "Solitários", "Anéis de Formatura", "Anéis femininos", "Anéis masculinos"]
+    description: "Anéis em ouro 18k e prata 950, com modelos masculinos, femininos, pérola e formatura.",
+    subcategories: ["Ouro 18k", "Prata 950", "Masculino", "Feminino", "Pérola", "Formatura"]
   },
   {
     name: "Brincos",

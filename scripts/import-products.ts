@@ -1,8 +1,9 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 
 type CsvRow = Record<string, string>;
 
@@ -52,9 +53,12 @@ const ROOT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const INPUT_PATH = path.join(ROOT_DIR, "data", "import", "produtos.csv");
 const OUTPUT_PATH = path.join(ROOT_DIR, "data", "products.ts");
 const GENERATE_PRODUCTS_SCRIPT = path.join(ROOT_DIR, "scripts", "gerar-produtos.ts");
+const IMPORT_DIR = path.join(ROOT_DIR, "public", "produtos", "importar");
 const CSV_DELIMITER = ";";
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 const PRODUCT_IMAGE_PLACEHOLDER = "/produtos/placeholder-joia.svg";
+const CURRENT_MASCULINE_RING_BATCH_COUNT = 87;
+const CURRENT_MASCULINE_RING_BATCH_HASH = "0c84f6e2d7d3360e2db761db53c355795b66e1adc39cd9d9a2fbda6178be2780";
 const GRADUATION_RING_DESCRIPTION = `Anel de formatura em Ouro 18k, personalizado de acordo com a área de formação do cliente.
 
 A cor da pedra central será definida conforme o curso escolhido, e o símbolo aplicado nas laterais do anel também será personalizado de acordo com a profissão ou área de formação.
@@ -281,6 +285,67 @@ function isGraduationRingImage(value: string) {
   return normalizeText(imageName).startsWith("anel-formatura-");
 }
 
+function toImportPath(value: string) {
+  return value.replace(/\\/g, "/");
+}
+
+async function listImportBatchImageFiles(directory: string, baseDirectory = directory): Promise<string[]> {
+  if (!existsSync(directory)) {
+    return [];
+  }
+
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files: string[] = [];
+
+  for (const entry of entries) {
+    const absolutePath = path.join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      files.push(...(await listImportBatchImageFiles(absolutePath, baseDirectory)));
+      continue;
+    }
+
+    if (entry.isFile() && IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+      files.push(toImportPath(path.relative(baseDirectory, absolutePath)));
+    }
+  }
+
+  return files.sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+async function getCurrentMasculineRingBatchFiles() {
+  const files = await listImportBatchImageFiles(IMPORT_DIR);
+  const hash = createHash("sha256").update(files.join("\n")).digest("hex");
+
+  if (files.length === CURRENT_MASCULINE_RING_BATCH_COUNT && hash === CURRENT_MASCULINE_RING_BATCH_HASH) {
+    return files;
+  }
+
+  return [];
+}
+
+function normalizeRingSubcategory(row: CsvRow) {
+  if (row.category !== "Anéis") {
+    return row.subcategory;
+  }
+
+  const searchable = normalizeText([row.name, row.subcategory, row.description, row.image].join(" "));
+
+  if (searchable.includes("formatura")) {
+    return "Formatura";
+  }
+
+  if (searchable.includes("perola")) {
+    return "Pérola";
+  }
+
+  if (searchable.includes("masculino")) {
+    return "Masculino";
+  }
+
+  return "Feminino";
+}
+
 function normalizeStockStatus(value: string, price: number | null) {
   const normalized = normalizeText(value);
 
@@ -333,7 +398,7 @@ function rowToProduct(row: CsvRow, usedSlugs: Set<string>): ImportedProduct {
     name: row.name,
     slug,
     category: row.category,
-    subcategory: row.subcategory,
+    subcategory: normalizeRingSubcategory(row),
     material: row.material,
     price,
     oldPrice,
@@ -359,12 +424,15 @@ export const products: Product[] = ${JSON.stringify(products, null, 2)};
 }
 
 async function runGenerateProductsFromImages() {
+  const masculineRingBatchFiles = await getCurrentMasculineRingBatchFiles();
+
   await new Promise<void>((resolve, reject) => {
     const child = spawn(process.execPath, [GENERATE_PRODUCTS_SCRIPT], {
       cwd: ROOT_DIR,
       env: {
         ...process.env,
-        SKIP_IMPORT_PRODUCTS: "1"
+        SKIP_IMPORT_PRODUCTS: "1",
+        MARJOUXS_MASCULINE_RING_BATCH_FILES: masculineRingBatchFiles.join("|")
       },
       stdio: "inherit"
     });
