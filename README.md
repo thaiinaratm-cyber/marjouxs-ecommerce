@@ -1,6 +1,6 @@
 # Marjouxs
 
-E-commerce mobile-first em Next.js, TypeScript, Tailwind CSS, Context API e localStorage.
+E-commerce mobile-first em Next.js, TypeScript, Tailwind CSS, Context API, Supabase, Melhor Envio e InfinitePay.
 
 ## Estrutura
 
@@ -17,6 +17,9 @@ E-commerce mobile-first em Next.js, TypeScript, Tailwind CSS, Context API e loca
 npm install
 npm run dev
 npm run import-products
+npm test
+npm run lint
+npx tsc --noEmit
 npm run build
 ```
 
@@ -89,6 +92,6 @@ Regras especiais para alianças no gerador:
 - `prata`, `prata-925` ou `prata-950`: `subcategory = Alianças Prata`, `material = Prata`, `Prata 925` ou `Prata 950`, `installments = Até 6x sem juros`, `stockStatus = disponível`, `isCustomOrder = não`.
 - `banhado-ouro`, `banhadoouro`, `banho-de-ouro` ou `folheado-ouro`: `subcategory = Alianças Banhado a Ouro`, `material = Banhado a ouro`, `installments = Até 6x sem juros`, `stockStatus = disponível`, `isCustomOrder = não`.
 
-## Integrações futuras previstas
+## Checkout e pagamentos
 
-A estrutura está separada para evoluir com painel admin, Supabase, upload de imagens, controle de pedidos e pagamentos por Mercado Pago ou Stripe, sem reescrever o catálogo atual.
+O checkout usa preços revalidados no catálogo do servidor, retirada na loja ou frete permitido pelo Melhor Envio e pagamento pela InfinitePay. Consulte [`docs/checkout.md`](docs/checkout.md) para configurar variáveis, webhook, redirect, testes locais e o worker do outbox.

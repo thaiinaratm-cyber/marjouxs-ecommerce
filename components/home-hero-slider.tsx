@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
+import { trackCategoryClick, trackWhatsappClick } from "@/lib/analytics";
 
 type HeroSlide = {
   image: string;
@@ -93,6 +94,11 @@ export function HomeHeroSlider() {
           <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <Link
               href={activeSlide.primaryHref}
+              onClick={() => {
+                if (activeSlide.primaryHref === "/categorias/aliancas") {
+                  trackCategoryClick("Alianças", "home", activeSlide.primaryHref);
+                }
+              }}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink sm:w-auto"
             >
               {activeSlide.primaryLabel} <ArrowRight size={18} />
@@ -101,6 +107,7 @@ export function HomeHeroSlider() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
+              onClick={() => trackWhatsappClick("home")}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white shadow-sm ring-1 ring-white/20 transition hover:bg-[#1ebe5d] hover:shadow-soft sm:w-auto"
             >
               <WhatsappIcon size={18} />

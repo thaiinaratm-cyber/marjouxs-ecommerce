@@ -1,4 +1,6 @@
 import { MessageCircle } from "lucide-react";
+import { AnalyticsAnchor } from "@/components/analytics-link";
+import { createWhatsappClickEvent } from "@/lib/analytics";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 export function HelpCard() {
@@ -12,14 +14,15 @@ export function HelpCard() {
             Nossa equipe pode auxiliar na escolha da peça, tamanho, material, gravação e melhores condições para o seu pedido.
           </p>
         </div>
-        <a
+        <AnalyticsAnchor
           href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá, Marjouxs! Gostaria de falar com um especialista.")}`}
+          analyticsEvents={createWhatsappClickEvent("help_card")}
           target="_blank"
           rel="noreferrer"
           className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink lg:mt-0"
         >
           <MessageCircle size={18} /> Falar com especialista
-        </a>
+        </AnalyticsAnchor>
       </div>
     </section>
   );

@@ -2,21 +2,34 @@
 
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { ProductImage } from "@/components/product-image";
 import { useCart } from "@/context/cart-context";
 import { formatCurrency } from "@/lib/format";
+import { trackViewCart } from "@/lib/analytics";
 
 export default function CartPage() {
-  const { items, subtotal, totalItems, removeItem, updateQuantity } = useCart();
-  const hasQuoteItems = items.some((item) => item.product.price === null);
+  const { items, subtotal, totalItems, isReady, removeItem, updateQuantity } = useCart();
+  const trackedView = useRef(false);
+
+  useEffect(() => {
+    if (isReady && items.length > 0 && !trackedView.current) {
+      trackedView.current = true;
+      trackViewCart(items);
+    }
+  }, [isReady, items]);
+
+  if (!isReady) {
+    return <section className="mx-auto min-h-[55svh] max-w-7xl px-4 py-10 sm:px-6 lg:px-8" />;
+  }
 
   if (items.length === 0) {
     return (
       <section className="mx-auto grid min-h-[55svh] max-w-3xl place-items-center px-4 py-12 text-center sm:px-6 lg:px-8">
         <div>
           <ShoppingBag className="mx-auto text-gold" size={42} />
-          <h1 className="mt-4 font-serif text-4xl font-semibold text-ink">Seu carrinho esta vazio</h1>
-          <p className="mt-3 text-taupe">Adicione joias, servicos ou solicite orcamento pelo WhatsApp.</p>
+          <h1 className="mt-4 font-serif text-4xl font-semibold text-ink">Sua sacola está vazia</h1>
+          <p className="mt-3 text-taupe">Escolha suas joias e volte aqui para finalizar com segurança.</p>
           <Link
             href="/produtos"
             className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-gold"
@@ -38,7 +51,7 @@ export default function CartPage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         <div className="grid gap-4">
           {items.map((item) => (
-            <article key={item.product.id} className="grid gap-4 rounded-lg border border-black/10 bg-white p-4 shadow-sm sm:grid-cols-[120px_1fr]">
+            <article key={item.lineId} className="grid gap-4 rounded-lg border border-black/10 bg-white p-4 shadow-sm sm:grid-cols-[120px_1fr]">
               <div className="relative aspect-square overflow-hidden rounded-md bg-champagne">
                 <ProductImage src={item.product.images?.[0]} alt={item.product.name} sizes="120px" className="object-cover" />
               </div>
@@ -46,13 +59,20 @@ export default function CartPage() {
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-gold">{item.product.category}</p>
                   <h2 className="mt-1 font-serif text-2xl font-semibold text-ink">{item.product.name}</h2>
-                  <p className="mt-1 text-sm text-taupe">Preco unitario: {item.product.priceLabel}</p>
+                  <p className="mt-1 text-sm text-taupe">Preço unitário: {item.product.priceLabel}</p>
+                  {item.customization?.type === "ring_pair" ? (
+                    <div className="mt-3 grid gap-1 text-sm text-taupe">
+                      <p>Aliança 1: aro {item.customization.ring1.size}{item.customization.ring1.engraving ? `, gravação “${item.customization.ring1.engraving}”` : ""}</p>
+                      <p>Aliança 2: aro {item.customization.ring2.size}{item.customization.ring2.engraving ? `, gravação “${item.customization.ring2.engraving}”` : ""}</p>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.lineId, item.quantity - 1)}
+                      disabled={item.product.category === "Alianças"}
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10"
                       aria-label="Diminuir quantidade"
                     >
@@ -61,7 +81,8 @@ export default function CartPage() {
                     <span className="min-w-10 text-center text-sm font-semibold">{item.quantity}</span>
                     <button
                       type="button"
-                      onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
+                      disabled={item.product.category === "Alianças"}
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10"
                       aria-label="Aumentar quantidade"
                     >
@@ -69,7 +90,7 @@ export default function CartPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => removeItem(item.product.id)}
+                      onClick={() => removeItem(item.lineId)}
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-taupe hover:text-red-600"
                       aria-label="Remover item"
                     >
@@ -100,11 +121,6 @@ export default function CartPage() {
               <span className="font-semibold text-ink">{formatCurrency(subtotal)}</span>
             </div>
           </div>
-          {hasQuoteItems && (
-            <p className="mt-4 text-xs leading-5 text-taupe">
-              Itens sob orcamento serao confirmados pela equipe antes da finalizacao.
-            </p>
-          )}
           <Link
             href="/checkout"
             className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-gold"

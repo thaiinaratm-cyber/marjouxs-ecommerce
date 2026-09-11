@@ -49,29 +49,21 @@ export const categories: Category[] = [
     subcategories: ["Pulseiras em Ouro", "Pulseiras em Prata", "Pulseiras infantis", "Pulseiras chapinha"]
   },
   {
+    name: "Braceletes",
+    slug: "braceletes",
+    description: "Braceletes em ouro 18k e prata 950 com acabamento elegante.",
+    subcategories: ["Ouro 18k", "Prata 950"]
+  },
+  {
     name: "Pingentes",
     slug: "pingentes",
-    description: "Pingentes religiosos, clássicos e personalizados.",
-    subcategories: ["Religiosos", "Personalizados", "Ouro", "Prata"]
+    description: "Pingentes em ouro 18k e prata 950 para compor joias especiais.",
+    subcategories: ["Ouro 18k", "Prata 950"]
   },
   {
     name: "Relógios",
     slug: "relogios",
     description: "Relógios e serviços técnicos de relojoaria.",
     subcategories: ["Relógios masculinos", "Relógios femininos", "Manutenção"]
-  },
-  {
-    name: "Serviços",
-    slug: "servicos",
-    description: "Consertos, ajustes, banho, polimento, gravação e troca de bateria.",
-    subcategories: [
-      "Conserto de joias",
-      "Banho de joias",
-      "Polimento",
-      "Gravação",
-      "Ajuste de alianças",
-      "Troca de bateria",
-      "Conserto de relógios"
-    ]
   }
 ];

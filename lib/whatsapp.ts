@@ -4,6 +4,12 @@ import type { CartItem, Product } from "@/types/product";
 
 const STORE_URL = "https://marjouxsjoias.com.br";
 
+export function buildDefaultWhatsappUrl(
+  message = "Olá, Marjouxs! Vim pelo site e gostaria de atendimento."
+) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
 export type CheckoutPayload = {
   name: string;
   whatsapp: string;
@@ -29,19 +35,33 @@ function getAbsoluteProductImageUrl(product: Product) {
 export function buildQuoteUrl(product: Product) {
   const productUrl = `${STORE_URL}/produtos/${product.slug}`;
   const imageUrl = getAbsoluteProductImageUrl(product);
-  const message = [
-    "Olá, Marjouxs Joias e Alianças!",
-    "Gostaria de comprar pelo WhatsApp.",
-    "",
-    `Produto: ${product.name}`,
-    `Categoria: ${product.category}`,
-    `Subcategoria: ${product.subcategory}`,
-    `Material: ${product.material}`,
-    `Preço: ${product.priceLabel}`,
-    `Link do produto: ${productUrl}`,
-    `Imagem do produto: ${imageUrl}`,
-    `Referência: ${product.slug}`
-  ].join("\n");
+  const priceText = product.price === null ? product.priceLabel : formatCurrency(product.price);
+  const isAlliance = product.category === "Alianças";
+  const message = isAlliance
+    ? [
+        "Olá! Tenho interesse nesta aliança da Marjouxs.",
+        "",
+        `Modelo: ${product.name}`,
+        `Preço: ${priceText}`,
+        `Link: ${productUrl}`,
+        `Imagem: ${imageUrl}`,
+        "",
+        "Gostaria de consultar:",
+        "- disponibilidade;",
+        "- numeração;",
+        "- gravação;",
+        "- prazo de confecção."
+      ].join("\n")
+    : [
+        "Olá! Tenho interesse neste produto da Marjouxs:",
+        "",
+        `Produto: ${product.name}`,
+        `Preço: ${priceText}`,
+        `Link: ${productUrl}`,
+        `Imagem: ${imageUrl}`,
+        "",
+        "Gostaria de saber disponibilidade e mais informações."
+      ].join("\n");
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }

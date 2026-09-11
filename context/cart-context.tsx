@@ -1,73 +1,114 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { CartItem, Product } from "@/types/product";
+import { getProductById, isAlliance } from "@/lib/checkout/catalog";
+import { hasValidPrice } from "@/lib/product-pricing";
+import { newCartLine, parseStoredCart, serializeCart, CART_STORAGE_KEY } from "@/lib/cart-storage";
+import { ringPairCustomizationSchema } from "@/lib/checkout/schemas";
+import { trackAddToCart, trackRemoveFromCart } from "@/lib/analytics";
+import type { CartCustomization, CartItem, CartLine, Product } from "@/types/product";
 
 type CartContextValue = {
   items: CartItem[];
+  lines: CartLine[];
   totalItems: number;
   subtotal: number;
-  addItem: (product: Product) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  isReady: boolean;
+  addItem: (product: Product, customization?: CartCustomization) => boolean;
+  removeItem: (lineId: string) => void;
+  updateQuantity: (lineId: string, quantity: number) => void;
   clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
-const STORAGE_KEY = "antoer-cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [lines, setLines] = useState<CartLine[]>([]);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      setItems(JSON.parse(stored) as CartItem[]);
-    }
+    setLines(parseStoredCart(window.localStorage.getItem(CART_STORAGE_KEY)));
     setIsReady(true);
   }, []);
 
   useEffect(() => {
     if (isReady) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      window.localStorage.setItem(CART_STORAGE_KEY, serializeCart(lines));
     }
-  }, [items, isReady]);
+  }, [lines, isReady]);
 
   const value = useMemo<CartContextValue>(() => {
+    const items = lines.flatMap<CartItem>((line) => {
+      const product = getProductById(line.productId);
+      return product ? [{ ...line, product }] : [];
+    });
     const totalItems = items.reduce((total, item) => total + item.quantity, 0);
     const subtotal = items.reduce((total, item) => total + (item.product.price ?? 0) * item.quantity, 0);
 
     return {
       items,
+      lines,
       totalItems,
       subtotal,
-      addItem(product) {
-        setItems((current) => {
-          const existing = current.find((item) => item.product.id === product.id);
-          if (existing) {
-            return current.map((item) =>
-              item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      isReady,
+      addItem(product, customization = null) {
+        if (!hasValidPrice(product)) {
+          return false;
+        }
+
+        if (isAlliance(product) && !ringPairCustomizationSchema.safeParse(customization).success) {
+          return false;
+        }
+
+        const normalizedCustomization = isAlliance(product) ? customization : null;
+        setLines((current) => {
+          if (!isAlliance(product)) {
+            const existing = current.find(
+              (item) => item.productId === product.id && item.customization === null
             );
+
+            if (existing) {
+              return current.map((item) =>
+                item.lineId === existing.lineId ? { ...item, quantity: item.quantity + 1 } : item
+              );
+            }
           }
-          return [...current, { product, quantity: 1 }];
+
+          return [
+            ...current,
+            newCartLine(product.id, product.slug, 1, normalizedCustomization)
+          ];
         });
+        trackAddToCart(product, 1);
+        return true;
       },
-      removeItem(productId) {
-        setItems((current) => current.filter((item) => item.product.id !== productId));
+      removeItem(lineId) {
+        const item = items.find((candidate) => candidate.lineId === lineId);
+        if (item) {
+          trackRemoveFromCart(item.product, item.quantity);
+        }
+        setLines((current) => current.filter((item) => item.lineId !== lineId));
       },
-      updateQuantity(productId, quantity) {
-        setItems((current) =>
-          current
-            .map((item) => (item.product.id === productId ? { ...item, quantity: Math.max(1, quantity) } : item))
-            .filter((item) => item.quantity > 0)
+      updateQuantity(lineId, quantity) {
+        setLines((current) =>
+          current.map((line) => {
+            if (line.lineId !== lineId) {
+              return line;
+            }
+
+            const product = getProductById(line.productId);
+            return {
+              ...line,
+              quantity: product && isAlliance(product) ? 1 : Math.max(1, Math.floor(quantity))
+            };
+          })
         );
       },
       clearCart() {
-        setItems([]);
+        setLines([]);
       }
     };
-  }, [items]);
+  }, [lines, isReady]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

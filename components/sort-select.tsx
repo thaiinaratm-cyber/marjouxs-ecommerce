@@ -30,6 +30,7 @@ export function SortSelect({ value }: { value: ProductSortOrder }) {
         className="h-11 w-full rounded-md border border-black/10 bg-white px-3 text-sm font-medium text-ink outline-none transition focus:border-gold sm:w-44"
       >
         <option value="relevantes">Mais relevantes</option>
+        <option value="destaques">Destaques</option>
         <option value="menor-preco">Menor preço</option>
         <option value="maior-preco">Maior preço</option>
       </select>

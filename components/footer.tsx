@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Clock, CreditCard, Instagram, Mail, MessageCircle, MapPin, ShieldCheck, Truck } from "lucide-react";
+import { AnalyticsAnchor, AnalyticsLink } from "@/components/analytics-link";
+import { createCategoryClickEvent, createSizeGuideClickEvent, createWhatsappClickEvent } from "@/lib/analytics";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const atendimentoLinks = [
@@ -27,9 +29,9 @@ const categoriaLinks = [
   { href: "/categorias/brincos", label: "Brincos" },
   { href: "/categorias/correntes", label: "Correntes" },
   { href: "/categorias/pulseiras", label: "Pulseiras" },
+  { href: "/categorias/braceletes", label: "Braceletes" },
   { href: "/categorias/pingentes", label: "Pingentes" },
-  { href: "/categorias/relogios", label: "Relógios" },
-  { href: "/servicos", label: "Serviços" }
+  { href: "/categorias/relogios", label: "Relógios" }
 ];
 
 export function Footer() {
@@ -58,7 +60,7 @@ export function Footer() {
               <item.icon className="mt-0.5 shrink-0 text-gold" size={22} />
               <div>
                 <h2 className="font-serif text-xl font-semibold text-ink">{item.title}</h2>
-                <p className="mt-1 text-sm leading-6 text-taupe">{item.text}</p>
+                <p className="mt-1 text-sm leading-6 text-[#6f665c]">{item.text}</p>
               </div>
             </div>
           ))}
@@ -71,10 +73,10 @@ export function Footer() {
           <p className="mt-3 max-w-md text-sm leading-6 text-white/70">
             Joias, alianças, relógios e serviços de joalheria com atendimento personalizado.
           </p>
-          <div className="mt-5 grid gap-3 text-sm text-white/75">
-            <a className="inline-flex items-center gap-2" href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer">
-              <MessageCircle size={16} /> Atendimento pelo WhatsApp: 5511915818241
-            </a>
+          <div className="mt-5 grid gap-3 text-sm leading-6 text-white/80">
+            <AnalyticsAnchor analyticsEvents={createWhatsappClickEvent("footer")} className="inline-flex items-center gap-2 transition hover:text-gold" href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer">
+              <MessageCircle size={16} /> Atendimento pelo WhatsApp: (11) 91581-8241
+            </AnalyticsAnchor>
             <span className="inline-flex items-start gap-2">
               <MapPin className="mt-0.5 shrink-0" size={16} />
               <span>
@@ -85,10 +87,10 @@ export function Footer() {
                 Arujá - SP
               </span>
             </span>
-            <a className="inline-flex items-center gap-2" href="https://www.instagram.com/marjouxs/" target="_blank" rel="noreferrer">
+            <a className="inline-flex items-center gap-2 transition hover:text-gold" href="https://www.instagram.com/marjouxs/" target="_blank" rel="noreferrer">
               <Instagram size={16} /> @marjouxs
             </a>
-            <a className="inline-flex items-center gap-2" href="mailto:marjouxsgold@gmail.com">
+            <a className="inline-flex items-center gap-2 transition hover:text-gold" href="mailto:marjouxsgold@gmail.com">
               <Mail size={16} /> marjouxsgold@gmail.com
             </a>
             <span className="inline-flex items-start gap-2">
@@ -100,25 +102,26 @@ export function Footer() {
               </span>
             </span>
           </div>
-          <a
+          <AnalyticsAnchor
             href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá, Marjouxs! Gostaria de falar com um especialista.")}`}
             target="_blank"
             rel="noreferrer"
+            analyticsEvents={createWhatsappClickEvent("footer")}
             className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-ink"
           >
             <MessageCircle size={18} /> Falar com especialista
-          </a>
+          </AnalyticsAnchor>
         </div>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">Atendimento</p>
-          <div className="mt-4 grid gap-3 text-sm text-white/75">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Atendimento</p>
+          <div className="mt-4 grid gap-2.5 text-sm leading-6 text-white/80">
             {atendimentoLinks.map((item) =>
               item.external ? (
-                <a key={item.label} href={item.href} target="_blank" rel="noreferrer">
+                <AnalyticsLink key={item.label} href={item.href} analyticsEvents={createWhatsappClickEvent("footer")} target="_blank" rel="noreferrer" className="transition hover:text-gold">
                   {item.label}
-                </a>
+                </AnalyticsLink>
               ) : (
-                <Link key={item.label} href={item.href}>
+                <Link key={item.label} href={item.href} className="transition hover:text-gold">
                   {item.label}
                 </Link>
               )
@@ -126,22 +129,33 @@ export function Footer() {
           </div>
         </div>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">Institucional</p>
-          <div className="mt-4 grid gap-3 text-sm text-white/75">
-            {institutionalLinks.map((item) => (
-              <Link key={item.label} href={item.href}>
-                {item.label}
-              </Link>
-            ))}
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Institucional</p>
+          <div className="mt-4 grid gap-2.5 text-sm leading-6 text-white/80">
+            {institutionalLinks.map((item) =>
+              item.href === "/guia-de-tamanhos" ? (
+                <AnalyticsLink key={item.label} href={item.href} analyticsEvents={createSizeGuideClickEvent("footer")} className="transition hover:text-gold">
+                  {item.label}
+                </AnalyticsLink>
+              ) : (
+                <Link key={item.label} href={item.href} className="transition hover:text-gold">
+                  {item.label}
+                </Link>
+              )
+            )}
           </div>
         </div>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">Categorias</p>
-          <div className="mt-4 grid gap-3 text-sm text-white/75">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Categorias</p>
+          <div className="mt-4 grid gap-2.5 text-sm leading-6 text-white/80">
             {categoriaLinks.map((item) => (
-              <Link key={item.label} href={item.href}>
+              <AnalyticsLink
+                key={item.label}
+                href={item.href}
+                analyticsEvents={createCategoryClickEvent(item.label, "footer", item.href)}
+                className="transition hover:text-gold"
+              >
                 {item.label}
-              </Link>
+              </AnalyticsLink>
             ))}
           </div>
         </div>

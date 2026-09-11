@@ -31,3 +31,55 @@ a {
   background: #b88a44;
   color: #ffffff;
 }
+
+.reveal.reveal-ready {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-distance, 20px), 0);
+  transition:
+    opacity 560ms ease-out,
+    transform 560ms ease-out;
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal.reveal-ready.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal.reveal-ready,
+  .reveal.reveal-ready.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0ms;
+    will-change: auto;
+  }
+}
+
+.marjouxs-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 138, 68, 0.45) transparent;
+}
+
+.marjouxs-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.marjouxs-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.marjouxs-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(184, 138, 68, 0.36);
+  border-radius: 999px;
+}
+
+.marjouxs-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 138, 68, 0.5);
+}

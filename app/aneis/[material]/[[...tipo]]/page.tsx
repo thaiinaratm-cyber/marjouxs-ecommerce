@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AnalyticsLink } from "@/components/analytics-link";
+import { CategoryViewTracker } from "@/components/analytics-trackers";
 import { ProductGrid } from "@/components/product-grid";
+import { Reveal } from "@/components/reveal";
 import { SortSelect } from "@/components/sort-select";
+import { createSizeGuideClickEvent } from "@/lib/analytics";
 import { normalizeSortOrder, sortProducts } from "@/lib/product-sorting";
 import {
   getRingMaterialGroup,
@@ -24,15 +28,36 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { material: string; tipo?: string[] } }) {
   if (!isRingMaterialSlug(params.material)) {
-    return { title: "Anéis | Marjouxs" };
+    return {
+      title: "Anéis | Marjouxs Joalheria",
+      description: "Anéis em ouro 18k e prata 950 na Marjouxs Joalheria."
+    };
   }
 
   const group = getRingMaterialGroup(params.material);
   const subcategory = getRingSubcategory(params.material, params.tipo?.[0]);
   const title = subcategory ? `Anéis ${group?.label} ${subcategory.label}` : `Anéis ${group?.label}`;
+  const description = subcategory
+    ? `Veja modelos de anéis ${subcategory.label.toLowerCase()} em ${group?.label} na Marjouxs Joalheria e fale com a equipe pelo WhatsApp.`
+    : `Veja anéis em ${group?.label} na Marjouxs Joalheria. Consulte modelos, disponibilidade e condições pelo WhatsApp.`;
+  const url = subcategory
+    ? `https://marjouxsjoias.com.br/aneis/${params.material}/${subcategory.slug}`
+    : `https://marjouxsjoias.com.br/aneis/${params.material}`;
 
   return {
-    title: `${title} | Marjouxs`
+    title: `${title} | Marjouxs Joalheria`,
+    description,
+    alternates: {
+      canonical: url
+    },
+    openGraph: {
+      title: `${title} | Marjouxs Joalheria`,
+      description,
+      url,
+      siteName: "Marjouxs",
+      locale: "pt_BR",
+      type: "website"
+    }
   };
 }
 
@@ -64,77 +89,91 @@ export default function RingCategoryPage({
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-taupe">
-        <Link href="/" className="transition hover:text-gold">Home</Link>
-        <span>/</span>
-        <Link href="/categorias/aneis" className="transition hover:text-gold">Anéis</Link>
-        <span>/</span>
-        <Link href={`/aneis/${group.slug}`} className="transition hover:text-gold">{group.label}</Link>
-        {subcategory ? (
-          <>
-            <span>/</span>
-            <span className="text-ink">{subcategory.label}</span>
-          </>
-        ) : null}
-      </nav>
+      <CategoryViewTracker categoryName={title} />
+      <Reveal distance={12}>
+        <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-taupe">
+          <Link href="/" className="transition hover:text-gold">Home</Link>
+          <span>/</span>
+          <Link href="/categorias/aneis" className="transition hover:text-gold">Anéis</Link>
+          <span>/</span>
+          <Link href={`/aneis/${group.slug}`} className="transition hover:text-gold">{group.label}</Link>
+          {subcategory ? (
+            <>
+              <span>/</span>
+              <span className="text-ink">{subcategory.label}</span>
+            </>
+          ) : null}
+        </nav>
+      </Reveal>
 
-      <div className="mb-8 max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Anéis</p>
-        <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">{title}</h1>
-        <p className="mt-4 leading-7 text-taupe">
-          {subcategory
-            ? `Modelos ${subcategory.label.toLowerCase()} em ${group.label}, selecionados para momentos especiais.`
-            : `Todos os modelos de anéis em ${group.label}, reunidos em uma seleção elegante da Marjouxs.`}
-        </p>
-      </div>
+      <Reveal delay={60} distance={16}>
+        <div className="mb-8 max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Anéis</p>
+          <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">{title}</h1>
+          <p className="mt-4 leading-7 text-taupe">
+            {subcategory
+              ? `Modelos ${subcategory.label.toLowerCase()} em ${group.label}, selecionados para momentos especiais.`
+              : `Todos os modelos de anéis em ${group.label}, reunidos em uma seleção elegante da Marjouxs.`}
+          </p>
+          <AnalyticsLink href="/guia-de-tamanhos" analyticsEvents={createSizeGuideClickEvent("category_page")} className="mt-4 inline-flex text-sm font-semibold text-ink hover:text-gold">
+            Não sabe seu tamanho? Veja nosso Guia de Tamanhos
+          </AnalyticsLink>
+        </div>
+      </Reveal>
 
-      <div className="mb-8 flex flex-wrap gap-2">
-        {ringMaterialGroups.map((materialGroup) => (
+      <Reveal delay={100} distance={14}>
+        <div className="mb-8 flex flex-wrap gap-2">
+          {ringMaterialGroups.map((materialGroup) => (
+            <Link
+              key={materialGroup.slug}
+              href={`/aneis/${materialGroup.slug}`}
+              className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
+                materialGroup.slug === group.slug && !subcategory
+                  ? "border-ink bg-ink text-white"
+                  : "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
+              }`}
+            >
+              {materialGroup.label}
+            </Link>
+          ))}
+        </div>
+      </Reveal>
+
+      <Reveal delay={140} distance={14}>
+        <div className="mb-8 flex flex-wrap gap-2">
           <Link
-            key={materialGroup.slug}
-            href={`/aneis/${materialGroup.slug}`}
+            href={`/aneis/${group.slug}`}
             className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
-              materialGroup.slug === group.slug && !subcategory
-                ? "border-ink bg-ink text-white"
-                : "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
+              subcategory
+                ? "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
+                : "border-ink bg-ink text-white"
             }`}
           >
-            {materialGroup.label}
+            Todos em {group.label}
           </Link>
-        ))}
-      </div>
+          {group.subcategories.map((item) => (
+            <Link
+              key={item.slug}
+              href={`/aneis/${group.slug}/${item.slug}`}
+              className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
+                subcategory?.slug === item.slug
+                  ? "border-ink bg-ink text-white"
+                  : "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </Reveal>
 
-      <div className="mb-8 flex flex-wrap gap-2">
-        <Link
-          href={`/aneis/${group.slug}`}
-          className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
-            subcategory
-              ? "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
-              : "border-ink bg-ink text-white"
-          }`}
-        >
-          Todos em {group.label}
-        </Link>
-        {group.subcategories.map((item) => (
-          <Link
-            key={item.slug}
-            href={`/aneis/${group.slug}/${item.slug}`}
-            className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
-              subcategory?.slug === item.slug
-                ? "border-ink bg-ink text-white"
-                : "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
-            }`}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </div>
+      <Reveal delay={180} distance={12}>
+        <div className="mb-5 flex justify-end">
+          <SortSelect value={sortOrder} />
+        </div>
+      </Reveal>
 
-      <div className="mb-5 flex justify-end">
-        <SortSelect value={sortOrder} />
-      </div>
-
-      <ProductGrid products={products} emptyMessage="Nenhum anel encontrado nesta seleção." />
+      <ProductGrid products={products} emptyMessage="Nenhum anel encontrado nesta seleção." itemListName={title} source="category_page" />
     </section>
   );
 }

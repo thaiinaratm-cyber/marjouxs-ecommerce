@@ -4,6 +4,7 @@ export type CategoryName =
   | "Brincos"
   | "Correntes"
   | "Pulseiras"
+  | "Braceletes"
   | "Pingentes"
   | "Relógios"
   | "Serviços";
@@ -32,7 +33,28 @@ export type Product = {
   stockStatus: StockStatus;
 };
 
-export type CartItem = {
-  product: Product;
+export type RingPairCustomization = {
+  type: "ring_pair";
+  ring1: {
+    size: number;
+    engraving?: string | null;
+  };
+  ring2: {
+    size: number;
+    engraving?: string | null;
+  };
+};
+
+export type CartCustomization = RingPairCustomization | null;
+
+export type CartLine = {
+  lineId: string;
+  productId: string;
+  productSlug: string;
   quantity: number;
+  customization: CartCustomization;
+};
+
+export type CartItem = CartLine & {
+  product: Product;
 };

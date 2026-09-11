@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { CategoryViewTracker } from "@/components/analytics-trackers";
 import { ProductGrid } from "@/components/product-grid";
+import { Reveal } from "@/components/reveal";
 import { SortSelect } from "@/components/sort-select";
 import { normalizeSortOrder, sortProducts } from "@/lib/product-sorting";
 import { getCategoryBySlug, getProductsByCategory } from "@/lib/products";
@@ -31,8 +33,58 @@ const categoryFilters: Record<string, { label: string; slug: string; href?: stri
     { label: "Ouro 18k", slug: "ouro-18k" },
     { label: "Prata 925", slug: "prata-925" },
     { label: "Infantil", slug: "infantil" }
+  ],
+  braceletes: [
+    { label: "Ouro 18k", slug: "ouro-18k" },
+    { label: "Prata 950", slug: "prata-950" }
+  ],
+  pingentes: [
+    { label: "Ouro 18k", slug: "ouro-18k" },
+    { label: "Prata 950", slug: "prata-950" }
   ]
 };
+
+function getCategorySeo(category: { name: string; slug: string; description: string }) {
+  if (category.slug === "aliancas") {
+    return {
+      title: "Alianças | Marjouxs Joalheria em Arujá",
+      description: "Encontre alianças em ouro, prata e outros modelos na Marjouxs Joalheria. Consulte numeração, gravação e condições pelo WhatsApp."
+    };
+  }
+
+  if (category.slug === "aneis") {
+    return {
+      title: "Anéis | Marjouxs Joalheria",
+      description: "Anéis em ouro 18k, prata 950, pérola e formatura na Marjouxs Joalheria. Veja modelos e fale com a equipe pelo WhatsApp."
+    };
+  }
+
+  if (category.slug === "braceletes") {
+    return {
+      title: "Braceletes | Marjouxs Joalheria",
+      description: "Conheça braceletes em Ouro 18k e Prata 950 na Marjouxs Joalheria. Consulte modelos e disponibilidade pelo WhatsApp."
+    };
+  }
+
+  if (category.slug === "pingentes") {
+    return {
+      title: "Pingentes | Marjouxs Joalheria",
+      description: "Conheça pingentes em Ouro 18k e Prata 950 na Marjouxs Joalheria. Consulte modelos e disponibilidade pelo WhatsApp."
+    };
+  }
+
+  if (category.slug === "relogios") {
+    return {
+      title: "Relógios | Marjouxs Joalheria",
+      description: "Relógios e atendimento de relojoaria na Marjouxs Joalheria em Arujá. Consulte disponibilidade e serviços pelo WhatsApp."
+    };
+  }
+
+  return {
+    title: `${category.name} | Marjouxs Joalheria`,
+    description: `${category.description} Conheça a seleção da Marjouxs e fale com nossa equipe pelo WhatsApp.`
+  };
+}
 
 function filterSlug(value: string) {
   return value
@@ -124,9 +176,38 @@ function matchesProductFilter(product: Product, selectedFilter: string) {
 }
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
+  if (params.slug === "servicos") {
+    return {
+      title: "Serviços | Marjouxs",
+      description: "Serviços de joalheria e relojoaria da Marjouxs em Arujá."
+    };
+  }
+
   const category = getCategoryBySlug(params.slug);
+
+  if (!category) {
+    return {
+      title: "Categoria | Marjouxs"
+    };
+  }
+
+  const seo = getCategorySeo(category);
+  const url = `https://marjouxsjoias.com.br/categorias/${category.slug}`;
+
   return {
-    title: category ? `${category.name} | Marjouxs` : "Categoria | Marjouxs"
+    title: seo.title,
+    description: seo.description,
+    alternates: {
+      canonical: url
+    },
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      url,
+      siteName: "Marjouxs",
+      locale: "pt_BR",
+      type: "website"
+    }
   };
 }
 
@@ -137,6 +218,10 @@ export default function CategoryPage({
   params: { slug: string };
   searchParams?: { subcategoria?: string; ordem?: string };
 }) {
+  if (params.slug === "servicos") {
+    redirect("/servicos");
+  }
+
   const category = getCategoryBySlug(params.slug);
 
   if (!category) {
@@ -171,48 +256,57 @@ export default function CategoryPage({
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-8 max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">{category.name}</p>
-        <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">{category.name} Marjouxs</h1>
-        <p className="mt-4 leading-7 text-taupe">{category.description}</p>
-      </div>
-      {filterOptions.length > 0 && (
-        <div className="mb-8 flex flex-wrap gap-2">
-          <Link
-            href={buildCategoryHref()}
-            className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
-              selectedSubcategory
-                ? "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
-                : "border-ink bg-ink text-white"
-            }`}
-          >
-            Todos
-          </Link>
-          {filterOptions.map((filter) => {
-            const isActive = selectedSubcategory === filter.slug;
-
-            return (
-              <Link
-                key={filter.slug}
-                href={buildCategoryHref(filter.slug, filter.href)}
-                className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
-                  isActive
-                    ? "border-ink bg-ink text-white"
-                    : "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
-                }`}
-              >
-                {filter.label}
-              </Link>
-            );
-          })}
+      <CategoryViewTracker categoryName={category.name} />
+      <Reveal>
+        <div className="mb-8 max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">{category.name}</p>
+          <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">{category.name} Marjouxs</h1>
+          <p className="mt-4 leading-7 text-taupe">{category.description}</p>
         </div>
+      </Reveal>
+      {filterOptions.length > 0 && (
+        <Reveal delay={80} distance={14}>
+          <div className="mb-8 flex flex-wrap gap-2">
+            <Link
+              href={buildCategoryHref()}
+              className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
+                selectedSubcategory
+                  ? "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
+                  : "border-ink bg-ink text-white"
+              }`}
+            >
+              Todos
+            </Link>
+            {filterOptions.map((filter) => {
+              const isActive = selectedSubcategory === filter.slug;
+
+              return (
+                <Link
+                  key={filter.slug}
+                  href={buildCategoryHref(filter.slug, filter.href)}
+                  className={`rounded-full border px-3 py-2 text-xs font-medium transition ${
+                    isActive
+                      ? "border-ink bg-ink text-white"
+                      : "border-black/10 bg-white text-ink hover:border-gold hover:text-gold"
+                  }`}
+                >
+                  {filter.label}
+                </Link>
+              );
+            })}
+          </div>
+        </Reveal>
       )}
-      <div className="mb-5 flex justify-end">
-        <SortSelect value={sortOrder} />
-      </div>
+      <Reveal delay={120} distance={12}>
+        <div className="mb-5 flex justify-end">
+          <SortSelect value={sortOrder} />
+        </div>
+      </Reveal>
       <ProductGrid
         products={sortedProducts}
         emptyMessage="Nenhum produto com imagem cadastrado nesta categoria."
+        itemListName={category.name}
+        source="category_page"
       />
     </section>
   );

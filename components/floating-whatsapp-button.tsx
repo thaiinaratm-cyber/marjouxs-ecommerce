@@ -1,4 +1,7 @@
+"use client";
+
 import { WHATSAPP_NUMBER } from "@/lib/constants";
+import { trackWhatsappClick } from "@/lib/analytics";
 
 const whatsappMessage = "Olá, Marjouxs! Vim pelo site e gostaria de atendimento.";
 
@@ -11,6 +14,7 @@ export function FloatingWhatsappButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar com a Marjouxs pelo WhatsApp"
+      onClick={() => trackWhatsappClick("floating_button")}
       className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-soft ring-1 ring-white/40 transition hover:-translate-y-0.5 hover:bg-[#1ebe5d] focus:outline-none focus:ring-4 focus:ring-[#25D366]/25 sm:bottom-6 sm:right-6 sm:h-16 sm:w-16"
     >
       <svg
