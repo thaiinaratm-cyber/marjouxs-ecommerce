@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildShipmentPayload, parseShippingOptions, quoteShipping } from "@/lib/checkout/shipping";
+import {
+  buildShipmentPayload,
+  createShippingServiceDiagnostics,
+  parseShippingOptions,
+  quoteShipping
+} from "@/lib/checkout/shipping";
 
 const configuration = {
   baseUrl: "https://sandbox.melhorenvio.com.br",
@@ -70,6 +75,60 @@ describe("Melhor Envio shipping", () => {
     expect(options[0].shippingQuoteId).toMatch(/^[0-9a-f-]{36}$/);
   });
 
+  it("trata erros de cobertura por serviço como lista vazia", () => {
+    const options = parseShippingOptions(
+      [
+        {
+          id: 1,
+          name: "PAC",
+          company: { name: "Correios" },
+          error: "Transportadora não atende este trecho."
+        },
+        {
+          id: 2,
+          name: "SEDEX",
+          company: { name: "Correios" },
+          error: "Serviço indisponível para o CEP."
+        }
+      ],
+      configuration.allowedServiceIds
+    );
+
+    expect(options).toEqual([]);
+  });
+
+  it("limita o diagnóstico aos campos seguros autorizados", () => {
+    const diagnostics = createShippingServiceDiagnostics([
+      {
+        id: 1,
+        name: "PAC",
+        price: "27.45",
+        custom_price: "25.00",
+        delivery_time: 6,
+        custom_delivery_time: 5,
+        company: { name: "Correios", token: "carrier-secret" },
+        error: null,
+        access_token: "oauth-secret",
+        to: { postal_code: "01001000" }
+      }
+    ]);
+
+    expect(diagnostics).toEqual([
+      {
+        service_id: 1,
+        service_name: "PAC",
+        carrier_name: "Correios",
+        price: "27.45",
+        delivery_time: 6,
+        custom_delivery_time: 5,
+        error: null
+      }
+    ]);
+    expect(JSON.stringify(diagnostics)).not.toContain("oauth-secret");
+    expect(JSON.stringify(diagnostics)).not.toContain("01001000");
+    expect(JSON.stringify(diagnostics)).not.toContain("carrier-secret");
+  });
+
   it("obtém o token OAuth no servidor antes de cotar o frete", async () => {
     const fetchImplementation = vi.fn(async () =>
       new Response(
@@ -100,5 +159,42 @@ describe("Melhor Envio shipping", () => {
         headers: expect.objectContaining({ Authorization: "Bearer oauth-access-token" })
       })
     );
+  });
+
+  it("omite o filtro enviado ao provedor somente no modo diagnóstico", async () => {
+    const fetchImplementation = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      })
+    );
+
+    await quoteShipping("01001000", 450000, {
+      configuration,
+      fetchImplementation: fetchImplementation as typeof fetch,
+      getAccessToken: async () => "oauth-access-token",
+      requestAllServicesForDiagnostics: true
+    });
+
+    const requestBody = JSON.parse(fetchImplementation.mock.calls[0][1]?.body as string);
+    expect(requestBody).not.toHaveProperty("services");
+    expect(configuration.allowedServiceIds).toEqual(["1", "2"]);
+  });
+
+  it("classifica 401 do provedor como falha OAuth de integração", async () => {
+    const fetchImplementation = vi.fn(async () =>
+      new Response(JSON.stringify({ message: "Unauthenticated" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      })
+    );
+
+    await expect(
+      quoteShipping("01001000", 450000, {
+        configuration,
+        fetchImplementation: fetchImplementation as typeof fetch,
+        getAccessToken: async () => "rejected-token"
+      })
+    ).rejects.toMatchObject({ code: "melhor_envio_oauth_invalid", status: 503 });
   });
 });

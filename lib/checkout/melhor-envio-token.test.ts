@@ -165,7 +165,7 @@ describe("Melhor Envio token manager", () => {
         refreshToken: vi.fn().mockResolvedValue(refreshedTokens),
         now: () => NOW
       })
-    ).rejects.toMatchObject({ code: "melhor_envio_credential_store_error" });
+    ).rejects.toMatchObject({ code: "melhor_envio_integration_error" });
     expect(credentialStore.release).not.toHaveBeenCalled();
   });
 });

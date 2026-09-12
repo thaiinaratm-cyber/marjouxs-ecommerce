@@ -10,6 +10,8 @@ const MINIMUM_USABLE_TOKEN_MS = 30 * 1000;
 const DEFAULT_WAIT_ATTEMPTS = 12;
 const DEFAULT_WAIT_INTERVAL_MS = 350;
 const COMPLETE_RETRY_ATTEMPTS = 3;
+const READ_RPC_ATTEMPTS = 3;
+const READ_RPC_RETRY_DELAY_MS = 150;
 
 type StoredCredential = { accessToken: string; expiresAt: string };
 type RefreshClaim = {
@@ -35,12 +37,27 @@ type TokenManagerOptions = {
   waitIntervalMs?: number;
 };
 
+function oauthDiagnostic(event: string, details: Record<string, unknown>) {
+  if (process.env.MELHOR_ENVIO_OAUTH_DIAGNOSTICS !== "true") return;
+  console.info(`[Melhor Envio OAuth][${event}]`, JSON.stringify(details));
+}
+
 function credentialStoreError() {
   return new MelhorEnvioOAuthError(
-    "Não foi possível acessar a autorização do Melhor Envio.",
-    "melhor_envio_credential_store_error",
+    "Não foi possível consultar a integração de frete neste momento.",
+    "melhor_envio_integration_error",
     503
   );
+}
+
+function rpcErrorCategory(error: unknown) {
+  const code = isRecord(error) && typeof error.code === "string" ? error.code : "";
+  const message = isRecord(error) && typeof error.message === "string" ? error.message.toLowerCase() : "";
+  if (message.includes("fetch") || message.includes("network")) return "network";
+  if (code === "42501") return "permission";
+  if (code.startsWith("PGRST")) return "database_api";
+  if (code) return "database";
+  return "unknown";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -58,6 +75,13 @@ function requiredString(row: Record<string, unknown>, field: string) {
 
 function parseStoredCredential(value: unknown): StoredCredential | null {
   const row = firstRpcRow(value);
+  oauthDiagnostic("credential_shape", {
+    row_present: row !== null && row !== undefined,
+    access_token_present: isRecord(row) && typeof row.access_token === "string" && row.access_token.length > 0,
+    access_token_type: isRecord(row) ? typeof row.access_token : null,
+    expires_at: isRecord(row) && typeof row.expires_at === "string" ? row.expires_at : null,
+    expires_at_type: isRecord(row) ? typeof row.expires_at : null
+  });
   if (row === null || row === undefined) return null;
   if (!isRecord(row)) throw credentialStoreError();
 
@@ -80,16 +104,50 @@ function parseRefreshClaim(value: unknown): RefreshClaim {
   };
 }
 
-async function callRpc(name: string, parameters?: Record<string, unknown>) {
-  const { data, error } = await getSupabaseAdmin().rpc(name, parameters);
-  if (error) throw credentialStoreError();
-  return data as unknown;
+async function callRpc(
+  name: string,
+  parameters?: Record<string, unknown>,
+  options: { attempts?: number } = {}
+) {
+  const attempts = options.attempts ?? 1;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const { data, error } = await getSupabaseAdmin().rpc(name, parameters);
+      if (!error) {
+        oauthDiagnostic("rpc_success", {
+          rpc: name,
+          attempt,
+          rows: Array.isArray(data) ? data.length : data === null ? 0 : 1
+        });
+        return data as unknown;
+      }
+      oauthDiagnostic("rpc_error", {
+        rpc: name,
+        attempt,
+        error_code: typeof error.code === "string" && error.code ? error.code : null,
+        error_category: rpcErrorCategory(error)
+      });
+    } catch (error) {
+      oauthDiagnostic("rpc_error", {
+        rpc: name,
+        attempt,
+        error_code: null,
+        error_category: rpcErrorCategory(error)
+      });
+    }
+    if (attempt < attempts) {
+      await new Promise((resolve) => setTimeout(resolve, READ_RPC_RETRY_DELAY_MS * attempt));
+    }
+  }
+  throw credentialStoreError();
 }
 
 export function createMelhorEnvioCredentialStore(): MelhorEnvioCredentialStore {
   return {
     async get() {
-      return parseStoredCredential(await callRpc("ecommerce_get_melhor_envio_oauth"));
+      return parseStoredCredential(
+        await callRpc("ecommerce_get_melhor_envio_oauth", undefined, { attempts: READ_RPC_ATTEMPTS })
+      );
     },
     async claim() {
       return parseRefreshClaim(await callRpc("ecommerce_claim_melhor_envio_refresh"));
@@ -190,10 +248,29 @@ export async function getValidMelhorEnvioAccessToken(options: TokenManagerOption
   const waitIntervalMs = options.waitIntervalMs ?? DEFAULT_WAIT_INTERVAL_MS;
   const credential = await store.get();
 
-  if (!credential) throw authorizationRequired();
-  if (millisecondsUntilExpiration(credential, now()) > REFRESH_THRESHOLD_MS) return credential.accessToken;
+  if (!credential) {
+    oauthDiagnostic("credential_missing", {});
+    throw authorizationRequired();
+  }
+  const remainingMilliseconds = millisecondsUntilExpiration(credential, now());
+  oauthDiagnostic("credential_loaded", {
+    expires_at: credential.expiresAt,
+    remaining_seconds: Math.floor(remainingMilliseconds / 1000),
+    refresh_required: remainingMilliseconds <= REFRESH_THRESHOLD_MS
+  });
+  if (remainingMilliseconds > REFRESH_THRESHOLD_MS) {
+    oauthDiagnostic("access_token_reused", {});
+    return credential.accessToken;
+  }
 
+  oauthDiagnostic("refresh_claim_requested", {});
   const claim = await store.claim();
+  oauthDiagnostic("refresh_claim_result", {
+    claimed: claim.claimed,
+    lock_token_present: Boolean(claim.lockToken),
+    refresh_token_present: Boolean(claim.refreshToken),
+    expires_at: claim.expiresAt
+  });
   if (!claim.claimed) {
     return waitForRefreshedCredential(store, credential, { now, sleep, waitAttempts, waitIntervalMs });
   }

@@ -6,15 +6,51 @@ import type { ShippingQuoteOption } from "@/types/checkout";
 
 type ShippingConfiguration = ReturnType<typeof getShippingConfiguration>;
 type FetchImplementation = typeof fetch;
+type ShippingDiagnosticValue = string | number | null;
+
+export type ShippingServiceDiagnostic = {
+  service_id: ShippingDiagnosticValue;
+  service_name: ShippingDiagnosticValue;
+  carrier_name: ShippingDiagnosticValue;
+  price: ShippingDiagnosticValue;
+  delivery_time: ShippingDiagnosticValue;
+  custom_delivery_time: ShippingDiagnosticValue;
+  error: ShippingDiagnosticValue;
+};
 
 type MelhorEnvioResponse = {
   id?: string | number;
   name?: string;
+  price?: string | number;
+  delivery_time?: string | number;
   custom_price?: string | number;
   custom_delivery_time?: string | number;
   company?: { name?: string };
   error?: string;
 };
+
+function diagnosticValue(value: unknown): ShippingDiagnosticValue {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") return value.slice(0, 300);
+  return null;
+}
+
+export function createShippingServiceDiagnostics(response: unknown): ShippingServiceDiagnostic[] {
+  if (!Array.isArray(response)) return [];
+
+  return response.map((rawQuote) => {
+    const quote = rawQuote as MelhorEnvioResponse;
+    return {
+      service_id: diagnosticValue(quote.id),
+      service_name: diagnosticValue(quote.name),
+      carrier_name: diagnosticValue(quote.company?.name),
+      price: diagnosticValue(quote.price),
+      delivery_time: diagnosticValue(quote.delivery_time),
+      custom_delivery_time: diagnosticValue(quote.custom_delivery_time),
+      error: diagnosticValue(quote.error)
+    };
+  });
+}
 
 export class ShippingProviderError extends Error {
   constructor(message: string, readonly code: string, readonly status = 502) {
@@ -101,6 +137,8 @@ export async function quoteShipping(
     configuration?: ShippingConfiguration;
     fetchImplementation?: FetchImplementation;
     getAccessToken?: () => Promise<string>;
+    onDiagnostics?: (services: ShippingServiceDiagnostic[]) => void;
+    requestAllServicesForDiagnostics?: boolean;
   } = {}
 ) {
   const configuration = options.configuration ?? getShippingConfiguration();
@@ -114,6 +152,10 @@ export async function quoteShipping(
     }
     throw error;
   }
+  const shipmentPayload = { ...buildShipmentPayload(destinationZip, subtotalCents, configuration) };
+  if (options.requestAllServicesForDiagnostics) {
+    Reflect.deleteProperty(shipmentPayload, "services");
+  }
   const response = await fetchImplementation(`${configuration.baseUrl}/api/v2/me/shipment/calculate`, {
     method: "POST",
     headers: {
@@ -122,7 +164,7 @@ export async function quoteShipping(
       "Content-Type": "application/json",
       "User-Agent": configuration.userAgent
     },
-    body: JSON.stringify(buildShipmentPayload(destinationZip, subtotalCents, configuration)),
+    body: JSON.stringify(shipmentPayload),
     signal: AbortSignal.timeout(12_000),
     cache: "no-store"
   });
@@ -134,7 +176,16 @@ export async function quoteShipping(
     throw new ShippingProviderError("O Melhor Envio retornou uma resposta inválida.", "invalid_shipping_response");
   }
 
+  options.onDiagnostics?.(createShippingServiceDiagnostics(body));
+
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new ShippingProviderError(
+        "A autenticação da integração de frete foi recusada pelo Melhor Envio.",
+        "melhor_envio_oauth_invalid",
+        503
+      );
+    }
     throw new ShippingProviderError(
       "Não foi possível calcular o frete neste momento.",
       "shipping_provider_error",
