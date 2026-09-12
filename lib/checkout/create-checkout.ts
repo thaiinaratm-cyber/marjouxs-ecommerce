@@ -1,4 +1,12 @@
 import { CheckoutValidationError, resolveCheckoutCart } from "@/lib/checkout/catalog";
+import {
+  CheckoutProcessError,
+  checkoutRpcError,
+  createCheckoutProcessError,
+  logCheckoutFailure,
+  logCheckoutRpcSuccess,
+  withOrderNsu
+} from "@/lib/checkout/diagnostics";
 import { checkoutIdempotencyKey, checkoutRequestHash } from "@/lib/checkout/hash";
 import {
   createInfinitePayCheckout,
@@ -53,9 +61,19 @@ function getRpcRow<T>(value: unknown, operation: string): T {
   return row as T;
 }
 
-async function failAttempt(attemptId: string, error: unknown, requiresReview = false) {
+async function failAttempt(
+  attemptId: string,
+  orderNsu: string,
+  error: unknown,
+  requiresReview = false
+) {
   const supabase = getSupabaseAdmin();
-  const code = error instanceof InfinitePayError ? error.code : "checkout_link_failed";
+  const code =
+    error instanceof InfinitePayError
+      ? error.code
+      : error instanceof CheckoutProcessError
+        ? error.publicCode
+        : "checkout_link_failed";
   const detail = error instanceof Error ? error.message : "Falha desconhecida ao criar checkout";
   const { error: rpcError } = await supabase.rpc("ecommerce_fail_payment_attempt", {
     p_attempt_id: attemptId,
@@ -65,7 +83,7 @@ async function failAttempt(attemptId: string, error: unknown, requiresReview = f
   });
 
   if (rpcError) {
-    console.error("Could not mark payment attempt as failed", rpcError.message);
+    logCheckoutFailure(checkoutRpcError(rpcError, "ecommerce_fail_payment_attempt", orderNsu));
   }
 }
 
@@ -148,8 +166,8 @@ async function createProviderLink(
         : {})
     });
   } catch (error) {
-    await failAttempt(rpcCheckout.result_payment_attempt_id, error);
-    throw error;
+    await failAttempt(rpcCheckout.result_payment_attempt_id, rpcCheckout.result_order_nsu, error);
+    throw withOrderNsu(error, rpcCheckout.result_order_nsu);
   }
 
   const supabase = getSupabaseAdmin();
@@ -160,15 +178,22 @@ async function createProviderLink(
   });
 
   if (error) {
-    const registrationError = new InfinitePayError(
-      "O link foi criado, mas precisa de revisão antes de continuar.",
-      "checkout_link_registration_failed"
+    const registrationError = checkoutRpcError(
+      error,
+      "ecommerce_set_checkout_link",
+      rpcCheckout.result_order_nsu
     );
-    await failAttempt(rpcCheckout.result_payment_attempt_id, registrationError, true);
+    await failAttempt(
+      rpcCheckout.result_payment_attempt_id,
+      rpcCheckout.result_order_nsu,
+      registrationError,
+      true
+    );
     throw registrationError;
   }
 
   const linkResult = getRpcRow<LinkRpcRow>(data, "ecommerce_set_checkout_link");
+  logCheckoutRpcSuccess("ecommerce_set_checkout_link", rpcCheckout.result_order_nsu);
   if (!["registered", "already_registered", "already_paid"].includes(linkResult.result_code)) {
     throw new CheckoutValidationError(
       "O pagamento precisa de revisão antes de continuar.",
@@ -271,17 +296,28 @@ export async function createCheckout(request: CheckoutRequest, siteUrl: string) 
     p_request_hash: requestHash
   });
   if (error) {
-    const status = error.code === "23505" ? 409 : 500;
-    throw new CheckoutValidationError(
-      status === 409
-        ? "Esta tentativa já foi usada com outros dados. Revise e tente novamente."
-        : "Não foi possível criar o pedido.",
-      error.code || "checkout_rpc_failed",
-      status
-    );
+    throw checkoutRpcError(error, "ecommerce_create_checkout");
   }
 
-  const rpcCheckout = getRpcRow<CreateCheckoutRpcRow>(data, "ecommerce_create_checkout");
+  let rpcCheckout: CreateCheckoutRpcRow;
+  try {
+    rpcCheckout = getRpcRow<CreateCheckoutRpcRow>(data, "ecommerce_create_checkout");
+  } catch {
+    throw createCheckoutProcessError({
+      publicMessage: "Não foi possível criar o pedido.",
+      publicCode: "checkout_order_creation_error",
+      status: 500,
+      diagnostic: {
+        stage: "ecommerce_create_checkout_response",
+        error_code: "invalid_rpc_response",
+        postgres_code: null,
+        constraint_name: null,
+        rpc_name: "ecommerce_create_checkout",
+        order_nsu: null
+      }
+    });
+  }
+  logCheckoutRpcSuccess("ecommerce_create_checkout", rpcCheckout.result_order_nsu);
   if (
     Number(rpcCheckout.result_total_cents) !== totalCents &&
     !rpcCheckout.result_checkout_url &&

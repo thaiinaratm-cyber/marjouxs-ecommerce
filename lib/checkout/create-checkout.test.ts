@@ -98,7 +98,35 @@ describe("createCheckout", () => {
     expect(result.totalCents).toBe(17990);
     const createCall = mocks.rpc.mock.calls.find(([operation]) => operation === "ecommerce_create_checkout");
     expect(createCall?.[1].p_order.subtotal_cents).toBe(17990);
+    expect(createCall?.[1].p_order.customer_cpf).toBeNull();
     expect(createCall?.[1].p_items[0].unit_price_cents).toBe(17990);
+  });
+
+  it("classifica a constraint da criação sem chamar a InfinitePay", async () => {
+    mocks.rpc.mockResolvedValueOnce({
+      data: null,
+      error: {
+        code: "23514",
+        message:
+          'new row for relation "ecommerce_orders" violates check constraint "ecommerce_orders_delivery_data_ck"',
+        details: "Failing row contains (cliente@example.com, 11999999999)."
+      }
+    });
+
+    await expect(createCheckout(request, "https://marjouxsjoias.com.br")).rejects.toMatchObject({
+      publicCode: "checkout_order_creation_error",
+      status: 500,
+      diagnostic: {
+        stage: "ecommerce_orders",
+        error_code: "check_violation",
+        postgres_code: "23514",
+        constraint_name: "ecommerce_orders_delivery_data_ck",
+        rpc_name: "ecommerce_create_checkout",
+        order_nsu: null,
+        http_status: 500
+      }
+    });
+    expect(mocks.createProviderCheckout).not.toHaveBeenCalled();
   });
 
   it("compartilha a criação externa quando a mesma tentativa chega em paralelo", async () => {
