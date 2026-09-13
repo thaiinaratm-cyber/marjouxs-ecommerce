@@ -1,6 +1,7 @@
 import { categories } from "@/data/categories";
 import { products } from "@/data/products";
 import { normalizeText } from "@/lib/format";
+import { selectRelatedProducts } from "@/lib/product-recommendations";
 import type { CategoryName, Product } from "@/types/product";
 
 export function getProductBySlug(slug: string) {
@@ -51,6 +52,10 @@ export function getHomeFeaturedProducts(minimum = 5) {
 
 export function getProductsByCategory(category: CategoryName) {
   return getVisibleProducts().filter((product) => product.category === category);
+}
+
+export function getRelatedProducts(product: Product, limit = 4) {
+  return selectRelatedProducts(product, getVisibleProducts(), limit);
 }
 
 export function getMaterials(productList: Product[] = getVisibleProducts()) {

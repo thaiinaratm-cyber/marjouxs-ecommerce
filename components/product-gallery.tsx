@@ -60,7 +60,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
       <button
         type="button"
         onClick={() => setIsZoomOpen(true)}
-        className="group relative aspect-[4/5] overflow-hidden rounded-lg bg-champagne shadow-soft"
+        className="group relative aspect-[4/5] overflow-hidden rounded-lg bg-champagne shadow-soft sm:aspect-[4/3] lg:aspect-[4/5]"
         aria-label={`Ampliar imagem de ${productName}`}
       >
         <ProductImage

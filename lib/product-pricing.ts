@@ -1,6 +1,9 @@
 import type { Product } from "@/types/product";
 import { formatCurrency, normalizeText } from "@/lib/format";
 
+export const PRODUCT_PAGE_INSTALLMENTS_COUNT = 12;
+export const PRODUCT_PAGE_PIX_DISCOUNT_PERCENT = 10;
+
 export function hasValidPrice(product: Product) {
   return typeof product.price === "number" && product.price > 0 && product.priceLabel.trim().toLowerCase() !== "sob orçamento";
 }
@@ -40,6 +43,23 @@ export function getInstallmentsText(product: Product) {
   }
 
   return `${installmentsCount}x de ${formatCurrency(product.price / installmentsCount)} sem juros`;
+}
+
+export function getProductPagePaymentSummary(product: Product) {
+  if (!hasValidPrice(product) || !product.price) {
+    return null;
+  }
+
+  const priceCents = Math.round(product.price * 100);
+
+  return {
+    installmentsCount: PRODUCT_PAGE_INSTALLMENTS_COUNT,
+    installmentValue:
+      Math.round(priceCents / PRODUCT_PAGE_INSTALLMENTS_COUNT) / 100,
+    pixDiscountPercent: PRODUCT_PAGE_PIX_DISCOUNT_PERCENT,
+    pixPrice:
+      Math.round(priceCents * (1 - PRODUCT_PAGE_PIX_DISCOUNT_PERCENT / 100)) / 100
+  };
 }
 
 export function hasIncludedEngravingAndBox(product: Product) {

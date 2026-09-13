@@ -1,24 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { Check, MessageCircle, Ruler, ShoppingBag } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { MessageCircle, PenLine, Ruler, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnalyticsAnchor, AnalyticsLink } from "@/components/analytics-link";
 import { useCart } from "@/context/cart-context";
 import { createSizeGuideClickEvent, createWhatsappClickEvent } from "@/lib/analytics";
 import { isAlliance } from "@/lib/checkout/catalog";
+import { formatCurrency } from "@/lib/format";
 import { hasValidPrice } from "@/lib/product-pricing";
 import type { Product, RingPairCustomization } from "@/types/product";
 
 const RING_SIZES = Array.from({ length: 28 }, (_, index) => index + 8);
-
-function WhatsappIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 32 32" width={size} height={size} fill="currentColor">
-      <path d="M16.01 3.2A12.66 12.66 0 0 0 5.22 22.5L3.6 28.8l6.45-1.56A12.67 12.67 0 1 0 16.01 3.2Zm0 22.98c-1.97 0-3.9-.56-5.56-1.62l-.4-.25-3.83.93.97-3.73-.26-.39a10.24 10.24 0 1 1 9.08 5.06Zm5.83-7.66c-.32-.16-1.9-.94-2.2-1.05-.3-.11-.51-.16-.73.16-.21.32-.83 1.05-1.02 1.27-.19.21-.38.24-.7.08-.32-.16-1.35-.5-2.57-1.59-.95-.85-1.59-1.89-1.78-2.21-.19-.32-.02-.5.14-.66.15-.15.32-.38.48-.57.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.73-1.76-1-2.41-.26-.63-.53-.54-.73-.55h-.62c-.21 0-.56.08-.86.4-.3.32-1.13 1.1-1.13 2.68s1.16 3.12 1.32 3.33c.16.21 2.28 3.48 5.52 4.88.77.33 1.37.53 1.84.68.77.24 1.48.21 2.04.13.62-.09 1.9-.78 2.17-1.53.27-.75.27-1.4.19-1.53-.08-.13-.29-.21-.61-.37Z" />
-    </svg>
-  );
-}
 
 export function ProductPurchaseActions({
   product,
@@ -28,6 +21,7 @@ export function ProductPurchaseActions({
   whatsappUrl: string;
 }) {
   const { addItem } = useCart();
+  const router = useRouter();
   const alliance = isAlliance(product);
   const canCheckout = hasValidPrice(product);
   const [ring1Size, setRing1Size] = useState("");
@@ -35,27 +29,66 @@ export function ProductPurchaseActions({
   const [ring1Engraving, setRing1Engraving] = useState("");
   const [ring2Engraving, setRing2Engraving] = useState("");
   const [message, setMessage] = useState("");
+  const [showMobileCta, setShowMobileCta] = useState(false);
+  const primaryCtaRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const primaryCta = primaryCtaRef.current;
+
+    if (!primaryCta || !canCheckout) {
+      return;
+    }
+
+    let animationFrame = 0;
+
+    const updateMobileCta = () => {
+      if (animationFrame) {
+        return;
+      }
+
+      animationFrame = window.requestAnimationFrame(() => {
+        const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+        const hasPassedPrimaryCta = primaryCta.getBoundingClientRect().bottom <= 0;
+        setShowMobileCta(isMobile && hasPassedPrimaryCta);
+        animationFrame = 0;
+      });
+    };
+
+    updateMobileCta();
+    window.addEventListener("scroll", updateMobileCta, { passive: true });
+    window.addEventListener("resize", updateMobileCta);
+
+    return () => {
+      window.removeEventListener("scroll", updateMobileCta);
+      window.removeEventListener("resize", updateMobileCta);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [canCheckout]);
 
   function addProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setMessage("");
 
     let customization: RingPairCustomization | null = null;
     if (alliance) {
       if (!ring1Size || !ring2Size) {
-        setMessage("Selecione os dois aros para adicionar o par.");
+        setMessage("Selecione os dois aros para continuar.");
         return;
       }
 
       customization = {
         type: "ring_pair",
-        ring1: { size: Number(ring1Size), engraving: ring1Engraving || null },
-        ring2: { size: Number(ring2Size), engraving: ring2Engraving || null }
+        ring1: { size: Number(ring1Size), engraving: ring1Engraving.trim() || null },
+        ring2: { size: Number(ring2Size), engraving: ring2Engraving.trim() || null }
       };
     }
 
     if (addItem(product, customization)) {
-      setMessage(alliance ? "Par configurado e adicionado à sacola." : "Produto adicionado à sacola.");
+      router.push("/checkout");
+      return;
     }
+
+    setMessage("Não foi possível adicionar este produto à sacola.");
   }
 
   return (
@@ -118,40 +151,81 @@ export function ProductPurchaseActions({
         </div>
       ) : null}
 
-      <div className={`grid gap-3 ${canCheckout ? "sm:grid-cols-2" : ""}`}>
-        {product.allowWhatsappQuote ? (
-          <AnalyticsAnchor
-            href={whatsappUrl}
-            analyticsEvents={createWhatsappClickEvent("product_page", product)}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-sm ring-1 ring-black/5 transition hover:bg-[#1ebe5d] hover:shadow-soft"
-          >
-            <WhatsappIcon size={18} /> Comprar pelo WhatsApp
-          </AnalyticsAnchor>
-        ) : null}
-        {canCheckout ? (
-          <button
-            type="submit"
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-gold"
-          >
-            <ShoppingBag size={18} /> {alliance ? "Adicionar par à sacola" : "Adicionar à sacola"}
-          </button>
-        ) : null}
-      </div>
+      {alliance && canCheckout ? (
+        <section className="rounded-lg border border-black/10 bg-white p-4 shadow-sm" aria-labelledby="alliance-summary-title">
+          <p id="alliance-summary-title" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gold">
+            <PenLine aria-hidden="true" size={16} strokeWidth={1.7} /> Sua configuração
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {[
+              { label: "Aliança 1", size: ring1Size, engraving: ring1Engraving },
+              { label: "Aliança 2", size: ring2Size, engraving: ring2Engraving }
+            ].map((ring) => (
+              <div key={ring.label} className="rounded-md border border-black/10 bg-pearl px-3 py-3">
+                <p className="font-serif text-base font-semibold text-ink">{ring.label}</p>
+                <p className="mt-1 text-sm text-ink">
+                  {ring.size ? `Aro: ${ring.size}` : "Selecione o aro"}
+                </p>
+                <p className="mt-0.5 break-words text-sm leading-5 text-taupe">
+                  Gravação: {ring.engraving.trim() || "Sem gravação"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {canCheckout ? (
+        <button
+          ref={primaryCtaRef}
+          type="submit"
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-gold"
+        >
+          <ShoppingBag size={18} /> COMPRAR AGORA
+        </button>
+      ) : null}
 
       {message ? (
-        <p className={`flex items-center gap-2 text-sm ${message.startsWith("Selecione") ? "text-red-700" : "text-ink"}`} role="status">
-          {!message.startsWith("Selecione") ? <Check className="text-gold" size={17} /> : null}
-          <span>{message}</span>
-          {!message.startsWith("Selecione") ? <Link href="/carrinho" className="font-semibold underline decoration-gold underline-offset-4">Ver sacola</Link> : null}
+        <p className="text-sm text-red-700" role="alert">
+          {message}
         </p>
       ) : null}
 
-      {alliance ? (
-        <p className="text-xs leading-5 text-taupe">
-          Deseja comprar somente uma aliança? <a href={whatsappUrl} target="_blank" rel="noreferrer" className="font-semibold text-ink hover:text-gold">Fale com nossa equipe pelo WhatsApp.</a>
+      {product.allowWhatsappQuote ? (
+        <p className="flex items-start gap-2 text-xs leading-5 text-taupe">
+          <MessageCircle className="mt-0.5 shrink-0 text-gold" size={15} />
+          <span>
+            {alliance
+              ? "Deseja comprar somente uma aliança ou precisa de ajuda? "
+              : "Precisa de ajuda? "}
+            <AnalyticsAnchor
+              href={whatsappUrl}
+              analyticsEvents={createWhatsappClickEvent("product_page", product)}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-ink transition hover:text-gold"
+            >
+              Fale com nossa equipe pelo WhatsApp.
+            </AnalyticsAnchor>
+          </span>
         </p>
+      ) : null}
+
+      {showMobileCta && canCheckout && product.price ? (
+        <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-black/10 bg-white/95 shadow-[0_-8px_24px_rgba(29,27,25,0.08)] backdrop-blur lg:hidden">
+          <div className="mx-auto flex max-w-lg items-center gap-3 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
+            <div className="min-w-0 shrink-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-taupe">Preço</p>
+              <p className="whitespace-nowrap text-base font-semibold text-ink">{formatCurrency(product.price)}</p>
+            </div>
+            <button
+              type="submit"
+              className="inline-flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-xs font-semibold text-white shadow-sm transition active:bg-gold"
+            >
+              <ShoppingBag aria-hidden="true" size={17} /> COMPRAR AGORA
+            </button>
+          </div>
+        </div>
       ) : null}
     </form>
   );

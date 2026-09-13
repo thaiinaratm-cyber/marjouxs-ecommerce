@@ -1,5 +1,9 @@
 import { formatCurrency } from "@/lib/format";
-import { getInstallmentsText, hasValidPrice } from "@/lib/product-pricing";
+import {
+  getInstallmentsText,
+  getProductPagePaymentSummary,
+  hasValidPrice
+} from "@/lib/product-pricing";
 import type { Product } from "@/types/product";
 
 function getDiscountPercent(product: Product) {
@@ -24,8 +28,9 @@ export function ProductPrice({ product, compact = false }: { product: Product; c
   }
 
   const discountPercent = getDiscountPercent(product);
-  const cashPrice = getCashPrice(product);
-  const installmentsText = getInstallmentsText(product);
+  const cashPrice = compact ? getCashPrice(product) : null;
+  const installmentsText = compact ? getInstallmentsText(product) : null;
+  const paymentSummary = compact ? null : getProductPagePaymentSummary(product);
   const hasOldPrice = Boolean(product.oldPrice && product.price && product.oldPrice > product.price);
 
   return (
@@ -45,6 +50,21 @@ export function ProductPrice({ product, compact = false }: { product: Product; c
       <p className={compact ? "text-xl font-semibold text-ink" : "text-3xl font-semibold text-ink"}>{formatCurrency(product.price as number)}</p>
       {cashPrice ? <p className="text-sm font-medium text-taupe">{formatCurrency(cashPrice)} à vista com desconto</p> : null}
       {installmentsText ? <p className="text-sm text-taupe">{installmentsText}</p> : null}
+      {paymentSummary ? (
+        <div className="mt-1 grid gap-1.5">
+          <p className="text-base font-semibold text-ink sm:text-lg">
+            {paymentSummary.installmentsCount}x de {formatCurrency(paymentSummary.installmentValue)}
+          </p>
+          <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-1 text-sm text-taupe">
+            <span className="font-semibold text-gold">
+              {paymentSummary.pixDiscountPercent}% OFF no Pix
+            </span>
+            <span className="whitespace-nowrap">
+              à vista <strong className="font-semibold text-ink">{formatCurrency(paymentSummary.pixPrice)}</strong>
+            </span>
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }
