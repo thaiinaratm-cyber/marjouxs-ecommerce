@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CategoryViewTracker } from "@/components/analytics-trackers";
-import { ProductGrid } from "@/components/product-grid";
+import { CategoryBanner } from "@/components/category-banner";
+import { ProductFilters } from "@/components/product-filters";
 import { Reveal } from "@/components/reveal";
-import { SortSelect } from "@/components/sort-select";
-import { normalizeSortOrder, sortProducts } from "@/lib/product-sorting";
+import { getCategoryBanner } from "@/lib/category-banners";
+import { toProductFilterValue } from "@/lib/product-discovery";
+import { normalizeSortOrder } from "@/lib/product-sorting";
 import { getCategoryBySlug, getProductsByCategory } from "@/lib/products";
 import { matchesRingMaterial } from "@/lib/ring-filters";
 import type { Product } from "@/types/product";
@@ -216,7 +218,13 @@ export default function CategoryPage({
   searchParams
 }: {
   params: { slug: string };
-  searchParams?: { subcategoria?: string; ordem?: string };
+  searchParams?: {
+    subcategoria?: string;
+    busca?: string;
+    material?: string;
+    preco?: string;
+    ordem?: string;
+  };
 }) {
   if (params.slug === "servicos") {
     redirect("/servicos");
@@ -232,10 +240,24 @@ export default function CategoryPage({
   const selectedSubcategory = searchParams?.subcategoria ?? "";
   const sortOrder = normalizeSortOrder(searchParams?.ordem);
   const filterOptions = categoryFilters[category.slug] ?? [];
+  const bannerVariant = selectedSubcategory || searchParams?.material || "";
+  const selectedBannerFilter = filterOptions.find((filter) => filter.slug === bannerVariant);
   const filteredProducts = selectedSubcategory
     ? categoryProducts.filter((product) => matchesProductFilter(product, selectedSubcategory))
     : categoryProducts;
-  const sortedProducts = sortProducts(filteredProducts, sortOrder);
+  const bannerProducts = searchParams?.material
+    ? filteredProducts.filter((product) => toProductFilterValue(product.material) === searchParams.material)
+    : filteredProducts;
+  const bannerProduct = bannerProducts[0] ?? filteredProducts[0] ?? categoryProducts[0];
+  const banner = getCategoryBanner({
+    categorySlug: category.slug,
+    variantSlug: bannerVariant,
+    eyebrow: category.name,
+    fallbackTitle: selectedBannerFilter ? `${category.name}: ${selectedBannerFilter.label}` : `${category.name} Marjouxs`,
+    fallbackSubtitle: category.description,
+    image: bannerProduct?.images[0],
+    imageAlt: bannerProduct?.name
+  });
   const buildCategoryHref = (subcategory?: string, href?: string) => {
     if (href) {
       return href;
@@ -258,11 +280,7 @@ export default function CategoryPage({
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <CategoryViewTracker categoryName={category.name} />
       <Reveal>
-        <div className="mb-8 max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">{category.name}</p>
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">{category.name} Marjouxs</h1>
-          <p className="mt-4 leading-7 text-taupe">{category.description}</p>
-        </div>
+        <CategoryBanner banner={banner} className="mb-8" />
       </Reveal>
       {filterOptions.length > 0 && (
         <Reveal delay={80} distance={14}>
@@ -297,13 +315,13 @@ export default function CategoryPage({
           </div>
         </Reveal>
       )}
-      <Reveal delay={120} distance={12}>
-        <div className="mb-5 flex justify-end">
-          <SortSelect value={sortOrder} />
-        </div>
-      </Reveal>
-      <ProductGrid
-        products={sortedProducts}
+      <ProductFilters
+        initialQuery={searchParams?.busca}
+        initialMaterial={searchParams?.material}
+        initialPriceRange={searchParams?.preco}
+        initialOrder={sortOrder}
+        products={filteredProducts}
+        showCategoryFilter={false}
         emptyMessage="Nenhum produto com imagem cadastrado nesta categoria."
         itemListName={category.name}
         source="category_page"

@@ -116,3 +116,16 @@ export const infinitePayWebhookSchema = z
     receipt_url: z.string().url().optional().nullable()
   })
   .passthrough();
+
+export const orderLookupSchema = z
+  .object({
+    orderNumber: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .transform((value) => value.replace(/\s+/g, ""))
+      .transform((value) => (/^MJ\d+$/.test(value) ? value.replace(/^MJ/, "MJ-") : value))
+      .pipe(z.string().regex(/^MJ-\d{6,12}$/)),
+    email: z.string().trim().toLowerCase().email().max(254)
+  })
+  .strict();

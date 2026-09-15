@@ -6,6 +6,7 @@ import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const atendimentoLinks = [
   { href: `https://wa.me/${WHATSAPP_NUMBER}`, label: "Falar no WhatsApp", external: true },
+  { href: "/acompanhar-pedido", label: "Acompanhar pedido" },
   { href: "/contato", label: "Fale conosco" },
   { href: "/servicos", label: "Serviços" }
 ];

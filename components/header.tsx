@@ -19,10 +19,12 @@ import {
   X,
   type LucideIcon
 } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { formatCurrency, normalizeText } from "@/lib/format";
+import { FormEvent, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
+import { CartDrawer } from "@/components/cart-drawer";
+import { formatCurrency } from "@/lib/format";
 import { trackCategoryClick, trackSearch, trackSelectItem } from "@/lib/analytics";
 import { getVisibleProducts } from "@/lib/products";
+import { searchProducts } from "@/lib/product-discovery";
 import { getInstallmentsText, hasValidPrice } from "@/lib/product-pricing";
 import { useCart } from "@/context/cart-context";
 
@@ -158,30 +160,20 @@ const serviceItems = [
   { label: "Troca de bateria", href: "/servicos#troca-de-bateria" }
 ];
 
+const searchableProducts = getVisibleProducts();
+
 function SearchBarWithSuggestions({ onSearch }: { onSearch?: () => void }) {
   const router = useRouter();
   const [term, setTerm] = useState("");
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const searchRef = useRef<HTMLFormElement>(null);
+  const suggestionsId = useId();
   const trimmedTerm = term.trim();
+  const deferredTerm = useDeferredValue(trimmedTerm);
   const shouldShowSuggestions = trimmedTerm.length >= 2 && isSuggestionsOpen;
   const suggestions = useMemo(() => {
-    if (trimmedTerm.length < 2) {
-      return [];
-    }
-
-    const normalizedTerm = normalizeText(trimmedTerm);
-
-    return getVisibleProducts()
-      .filter((product) => {
-        const searchable = normalizeText(
-          [product.name, product.category, product.subcategory, product.material, product.description].join(" ")
-        );
-
-        return searchable.includes(normalizedTerm);
-      })
-      .slice(0, 6);
-  }, [trimmedTerm]);
+    return deferredTerm.length >= 2 ? searchProducts(searchableProducts, deferredTerm, 6) : [];
+  }, [deferredTerm]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -233,46 +225,74 @@ function SearchBarWithSuggestions({ onSearch }: { onSearch?: () => void }) {
         onFocus={() => setIsSuggestionsOpen(trimmedTerm.length >= 2)}
         placeholder="O que você está procurando?"
         autoComplete="off"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={shouldShowSuggestions}
+        aria-controls={suggestionsId}
         className="h-12 w-full rounded-full border border-black/10 bg-white pl-11 pr-4 text-sm text-ink outline-none transition placeholder:text-taupe focus:border-gold focus:ring-2 focus:ring-gold/15"
       />
       {shouldShowSuggestions && (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[60] overflow-hidden rounded-lg border border-black/10 bg-white shadow-soft">
+        <div
+          id={suggestionsId}
+          role="listbox"
+          aria-label="Sugestões de produtos"
+          className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[60] overflow-hidden rounded-lg border border-black/10 bg-white shadow-soft"
+        >
           {suggestions.length > 0 ? (
-            <div className="max-h-[min(70vh,28rem)] overflow-y-auto py-2 marjouxs-scrollbar">
-              {suggestions.map((product) => {
-                const priceText = hasValidPrice(product) && product.price ? formatCurrency(product.price) : product.priceLabel;
-                const installmentsText = getInstallmentsText(product);
+            <>
+              <div className="marjouxs-scrollbar max-h-[min(62vh,25rem)] overflow-y-auto py-2">
+                {suggestions.map((product) => {
+                  const priceText = hasValidPrice(product) && product.price ? formatCurrency(product.price) : product.priceLabel;
+                  const installmentsText = getInstallmentsText(product);
 
-                return (
-                  <Link
-                    key={product.id}
-                    href={`/produtos/${product.slug}`}
-                    onClick={() => {
-                      trackSelectItem(product, "Sugestões de busca", "search_suggestions");
-                      setIsSuggestionsOpen(false);
-                      onSearch?.();
-                    }}
-                    className="grid grid-cols-[56px_1fr] gap-3 px-3 py-2.5 text-left transition hover:bg-champagne/60 focus:bg-champagne/60 focus:outline-none"
-                  >
-                    <span className="relative block h-14 w-14 overflow-hidden rounded-md border border-black/10 bg-champagne">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate font-serif text-sm font-semibold text-ink">{product.name}</span>
-                      <span className="mt-0.5 block truncate text-xs text-taupe">{product.material}</span>
-                      <span className="mt-1 block text-sm font-semibold text-ink">{priceText}</span>
-                      {installmentsText ? <span className="mt-0.5 block truncate text-xs text-taupe">{installmentsText}</span> : null}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
+                  return (
+                    <Link
+                      key={product.id}
+                      role="option"
+                      aria-selected="false"
+                      href={`/produtos/${product.slug}`}
+                      onClick={() => {
+                        trackSelectItem(product, "Sugestões de busca", "search_suggestions");
+                        setIsSuggestionsOpen(false);
+                        onSearch?.();
+                      }}
+                      className="grid min-h-20 grid-cols-[56px_1fr] gap-3 px-3 py-2.5 text-left transition hover:bg-champagne/60 focus:bg-champagne/60 focus:outline-none"
+                    >
+                      <span className="relative block h-14 w-14 overflow-hidden rounded-md border border-black/10 bg-champagne">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={product.images[0]}
+                          alt=""
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                          width={56}
+                          height={56}
+                        />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate font-serif text-sm font-semibold text-ink">{product.name}</span>
+                        <span className="mt-0.5 block truncate text-xs text-taupe">
+                          {[product.material, product.category].filter(Boolean).join(" · ")}
+                        </span>
+                        <span className="mt-1 block text-sm font-semibold text-ink">{priceText}</span>
+                        {installmentsText ? <span className="mt-0.5 block truncate text-xs text-taupe">{installmentsText}</span> : null}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+              <Link
+                href={`/produtos?busca=${encodeURIComponent(trimmedTerm)}`}
+                onClick={() => {
+                  trackSearch(trimmedTerm, "search_suggestions");
+                  setIsSuggestionsOpen(false);
+                  onSearch?.();
+                }}
+                className="flex min-h-12 items-center justify-center border-t border-black/10 bg-pearl px-4 text-center text-sm font-semibold text-ink transition hover:text-gold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gold/25"
+              >
+                Ver todos os resultados para “{trimmedTerm}”
+              </Link>
+            </>
           ) : (
             <p className="px-4 py-4 text-sm text-taupe">Nenhum produto encontrado</p>
           )}
@@ -296,6 +316,7 @@ function MenuTitle({ category }: { category: CategoryMenuItem }) {
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMegaOpen, setIsMegaOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const megaMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { totalItems } = useCart();
@@ -313,6 +334,7 @@ export function Header() {
   useEffect(() => {
     setIsOpen(false);
     setIsMegaOpen(false);
+    setIsCartOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -351,11 +373,16 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2 justify-self-end">
-            <Link
-              href="/carrinho"
-              onClick={closeMenus}
+            <button
+              type="button"
+              onClick={() => {
+                closeMenus();
+                setIsCartOpen(true);
+              }}
               className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-ink transition hover:border-gold hover:text-gold"
               aria-label={`Sacola com ${totalItems} ${totalItems === 1 ? "item" : "itens"}`}
+              aria-haspopup="dialog"
+              aria-expanded={isCartOpen}
             >
               <ShoppingBag size={20} />
               {totalItems > 0 ? (
@@ -363,7 +390,7 @@ export function Header() {
                   {totalItems > 99 ? "99+" : totalItems}
                 </span>
               ) : null}
-            </Link>
+            </button>
             <button
               type="button"
               onClick={() => setIsOpen((current) => !current)}
@@ -557,6 +584,7 @@ export function Header() {
           </div>
         </nav>
       )}
+      <CartDrawer open={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   );
 }

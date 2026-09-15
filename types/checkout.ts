@@ -40,7 +40,6 @@ export type ShippingQuoteOption = {
 };
 
 export type PublicOrderItem = {
-  id: string;
   productSlug: string;
   productName: string;
   productImage: string;
@@ -52,14 +51,37 @@ export type PublicOrderItem = {
   customization: CartCustomization;
 };
 
+export type PublicOrderStatusStage =
+  | "received"
+  | "payment_approved"
+  | "production"
+  | "quality"
+  | "ready"
+  | "shipped"
+  | "delivered"
+  | "picked_up";
+
+export type PublicOrderShippingAddress = {
+  postalCode: string;
+  street: string;
+  number: string;
+  complement: string | null;
+  neighborhood: string;
+  city: string;
+  state: string;
+};
+
 export type PublicOrder = {
   orderNumber: string;
+  createdAt: string;
   paymentStatus: "pending" | "paid" | "failed" | "requires_review";
-  orderStatus: string;
+  statusStage: PublicOrderStatusStage;
   deliveryMethod: "shipping" | "pickup";
+  shippingAddress: PublicOrderShippingAddress | null;
   shippingCarrier: string | null;
   shippingService: string | null;
   shippingDeadlineDays: number | null;
+  trackingCode: string | null;
   subtotalCents: number;
   shippingCents: number;
   discountCents: number;

@@ -1,10 +1,15 @@
 import { hasValidPrice } from "@/lib/product-pricing";
 import type { Product } from "@/types/product";
 
-export type ProductSortOrder = "relevantes" | "destaques" | "menor-preco" | "maior-preco";
+export type ProductSortOrder = "relevantes" | "destaques" | "menor-preco" | "maior-preco" | "nome-az";
 
 export function normalizeSortOrder(value?: string): ProductSortOrder {
-  if (value === "destaques" || value === "menor-preco" || value === "maior-preco") {
+  if (
+    value === "destaques" ||
+    value === "menor-preco" ||
+    value === "maior-preco" ||
+    value === "nome-az"
+  ) {
     return value;
   }
 
@@ -18,6 +23,10 @@ export function sortProducts(products: Product[], order: ProductSortOrder) {
 
   if (order === "destaques") {
     return [...products].sort((first, second) => Number(second.featured) - Number(first.featured));
+  }
+
+  if (order === "nome-az") {
+    return [...products].sort((first, second) => first.name.localeCompare(second.name, "pt-BR"));
   }
 
   return [...products].sort((first, second) => {

@@ -28,13 +28,14 @@ function product(overrides: Partial<Product> = {}): Product {
 }
 
 describe("merchandising da página de produto", () => {
-  it("extrai somente o prazo informado na descrição", () => {
+  it("aplica o prazo global a todas as joias sem usar prazo diferente da descrição", () => {
     const item = product({
       description: "Peça feita sob encomenda. Confeccionamos diversos modelos em até 3 dias."
     });
 
-    expect(getProductionDeadline(item)).toBe("Até 3 dias");
-    expect(getProductionDeadline(product())).toBeNull();
+    expect(getProductionDeadline(item)).toBe("3 a 5 dias úteis");
+    expect(getProductionDeadline(product())).toBe("3 a 5 dias úteis");
+    expect(getProductionDeadline(product({ category: "Serviços", stockStatus: "Serviço" }))).toBeNull();
   });
 
   it("monta os dados comerciais reais de uma aliança", () => {
@@ -50,7 +51,7 @@ describe("merchandising da página de produto", () => {
       { kind: "material", label: "Material", value: "Ouro 18k" },
       { kind: "availability", label: "Disponibilidade", value: "Sob encomenda" },
       { kind: "sizing", label: "Numeração", value: "Escolha os dois aros abaixo" },
-      { kind: "production", label: "Confecção", value: "Até 3 dias" },
+      { kind: "production", label: "Prazo de confecção", value: "3 a 5 dias úteis" },
       { kind: "pair", label: "Valor", value: "Referente ao par" },
       {
         kind: "included",
@@ -60,10 +61,10 @@ describe("merchandising da página de produto", () => {
     ]));
   });
 
-  it("não inventa prazo, gravação, embalagem ou garantia para produto comum", () => {
+  it("não inventa gravação, embalagem ou garantia para produto comum", () => {
     const kinds = getProductCommercialDetails(product()).map((detail) => detail.kind);
 
-    expect(kinds).toEqual(["material", "availability"]);
+    expect(kinds).toEqual(["material", "availability", "production"]);
   });
 
   it("reconhece sob encomenda quando essa informação já está na descrição", () => {

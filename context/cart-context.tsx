@@ -90,18 +90,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setLines((current) => current.filter((item) => item.lineId !== lineId));
       },
       updateQuantity(lineId, quantity) {
-        setLines((current) =>
-          current.map((line) => {
-            if (line.lineId !== lineId) {
-              return line;
-            }
+        const item = items.find((candidate) => candidate.lineId === lineId);
+        if (!item) return;
 
-            const product = getProductById(line.productId);
-            return {
-              ...line,
-              quantity: product && isAlliance(product) ? 1 : Math.max(1, Math.floor(quantity))
-            };
-          })
+        const nextQuantity = isAlliance(item.product) ? 1 : Math.max(1, Math.floor(quantity));
+        if (nextQuantity === item.quantity) return;
+
+        const quantityDifference = Math.abs(nextQuantity - item.quantity);
+        if (nextQuantity > item.quantity) {
+          trackAddToCart(item.product, quantityDifference);
+        } else {
+          trackRemoveFromCart(item.product, quantityDifference);
+        }
+
+        setLines((current) =>
+          current.map((line) => line.lineId === lineId ? { ...line, quantity: nextQuantity } : line)
         );
       },
       clearCart() {

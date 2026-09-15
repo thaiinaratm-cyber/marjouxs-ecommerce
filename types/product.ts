@@ -26,6 +26,7 @@ export type Product = {
   priceLabel: string;
   installments: string;
   description: string;
+  tags?: string[];
   images: string[];
   featured: boolean;
   isCustomOrder: boolean;

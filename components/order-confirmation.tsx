@@ -1,14 +1,53 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Clock3, ExternalLink, LoaderCircle, MessageCircle, TriangleAlert } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock3,
+  LoaderCircle,
+  MessageCircle,
+  PackageCheck,
+  TriangleAlert
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import { ProductImage } from "@/components/product-image";
-import { formatCurrency } from "@/lib/format";
+import { OrderDeliveryDetails, OrderItemsList, OrderPurchaseSummary } from "@/components/order-summary";
+import { OrderTimeline } from "@/components/order-timeline";
+import { useCart } from "@/context/cart-context";
 import { buildDefaultWhatsappUrl } from "@/lib/whatsapp";
+import { formatOrderDate, shouldClearCartAfterPayment } from "@/lib/order-status";
+import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
 import type { PublicOrder } from "@/types/checkout";
 
+function getConfirmationCopy(order: PublicOrder) {
+  if (order.paymentStatus === "paid") {
+    return {
+      title: "Pedido confirmado",
+      text: "Recebemos seu pagamento. A equipe da Marjouxs seguirá com a preparação do pedido."
+    };
+  }
+
+  if (order.paymentStatus === "pending") {
+    return {
+      title: "Estamos confirmando seu pagamento.",
+      text: "Essa confirmação pode levar alguns instantes. Esta página será atualizada automaticamente."
+    };
+  }
+
+  if (order.paymentStatus === "requires_review") {
+    return {
+      title: "Pagamento em análise",
+      text: "Nossa equipe precisa revisar a confirmação antes de seguir com o pedido."
+    };
+  }
+
+  return {
+    title: "Pagamento não confirmado",
+    text: "O pedido foi recebido, mas o pagamento não foi confirmado. Fale com a Marjouxs para receber orientação."
+  };
+}
+
 export function OrderConfirmation({ token }: { token: string }) {
+  const { lines, isReady, clearCart } = useCart();
   const [order, setOrder] = useState<PublicOrder | null>(null);
   const [error, setError] = useState("");
 
@@ -24,11 +63,16 @@ export function OrderConfirmation({ token }: { token: string }) {
     async function loadOrder() {
       try {
         const response = await fetch(`/api/orders/${encodeURIComponent(token)}`, { cache: "no-store" });
-        const body = await response.json();
+        const body = await response.json().catch(() => null);
         if (!response.ok) {
-          throw new Error(body?.error || "Não foi possível consultar o pedido.");
+          throw new Error(
+            body && typeof body.error === "string"
+              ? body.error
+              : "Não foi possível consultar o pedido."
+          );
         }
         if (!active) return;
+
         const nextOrder = body as PublicOrder;
         setOrder(nextOrder);
         setError("");
@@ -37,7 +81,11 @@ export function OrderConfirmation({ token }: { token: string }) {
         }
       } catch (requestError) {
         if (!active) return;
-        setError(requestError instanceof Error ? requestError.message : "Não foi possível consultar o pedido.");
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "Não foi possível consultar o pedido."
+        );
         timeoutId = setTimeout(loadOrder, 8_000);
       }
     }
@@ -49,13 +97,25 @@ export function OrderConfirmation({ token }: { token: string }) {
     };
   }, [token]);
 
+  useEffect(() => {
+    if (
+      order &&
+      isReady &&
+      shouldClearCartAfterPayment(order.paymentStatus, lines, order.items)
+    ) {
+      clearCart();
+    }
+  }, [clearCart, isReady, lines, order]);
+
   if (!order && !error) {
     return (
-      <section className="mx-auto grid min-h-[60svh] max-w-3xl place-items-center px-4 py-12 text-center">
+      <section className="mx-auto grid min-h-[60svh] max-w-3xl place-items-center px-4 py-12 text-center" aria-live="polite">
         <div>
           <LoaderCircle className="mx-auto animate-spin text-gold motion-reduce:animate-none" size={38} />
-          <h1 className="mt-5 font-serif text-4xl font-semibold text-ink">Confirmando seu pagamento...</h1>
-          <p className="mt-3 text-taupe">Aguarde enquanto consultamos o status seguro do seu pedido.</p>
+          <h1 className="mt-5 font-serif text-4xl font-semibold text-ink">
+            Estamos confirmando seu pagamento.
+          </h1>
+          <p className="mt-3 text-taupe">Essa confirmação pode levar alguns instantes.</p>
         </div>
       </section>
     );
@@ -67,8 +127,15 @@ export function OrderConfirmation({ token }: { token: string }) {
         <div>
           <TriangleAlert className="mx-auto text-gold" size={38} />
           <h1 className="mt-5 font-serif text-4xl font-semibold text-ink">Não conseguimos abrir o pedido</h1>
-          <p className="mt-3 text-taupe">{error}</p>
-          <a href={buildDefaultWhatsappUrl()} target="_blank" rel="noreferrer" className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1ebe5d]"><MessageCircle size={18} /> Falar com a Marjouxs</a>
+          <p className="mt-3 text-taupe" role="alert">{error}</p>
+          <a
+            href={buildDefaultWhatsappUrl()}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1ebe5d]"
+          >
+            <MessageCircle size={18} /> Falar com a Marjouxs
+          </a>
         </div>
       </section>
     );
@@ -76,66 +143,81 @@ export function OrderConfirmation({ token }: { token: string }) {
 
   const paid = order.paymentStatus === "paid";
   const pending = order.paymentStatus === "pending";
-  const paymentLabel = order.paymentMethod === "pix" ? "Pix" : order.paymentMethod === "credit_card" ? "Cartão de crédito" : "A confirmar";
+  const copy = getConfirmationCopy(order);
+  const orderDate = formatOrderDate(order.createdAt);
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="rounded-lg border border-black/10 bg-white p-5 shadow-sm sm:p-8">
-        <div className="flex flex-col gap-5 border-b border-black/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex flex-col gap-5 border-b border-black/10 pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Pedido {order.orderNumber}</p>
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-ink">
-              {paid ? "Pagamento confirmado" : pending ? "Aguardando confirmação" : "Pagamento em análise"}
-            </h1>
-            <p className="mt-3 max-w-2xl leading-7 text-taupe">
-              {paid
-                ? "Recebemos seu pagamento. A equipe da Marjouxs seguirá com a preparação do pedido."
-                : pending
-                  ? "A confirmação pode levar alguns instantes. Esta página será atualizada automaticamente."
-                  : "Nossa equipe precisa revisar o pagamento antes de seguir com o pedido."}
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+              Pedido {order.orderNumber}
             </p>
+            <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">
+              {copy.title}
+            </h1>
+            <p className="mt-3 max-w-2xl leading-7 text-[#6f665c]">{copy.text}</p>
+            {orderDate ? <p className="mt-2 text-sm text-taupe">Pedido realizado em {orderDate}.</p> : null}
           </div>
-          {paid ? <CheckCircle2 className="shrink-0 text-green-600" size={46} /> : pending ? <Clock3 className="shrink-0 text-gold" size={44} /> : <TriangleAlert className="shrink-0 text-gold" size={44} />}
-        </div>
+          {paid ? (
+            <CheckCircle2 className="shrink-0 text-green-600" size={46} aria-hidden="true" />
+          ) : pending ? (
+            <Clock3 className="shrink-0 text-gold" size={44} aria-hidden="true" />
+          ) : (
+            <TriangleAlert className="shrink-0 text-gold" size={44} aria-hidden="true" />
+          )}
+        </header>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
-          <div className="grid gap-4">
+        <OrderTimeline order={order} />
+
+        <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0">
             <h2 className="font-serif text-2xl font-semibold text-ink">Itens do pedido</h2>
-            {order.items.map((item) => (
-              <article key={item.id} className="grid grid-cols-[76px_1fr] gap-4 rounded-md border border-black/10 p-3">
-                <div className="relative aspect-square overflow-hidden rounded-md bg-champagne"><ProductImage src={item.productImage} alt={item.productName} sizes="76px" /></div>
-                <div className="min-w-0">
-                  <Link href={`/produtos/${item.productSlug}`} className="font-serif text-lg font-semibold text-ink hover:text-gold">{item.productName}</Link>
-                  <p className="mt-1 text-sm text-taupe">{item.quantity}x {formatCurrency(item.unitPriceCents / 100)}</p>
-                  {item.customization?.type === "ring_pair" ? (
-                    <div className="mt-2 grid gap-1 text-sm text-taupe">
-                      <p>Aliança 1: aro {item.customization.ring1.size}{item.customization.ring1.engraving ? `, gravação “${item.customization.ring1.engraving}”` : ""}</p>
-                      <p>Aliança 2: aro {item.customization.ring2.size}{item.customization.ring2.engraving ? `, gravação “${item.customization.ring2.engraving}”` : ""}</p>
-                    </div>
-                  ) : null}
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <aside className="h-fit rounded-md bg-pearl p-5">
-            <h2 className="font-serif text-2xl font-semibold text-ink">Resumo</h2>
-            <dl className="mt-4 grid gap-3 text-sm">
-              <div className="flex justify-between gap-4"><dt className="text-taupe">Produtos</dt><dd className="font-medium text-ink">{formatCurrency(order.subtotalCents / 100)}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-taupe">{order.deliveryMethod === "pickup" ? "Retirada" : "Frete"}</dt><dd className="font-medium text-ink">{order.deliveryMethod === "pickup" ? "Grátis" : formatCurrency(order.shippingCents / 100)}</dd></div>
-              <div className="flex justify-between gap-4 border-t border-black/10 pt-3 text-base"><dt className="font-semibold text-ink">Total</dt><dd className="font-semibold text-ink">{formatCurrency(order.totalCents / 100)}</dd></div>
-            </dl>
-            <div className="mt-5 grid gap-2 border-t border-black/10 pt-4 text-sm text-taupe">
-              <p><strong className="text-ink">Modalidade:</strong> {order.deliveryMethod === "pickup" ? "Retirada na loja" : `${order.shippingCarrier} ${order.shippingService}`}</p>
-              {order.shippingDeadlineDays !== null ? <p><strong className="text-ink">Prazo estimado:</strong> até {order.shippingDeadlineDays} dias</p> : null}
-              <p><strong className="text-ink">Pagamento:</strong> {paymentLabel}</p>
-              {order.installments ? <p><strong className="text-ink">Parcelas:</strong> {order.installments}x</p> : null}
+            <div className="mt-4">
+              <OrderItemsList items={order.items} />
             </div>
-            {order.receiptUrl ? <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-ink hover:text-gold">Abrir comprovante <ExternalLink size={16} /></a> : null}
+          </div>
+          <aside className="grid h-fit min-w-0 gap-4">
+            <OrderPurchaseSummary order={order} />
+            <OrderDeliveryDetails order={order} />
           </aside>
         </div>
 
-        {!paid && !pending ? <a href={buildDefaultWhatsappUrl()} target="_blank" rel="noreferrer" className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1ebe5d]"><MessageCircle size={18} /> Falar com a Marjouxs</a> : null}
+        <section className="mt-6 rounded-md border border-gold/20 bg-gold/5 p-5" aria-labelledby="next-steps-title">
+          <div className="flex items-start gap-3">
+            <PackageCheck className="mt-0.5 shrink-0 text-gold" size={21} aria-hidden="true" />
+            <div>
+              <h2 id="next-steps-title" className="font-serif text-xl font-semibold text-ink">Próximos passos</h2>
+              <p className="mt-2 text-sm leading-6 text-[#6f665c]">
+                {paid
+                  ? order.deliveryMethod === "pickup"
+                    ? `A confecção leva ${JEWELRY_PRODUCTION_DEADLINE}. Você será avisado quando o pedido estiver pronto para retirada.`
+                    : `A confecção leva ${JEWELRY_PRODUCTION_DEADLINE}. Depois, o envio seguirá pela transportadora e pelo serviço escolhidos.`
+                  : "A preparação começa após a confirmação real do pagamento."}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Link
+            href={`/acompanhar-pedido?pedido=${encodeURIComponent(order.orderNumber)}`}
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-gold sm:w-auto"
+          >
+            Acompanhar pedido
+          </Link>
+          {!paid && !pending ? (
+            <a
+              href={buildDefaultWhatsappUrl()}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1ebe5d] sm:w-auto"
+            >
+              <MessageCircle size={18} /> Falar com a Marjouxs
+            </a>
+          ) : null}
+        </div>
       </div>
     </section>
   );

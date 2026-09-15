@@ -3,12 +3,23 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ProductSortOrder } from "@/lib/product-sorting";
 
-export function SortSelect({ value }: { value: ProductSortOrder }) {
+export function SortSelect({
+  value,
+  onChange
+}: {
+  value: ProductSortOrder;
+  onChange?: (value: ProductSortOrder) => void;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   function handleChange(nextValue: ProductSortOrder) {
+    if (onChange) {
+      onChange(nextValue);
+      return;
+    }
+
     const params = new URLSearchParams(searchParams.toString());
 
     if (nextValue === "relevantes") {
@@ -33,6 +44,7 @@ export function SortSelect({ value }: { value: ProductSortOrder }) {
         <option value="destaques">Destaques</option>
         <option value="menor-preco">Menor preço</option>
         <option value="maior-preco">Maior preço</option>
+        <option value="nome-az">Nome A-Z</option>
       </select>
     </label>
   );

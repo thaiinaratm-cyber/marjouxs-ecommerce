@@ -15,9 +15,7 @@ import {
 } from "lucide-react";
 import {
   getProductCommercialDetails,
-  getProductionDeadline,
   getProductTrustBenefits,
-  isMadeToOrder,
   type ProductCommercialDetailKind,
   type ProductTrustBenefitKind
 } from "@/lib/product-merchandising";
@@ -44,7 +42,6 @@ const trustIcons: Record<ProductTrustBenefitKind, LucideIcon> = {
 
 export function ProductCommercialInfo({ product }: { product: Product }) {
   const details = getProductCommercialDetails(product);
-  const productionDeadline = getProductionDeadline(product);
 
   if (details.length === 0) {
     return null;
@@ -74,11 +71,6 @@ export function ProductCommercialInfo({ product }: { product: Product }) {
         })}
       </dl>
 
-      {productionDeadline && isMadeToOrder(product) ? (
-        <p className="border-t border-black/10 bg-pearl px-4 py-3 text-xs leading-5 text-taupe">
-          Para produtos sob encomenda, a entrega é calculada no checkout e acontece após o prazo de confecção.
-        </p>
-      ) : null}
     </section>
   );
 }

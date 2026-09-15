@@ -2,11 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AnalyticsLink } from "@/components/analytics-link";
 import { CategoryViewTracker } from "@/components/analytics-trackers";
-import { ProductGrid } from "@/components/product-grid";
+import { CategoryBanner } from "@/components/category-banner";
+import { ProductFilters } from "@/components/product-filters";
 import { Reveal } from "@/components/reveal";
-import { SortSelect } from "@/components/sort-select";
 import { createSizeGuideClickEvent } from "@/lib/analytics";
-import { normalizeSortOrder, sortProducts } from "@/lib/product-sorting";
+import { getCategoryBanner } from "@/lib/category-banners";
+import { normalizeSortOrder } from "@/lib/product-sorting";
 import {
   getRingMaterialGroup,
   getRingProducts,
@@ -66,7 +67,7 @@ export default function RingCategoryPage({
   searchParams
 }: {
   params: { material: string; tipo?: string[] };
-  searchParams?: { ordem?: string };
+  searchParams?: { busca?: string; material?: string; preco?: string; ordem?: string };
 }) {
   const materialSlug = params.material;
   const subcategoryPath = params.tipo ?? [];
@@ -84,8 +85,21 @@ export default function RingCategoryPage({
   }
 
   const sortOrder = normalizeSortOrder(searchParams?.ordem);
-  const products = sortProducts(getRingProducts(materialSlug, subcategory?.slug), sortOrder);
+  const products = getRingProducts(materialSlug, subcategory?.slug);
+  const bannerProduct = products[0] ?? getRingProducts(materialSlug)[0];
   const title = subcategory ? `Anéis ${group.label} ${subcategory.label}` : `Anéis ${group.label}`;
+  const subtitle = subcategory
+    ? `Modelos ${subcategory.label.toLowerCase()} em ${group.label}, selecionados para momentos especiais.`
+    : `Todos os modelos de anéis em ${group.label}, reunidos em uma seleção elegante da Marjouxs.`;
+  const banner = getCategoryBanner({
+    categorySlug: "aneis",
+    variantSlug: subcategory?.slug ?? group.slug,
+    eyebrow: "Anéis",
+    fallbackTitle: title,
+    fallbackSubtitle: subtitle,
+    image: bannerProduct?.images[0],
+    imageAlt: bannerProduct?.name
+  });
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -107,18 +121,10 @@ export default function RingCategoryPage({
       </Reveal>
 
       <Reveal delay={60} distance={16}>
-        <div className="mb-8 max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Anéis</p>
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">{title}</h1>
-          <p className="mt-4 leading-7 text-taupe">
-            {subcategory
-              ? `Modelos ${subcategory.label.toLowerCase()} em ${group.label}, selecionados para momentos especiais.`
-              : `Todos os modelos de anéis em ${group.label}, reunidos em uma seleção elegante da Marjouxs.`}
-          </p>
-          <AnalyticsLink href="/guia-de-tamanhos" analyticsEvents={createSizeGuideClickEvent("category_page")} className="mt-4 inline-flex text-sm font-semibold text-ink hover:text-gold">
-            Não sabe seu tamanho? Veja nosso Guia de Tamanhos
-          </AnalyticsLink>
-        </div>
+        <CategoryBanner banner={banner} />
+        <AnalyticsLink href="/guia-de-tamanhos" analyticsEvents={createSizeGuideClickEvent("category_page")} className="mb-8 mt-4 inline-flex text-sm font-semibold text-ink transition hover:text-gold">
+          Não sabe seu tamanho? Veja nosso Guia de Tamanhos
+        </AnalyticsLink>
       </Reveal>
 
       <Reveal delay={100} distance={14}>
@@ -167,13 +173,17 @@ export default function RingCategoryPage({
         </div>
       </Reveal>
 
-      <Reveal delay={180} distance={12}>
-        <div className="mb-5 flex justify-end">
-          <SortSelect value={sortOrder} />
-        </div>
-      </Reveal>
-
-      <ProductGrid products={products} emptyMessage="Nenhum anel encontrado nesta seleção." itemListName={title} source="category_page" />
+      <ProductFilters
+        initialQuery={searchParams?.busca}
+        initialMaterial={searchParams?.material}
+        initialPriceRange={searchParams?.preco}
+        initialOrder={sortOrder}
+        products={products}
+        showCategoryFilter={false}
+        emptyMessage="Nenhum anel encontrado nesta seleção."
+        itemListName={title}
+        source="category_page"
+      />
     </section>
   );
 }

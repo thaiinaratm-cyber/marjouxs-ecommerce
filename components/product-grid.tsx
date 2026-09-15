@@ -1,5 +1,6 @@
 import { ProductCard } from "@/components/product-card";
 import { Reveal } from "@/components/reveal";
+import type { ReactNode } from "react";
 import type { Product } from "@/types/product";
 
 export function ProductGrid({
@@ -9,7 +10,7 @@ export function ProductGrid({
   source = "product_grid"
 }: {
   products: Product[];
-  emptyMessage?: string;
+  emptyMessage?: ReactNode;
   itemListName?: string;
   source?: string;
 }) {

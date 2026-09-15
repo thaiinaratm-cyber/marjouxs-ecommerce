@@ -1,5 +1,6 @@
 import { normalizeText } from "@/lib/format";
 import { hasIncludedEngravingAndBox, hasValidPrice } from "@/lib/product-pricing";
+import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
 import type { Product } from "@/types/product";
 
 export type ProductCommercialDetailKind =
@@ -30,10 +31,6 @@ export type ProductTrustBenefit = {
   label: string;
 };
 
-function capitalize(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
 export function isMadeToOrder(product: Product) {
   if (product.stockStatus === "Indisponível" || product.stockStatus === "Serviço") {
     return false;
@@ -47,8 +44,9 @@ export function isMadeToOrder(product: Product) {
 }
 
 export function getProductionDeadline(product: Product) {
-  const match = product.description.match(/\baté\s+\d+\s+dias?(?:\s+úteis)?\b/i);
-  return match ? capitalize(match[0]) : null;
+  return product.category === "Serviços" || product.stockStatus === "Serviço"
+    ? null
+    : JEWELRY_PRODUCTION_DEADLINE;
 }
 
 function getWarrantyDescription(product: Product) {
@@ -83,7 +81,7 @@ export function getProductCommercialDetails(product: Product) {
       ? { kind: "sizing", label: "Numeração", value: "Escolha os dois aros abaixo" }
       : null,
     productionDeadline
-      ? { kind: "production", label: "Confecção", value: productionDeadline }
+      ? { kind: "production", label: "Prazo de confecção", value: productionDeadline }
       : null,
     alliance
       ? { kind: "pair", label: "Valor", value: "Referente ao par" }
