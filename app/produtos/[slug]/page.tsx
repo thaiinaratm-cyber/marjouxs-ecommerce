@@ -1,79 +1,42 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Award, ChevronLeft, MessageCircle, Ruler, Sparkles } from "lucide-react";
+import { Award, MessageCircle, Ruler, Sparkles } from "lucide-react";
 import { AnalyticsAnchor, AnalyticsLink } from "@/components/analytics-link";
 import { ProductViewTracker } from "@/components/analytics-trackers";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductCommercialInfo, ProductTrustBlock } from "@/components/product-commercial-info";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductPrice } from "@/components/product-price";
 import { ProductPurchaseActions } from "@/components/product-purchase-actions";
 import { RelatedProducts } from "@/components/related-products";
 import { createSizeGuideClickEvent, createWhatsappClickEvent } from "@/lib/analytics";
-import { hasValidPrice } from "@/lib/product-pricing";
 import { getProductBySlug, getRelatedProducts } from "@/lib/products";
+import {
+  absoluteUrl,
+  DEFAULT_SOCIAL_IMAGE,
+  getProductBreadcrumbs,
+  getProductSchema,
+  getProductSeoDescription,
+  serializeJsonLd
+} from "@/lib/seo";
 import { buildQuoteUrl } from "@/lib/whatsapp";
-import type { Product } from "@/types/product";
-
-const STORE_URL = "https://marjouxsjoias.com.br";
-
-function getAbsoluteImageUrl(product: Product) {
-  const image = product.images?.[0];
-
-  if (!image) {
-    return `${STORE_URL}/produtos`;
-  }
-
-  if (image.startsWith("http://") || image.startsWith("https://")) {
-    return image;
-  }
-
-  return `${STORE_URL}${image.startsWith("/") ? image : `/${image}`}`;
-}
-
-function getProductDescription(product: Product) {
-  const material = product.material ? `${product.material} ` : "";
-  return `${product.name} ${material}na Marjouxs Joalheria. Consulte disponibilidade, condições e atendimento pelo WhatsApp.`;
-}
-
-function getProductSchema(product: Product) {
-  const schema: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description || getProductDescription(product),
-    image: product.images.map((image) =>
-      image.startsWith("http://") || image.startsWith("https://") ? image : `${STORE_URL}${image.startsWith("/") ? image : `/${image}`}`
-    ),
-    brand: {
-      "@type": "Brand",
-      name: "Marjouxs"
-    }
-  };
-
-  if (hasValidPrice(product) && product.price) {
-    schema.offers = {
-      "@type": "Offer",
-      price: product.price.toFixed(2),
-      priceCurrency: "BRL",
-      url: `${STORE_URL}/produtos/${product.slug}`,
-      availability: product.stockStatus === "Disponível" ? "https://schema.org/InStock" : "https://schema.org/PreOrder"
-    };
-  }
-
-  return schema;
-}
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const product = getProductBySlug(params.slug);
 
   if (!product) {
     return {
-      title: "Produto | Marjouxs"
+      title: "Produto | Marjouxs",
+      robots: {
+        index: false,
+        follow: false
+      }
     };
   }
 
-  const description = getProductDescription(product);
-  const url = `${STORE_URL}/produtos/${product.slug}`;
+  const description = getProductSeoDescription(product);
+  const url = absoluteUrl(`/produtos/${product.slug}`);
+  const image = absoluteUrl(product.images[0] ?? DEFAULT_SOCIAL_IMAGE);
 
   return {
     title: `${product.name} | Marjouxs Joalheria`,
@@ -90,10 +53,16 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
       type: "website",
       images: [
         {
-          url: getAbsoluteImageUrl(product),
+          url: image,
           alt: product.name
         }
       ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | Marjouxs Joalheria`,
+      description,
+      images: [image]
     }
   };
 }
@@ -113,19 +82,18 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
   const showSizeGuideLink = isAlliance || product.category === "Anéis";
   const whatsappUrl = buildQuoteUrl(product);
   const productSchema = getProductSchema(product);
+  const breadcrumbItems = getProductBreadcrumbs(product);
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-28 pt-8 sm:px-6 lg:px-8 lg:pb-12">
       <ProductViewTracker product={product} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(productSchema) }}
       />
-      <Link href="/produtos" className="inline-flex items-center gap-2 text-sm font-semibold text-taupe hover:text-gold">
-        <ChevronLeft size={18} /> Voltar ao catálogo
-      </Link>
+      <Breadcrumbs items={breadcrumbItems} className="mb-6" />
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1.04fr_0.96fr] lg:items-start">
+      <div className="grid gap-8 lg:grid-cols-[1.04fr_0.96fr] lg:items-start">
         <div>
           <ProductGallery images={product.images} productName={product.name} />
           <p className="mt-3 text-xs leading-5 text-taupe">{imageNotice}</p>

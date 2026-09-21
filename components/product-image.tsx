@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ImageIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -29,12 +30,12 @@ export function ProductImage({ src, alt, priority = false, sizes, className = "o
   }
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
+    <Image
       src={imageSrc}
       alt={alt}
+      fill
       sizes={sizes}
-      loading={priority ? "eager" : "lazy"}
+      priority={priority}
       onError={() => setHasError(true)}
       className={`absolute inset-0 h-full w-full ${className}`}
     />

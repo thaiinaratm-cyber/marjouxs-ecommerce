@@ -1,49 +1,29 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CategoryViewTracker } from "@/components/analytics-trackers";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CategoryBanner } from "@/components/category-banner";
 import { ProductFilters } from "@/components/product-filters";
 import { Reveal } from "@/components/reveal";
 import { getCategoryBanner } from "@/lib/category-banners";
+import { categoryFilters, getCategoryFilterHref } from "@/lib/category-navigation";
 import { toProductFilterValue } from "@/lib/product-discovery";
 import { normalizeSortOrder } from "@/lib/product-sorting";
 import { getCategoryBySlug, getProductsByCategory } from "@/lib/products";
 import { matchesRingMaterial } from "@/lib/ring-filters";
+import {
+  absoluteUrl,
+  DEFAULT_SOCIAL_IMAGE,
+  getCategorySeoDescription
+} from "@/lib/seo";
 import type { Product } from "@/types/product";
 
-const categoryFilters: Record<string, { label: string; slug: string; href?: string }[]> = {
-  aliancas: [
-    { label: "Ouro 18k/750", slug: "ouro-18k-750" },
-    { label: "Prata 950", slug: "prata-950" },
-    { label: "Banhado a Ouro", slug: "banhado-a-ouro" },
-    { label: "Moeda", slug: "moeda" }
-  ],
-  aneis: [
-    { label: "Ouro 18k", slug: "ouro-18k", href: "/aneis/ouro-18k" },
-    { label: "Prata 950", slug: "prata-950", href: "/aneis/prata-950" }
-  ],
-  brincos: [
-    { label: "Ouro 18k", slug: "ouro-18k" },
-    { label: "Prata 950", slug: "prata-950" },
-    { label: "Infantil", slug: "infantil" }
-  ],
-  correntes: [
-    { label: "Ouro 18k", slug: "ouro-18k" },
-    { label: "Prata 925", slug: "prata-925" }
-  ],
-  pulseiras: [
-    { label: "Ouro 18k", slug: "ouro-18k" },
-    { label: "Prata 925", slug: "prata-925" },
-    { label: "Infantil", slug: "infantil" }
-  ],
-  braceletes: [
-    { label: "Ouro 18k", slug: "ouro-18k" },
-    { label: "Prata 950", slug: "prata-950" }
-  ],
-  pingentes: [
-    { label: "Ouro 18k", slug: "ouro-18k" },
-    { label: "Prata 950", slug: "prata-950" }
-  ]
+type CategorySearchParams = {
+  subcategoria?: string;
+  busca?: string;
+  material?: string;
+  preco?: string;
+  ordem?: string;
 };
 
 function getCategorySeo(category: { name: string; slug: string; description: string }) {
@@ -177,11 +157,20 @@ function matchesProductFilter(product: Product, selectedFilter: string) {
   return subcategory === selectedFilter;
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export function generateMetadata({
+  params,
+  searchParams
+}: {
+  params: { slug: string };
+  searchParams?: CategorySearchParams;
+}) {
   if (params.slug === "servicos") {
     return {
       title: "Serviços | Marjouxs",
-      description: "Serviços de joalheria e relojoaria da Marjouxs em Arujá."
+      description: "Serviços de joalheria e relojoaria da Marjouxs em Arujá.",
+      alternates: {
+        canonical: absoluteUrl("/servicos")
+      }
     };
   }
 
@@ -189,26 +178,74 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
 
   if (!category) {
     return {
-      title: "Categoria | Marjouxs"
+      title: "Categoria | Marjouxs",
+      robots: {
+        index: false,
+        follow: false
+      }
     };
   }
 
-  const seo = getCategorySeo(category);
-  const url = `https://marjouxsjoias.com.br/categorias/${category.slug}`;
+  const baseSeo = getCategorySeo(category);
+  const categoryProducts = getProductsByCategory(category.name);
+  const selectedSubcategory = searchParams?.subcategoria ?? "";
+  const filterOptions = categoryFilters[category.slug] ?? [];
+  const selectedFilter = filterOptions.find((filter) => filter.slug === selectedSubcategory);
+  const filteredProducts = selectedFilter
+    ? categoryProducts.filter((product) => matchesProductFilter(product, selectedFilter.slug))
+    : categoryProducts;
+  const bannerProduct = filteredProducts[0] ?? categoryProducts[0];
+  const banner = getCategoryBanner({
+    categorySlug: category.slug,
+    variantSlug: selectedFilter?.slug,
+    eyebrow: category.name,
+    fallbackTitle: selectedFilter ? `${category.name}: ${selectedFilter.label}` : `${category.name} Marjouxs`,
+    fallbackSubtitle: category.description,
+    image: bannerProduct?.images[0],
+    imageAlt: bannerProduct?.name
+  });
+  const canonicalPath = selectedFilter
+    ? getCategoryFilterHref(category.slug, selectedFilter)
+    : `/categorias/${category.slug}`;
+  const url = absoluteUrl(canonicalPath);
+  const hasNavigationalFilters = Boolean(
+    searchParams?.busca || searchParams?.material || searchParams?.preco || searchParams?.ordem
+  );
+  const shouldNoIndex = hasNavigationalFilters || Boolean(selectedSubcategory && !selectedFilter);
+  const title = selectedFilter ? `${banner.title} | Marjouxs Joalheria` : baseSeo.title;
+  const description = selectedFilter
+    ? getCategorySeoDescription(banner.subtitle, filteredProducts)
+    : baseSeo.description;
+  const image = absoluteUrl(banner.image ?? DEFAULT_SOCIAL_IMAGE);
 
   return {
-    title: seo.title,
-    description: seo.description,
+    title,
+    description,
     alternates: {
       canonical: url
     },
+    ...(shouldNoIndex
+      ? {
+          robots: {
+            index: false,
+            follow: true
+          }
+        }
+      : {}),
     openGraph: {
-      title: seo.title,
-      description: seo.description,
+      title,
+      description,
       url,
       siteName: "Marjouxs",
       locale: "pt_BR",
-      type: "website"
+      type: "website",
+      images: [{ url: image, alt: banner.imageAlt ?? banner.title }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image]
     }
   };
 }
@@ -218,13 +255,7 @@ export default function CategoryPage({
   searchParams
 }: {
   params: { slug: string };
-  searchParams?: {
-    subcategoria?: string;
-    busca?: string;
-    material?: string;
-    preco?: string;
-    ordem?: string;
-  };
+  searchParams?: CategorySearchParams;
 }) {
   if (params.slug === "servicos") {
     redirect("/servicos");
@@ -258,6 +289,18 @@ export default function CategoryPage({
     image: bannerProduct?.images[0],
     imageAlt: bannerProduct?.name
   });
+  const breadcrumbItems = [
+    { name: "Home", href: "/" },
+    { name: category.name, href: `/categorias/${category.slug}` },
+    ...(selectedSubcategory
+      ? [{
+          name: selectedBannerFilter?.label ?? selectedSubcategory.replace(/-/g, " "),
+          href: selectedBannerFilter
+            ? getCategoryFilterHref(category.slug, selectedBannerFilter)
+            : `/categorias/${category.slug}?subcategoria=${encodeURIComponent(selectedSubcategory)}`
+        }]
+      : [])
+  ];
   const buildCategoryHref = (subcategory?: string, href?: string) => {
     if (href) {
       return href;
@@ -279,6 +322,7 @@ export default function CategoryPage({
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <CategoryViewTracker categoryName={category.name} />
+      <Breadcrumbs items={breadcrumbItems} className="mb-6" />
       <Reveal>
         <CategoryBanner banner={banner} className="mb-8" />
       </Reveal>

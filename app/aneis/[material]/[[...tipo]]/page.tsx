@@ -2,12 +2,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AnalyticsLink } from "@/components/analytics-link";
 import { CategoryViewTracker } from "@/components/analytics-trackers";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CategoryBanner } from "@/components/category-banner";
 import { ProductFilters } from "@/components/product-filters";
 import { Reveal } from "@/components/reveal";
 import { createSizeGuideClickEvent } from "@/lib/analytics";
 import { getCategoryBanner } from "@/lib/category-banners";
 import { normalizeSortOrder } from "@/lib/product-sorting";
+import {
+  absoluteUrl,
+  DEFAULT_SOCIAL_IMAGE,
+  getCategorySeoDescription
+} from "@/lib/seo";
 import {
   getRingMaterialGroup,
   getRingProducts,
@@ -16,6 +22,13 @@ import {
   ringMaterialGroups,
   type RingSubcategorySlug
 } from "@/lib/ring-filters";
+
+type RingSearchParams = {
+  busca?: string;
+  material?: string;
+  preco?: string;
+  ordem?: string;
+};
 
 export function generateStaticParams() {
   return ringMaterialGroups.flatMap((group) => [
@@ -27,11 +40,21 @@ export function generateStaticParams() {
   ]);
 }
 
-export function generateMetadata({ params }: { params: { material: string; tipo?: string[] } }) {
+export function generateMetadata({
+  params,
+  searchParams
+}: {
+  params: { material: string; tipo?: string[] };
+  searchParams?: RingSearchParams;
+}) {
   if (!isRingMaterialSlug(params.material)) {
     return {
       title: "Anéis | Marjouxs Joalheria",
-      description: "Anéis em ouro 18k e prata 950 na Marjouxs Joalheria."
+      description: "Anéis em ouro 18k e prata 950 na Marjouxs Joalheria.",
+      robots: {
+        index: false,
+        follow: false
+      }
     };
   }
 
@@ -39,25 +62,49 @@ export function generateMetadata({ params }: { params: { material: string; tipo?
   const subcategory = getRingSubcategory(params.material, params.tipo?.[0]);
   const title = subcategory ? `Anéis ${group?.label} ${subcategory.label}` : `Anéis ${group?.label}`;
   const description = subcategory
-    ? `Veja modelos de anéis ${subcategory.label.toLowerCase()} em ${group?.label} na Marjouxs Joalheria e fale com a equipe pelo WhatsApp.`
-    : `Veja anéis em ${group?.label} na Marjouxs Joalheria. Consulte modelos, disponibilidade e condições pelo WhatsApp.`;
-  const url = subcategory
-    ? `https://marjouxsjoias.com.br/aneis/${params.material}/${subcategory.slug}`
-    : `https://marjouxsjoias.com.br/aneis/${params.material}`;
+    ? `Modelos ${subcategory.label.toLowerCase()} em ${group?.label}, selecionados para momentos especiais.`
+    : `Todos os modelos de anéis em ${group?.label}, reunidos em uma seleção elegante da Marjouxs.`;
+  const products = getRingProducts(params.material, subcategory?.slug);
+  const bannerProduct = products[0] ?? getRingProducts(params.material)[0];
+  const seoDescription = getCategorySeoDescription(description, products);
+  const url = absoluteUrl(
+    subcategory
+      ? `/aneis/${params.material}/${subcategory.slug}`
+      : `/aneis/${params.material}`
+  );
+  const image = absoluteUrl(bannerProduct?.images[0] ?? DEFAULT_SOCIAL_IMAGE);
+  const hasNavigationalFilters = Boolean(
+    searchParams?.busca || searchParams?.material || searchParams?.preco || searchParams?.ordem
+  );
 
   return {
     title: `${title} | Marjouxs Joalheria`,
-    description,
+    description: seoDescription,
     alternates: {
       canonical: url
     },
+    ...(hasNavigationalFilters
+      ? {
+          robots: {
+            index: false,
+            follow: true
+          }
+        }
+      : {}),
     openGraph: {
       title: `${title} | Marjouxs Joalheria`,
-      description,
+      description: seoDescription,
       url,
       siteName: "Marjouxs",
       locale: "pt_BR",
-      type: "website"
+      type: "website",
+      images: [{ url: image, alt: bannerProduct?.name ?? title }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Marjouxs Joalheria`,
+      description: seoDescription,
+      images: [image]
     }
   };
 }
@@ -67,7 +114,7 @@ export default function RingCategoryPage({
   searchParams
 }: {
   params: { material: string; tipo?: string[] };
-  searchParams?: { busca?: string; material?: string; preco?: string; ordem?: string };
+  searchParams?: RingSearchParams;
 }) {
   const materialSlug = params.material;
   const subcategoryPath = params.tipo ?? [];
@@ -100,24 +147,20 @@ export default function RingCategoryPage({
     image: bannerProduct?.images[0],
     imageAlt: bannerProduct?.name
   });
+  const breadcrumbItems = [
+    { name: "Home", href: "/" },
+    { name: "Anéis", href: "/categorias/aneis" },
+    { name: group.label, href: `/aneis/${group.slug}` },
+    ...(subcategory
+      ? [{ name: subcategory.label, href: `/aneis/${group.slug}/${subcategory.slug}` }]
+      : [])
+  ];
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <CategoryViewTracker categoryName={title} />
       <Reveal distance={12}>
-        <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-taupe">
-          <Link href="/" className="transition hover:text-gold">Home</Link>
-          <span>/</span>
-          <Link href="/categorias/aneis" className="transition hover:text-gold">Anéis</Link>
-          <span>/</span>
-          <Link href={`/aneis/${group.slug}`} className="transition hover:text-gold">{group.label}</Link>
-          {subcategory ? (
-            <>
-              <span>/</span>
-              <span className="text-ink">{subcategory.label}</span>
-            </>
-          ) : null}
-        </nav>
+        <Breadcrumbs items={breadcrumbItems} className="mb-6" />
       </Reveal>
 
       <Reveal delay={60} distance={16}>

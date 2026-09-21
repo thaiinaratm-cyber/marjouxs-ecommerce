@@ -1,16 +1,38 @@
 import { ChevronRight } from "lucide-react";
 import { AnalyticsLink } from "@/components/analytics-link";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { categories } from "@/data/categories";
 import { createCategoryClickEvent } from "@/lib/analytics";
 import { Reveal } from "@/components/reveal";
+import { absoluteUrl, DEFAULT_SOCIAL_IMAGE } from "@/lib/seo";
 
 export const metadata = {
-  title: "Categorias | Marjouxs"
+  title: "Categorias de Joias | Marjouxs Joalheria",
+  description: "Encontre alianças, anéis, brincos, correntes, pulseiras, braceletes, pingentes e relógios na Marjouxs Joalheria.",
+  alternates: {
+    canonical: absoluteUrl("/categorias")
+  },
+  openGraph: {
+    title: "Categorias de Joias | Marjouxs Joalheria",
+    description: "Encontre joias por categoria e material na Marjouxs Joalheria.",
+    url: absoluteUrl("/categorias"),
+    siteName: "Marjouxs",
+    locale: "pt_BR",
+    type: "website",
+    images: [{ url: absoluteUrl(DEFAULT_SOCIAL_IMAGE), alt: "Categorias de joias Marjouxs" }]
+  }
 };
 
 export default function CategoriesPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumbs
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Categorias", href: "/categorias" }
+        ]}
+        className="mb-6"
+      />
       <Reveal>
         <div className="mb-8 max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Categorias</p>

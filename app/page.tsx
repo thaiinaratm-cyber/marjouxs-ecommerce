@@ -33,6 +33,12 @@ export const metadata = {
         alt: "Marjouxs Joalheria"
       }
     ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Marjouxs Joalheria | Joias, Alianças e Relógios em Arujá",
+    description: "Joias, alianças, ouro 18k, prata, relógios e serviços de joalheria em Arujá.",
+    images: ["https://marjouxsjoias.com.br/images/banner-aliancas-marjouxs.png"]
   }
 };
 
