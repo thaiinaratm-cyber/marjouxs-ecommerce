@@ -324,7 +324,11 @@ export default function CategoryPage({
       <CategoryViewTracker categoryName={category.name} />
       <Breadcrumbs items={breadcrumbItems} className="mb-6" />
       <Reveal>
-        <CategoryBanner banner={banner} className="mb-8" />
+        <CategoryBanner
+          banner={banner}
+          page={{ categorySlug: category.slug, variantSlug: bannerVariant }}
+          className="mb-8"
+        />
       </Reveal>
       {filterOptions.length > 0 && (
         <Reveal delay={80} distance={14}>

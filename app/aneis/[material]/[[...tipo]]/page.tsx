@@ -164,7 +164,14 @@ export default function RingCategoryPage({
       </Reveal>
 
       <Reveal delay={60} distance={16}>
-        <CategoryBanner banner={banner} />
+        <CategoryBanner
+          banner={banner}
+          page={{
+            categorySlug: "aneis",
+            variantSlug: subcategory?.slug ?? group.slug,
+            pathname: `/aneis/${group.slug}${subcategory ? `/${subcategory.slug}` : ""}`
+          }}
+        />
         <AnalyticsLink href="/guia-de-tamanhos" analyticsEvents={createSizeGuideClickEvent("category_page")} className="mb-8 mt-4 inline-flex text-sm font-semibold text-ink transition hover:text-gold">
           Não sabe seu tamanho? Veja nosso Guia de Tamanhos
         </AnalyticsLink>

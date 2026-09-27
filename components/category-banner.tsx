@@ -1,13 +1,41 @@
 import Image from "next/image";
 import { BadgePercent, Clock3 } from "lucide-react";
 import type { CategoryBannerContent } from "@/lib/category-banners";
+import { getCategoryBannerImage, type CategoryBannerPage } from "@/lib/category-banner-images";
 
 type CategoryBannerProps = {
   banner: CategoryBannerContent;
+  page?: CategoryBannerPage;
   className?: string;
 };
 
-export function CategoryBanner({ banner, className = "" }: CategoryBannerProps) {
+export function CategoryBanner({ banner, page, className = "" }: CategoryBannerProps) {
+  const image = page ? getCategoryBannerImage(page) : undefined;
+
+  if (image) {
+    return (
+      <section
+        aria-labelledby="category-banner-title"
+        className={`overflow-hidden rounded-lg border border-black/10 bg-pearl shadow-sm ${className}`}
+      >
+        <div className="sr-only">
+          <h1 id="category-banner-title">{banner.title}</h1>
+          <p>{banner.subtitle}</p>
+          {banner.description ? <p>{banner.description}</p> : null}
+        </div>
+        <Image
+          src={image.src}
+          alt={image.alt}
+          width={image.width}
+          height={image.height}
+          sizes="(max-width: 1279px) 100vw, 1216px"
+          priority
+          className="block h-auto w-full object-contain"
+        />
+      </section>
+    );
+  }
+
   return (
     <section
       aria-labelledby="category-banner-title"
