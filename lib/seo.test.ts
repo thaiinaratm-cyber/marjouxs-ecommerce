@@ -51,7 +51,7 @@ describe("SEO de produto", () => {
     }
   });
 
-  it("mantém o preço cheio sem inventar disponibilidade para produto sob encomenda", () => {
+  it("mantém preço cheio e InStock para produto comprável sob encomenda", () => {
     const schema = getProductSchema(product()) as {
       offers: {
         price: string;
@@ -66,7 +66,7 @@ describe("SEO de produto", () => {
       price: "590.00",
       priceCurrency: "BRL"
     });
-    expect(schema.offers.availability).toBeUndefined();
+    expect(schema.offers.availability).toBe("https://schema.org/InStock");
     expect(schema.aggregateRating).toBeUndefined();
     expect(schema.review).toBeUndefined();
   });
@@ -76,7 +76,7 @@ describe("SEO de produto", () => {
     expect(getProductAvailability(unavailable)).toBe("https://schema.org/OutOfStock");
   });
 
-  it("usa InStock somente para produto disponível que não é sob encomenda", () => {
+  it("também usa InStock para produto disponível à pronta entrega", () => {
     const available = product({
       stockStatus: "Disponível",
       isCustomOrder: false,

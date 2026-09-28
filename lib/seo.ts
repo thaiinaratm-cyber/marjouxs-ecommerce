@@ -1,6 +1,7 @@
 import { categories } from "@/data/categories";
 import { getCategoryFilterHref, getProductCategoryFilter } from "@/lib/category-navigation";
 import { normalizeText } from "@/lib/format";
+import { GOOGLE_PRODUCT_BRAND, getGoogleProductAvailability, getGoogleProductId } from "@/lib/google-product-fields";
 import { isMadeToOrder } from "@/lib/product-merchandising";
 import { hasIncludedEngravingAndBox, hasValidPrice } from "@/lib/product-pricing";
 import {
@@ -66,9 +67,9 @@ export function getProductSeoDescription(product: Product) {
 }
 
 export function getProductAvailability(product: Product) {
-  if (product.stockStatus === "Indisponível") return "https://schema.org/OutOfStock";
-  if (isMadeToOrder(product)) return undefined;
-  if (product.stockStatus === "Disponível") return "https://schema.org/InStock";
+  const availability = getGoogleProductAvailability(product);
+  if (availability === "out_of_stock") return "https://schema.org/OutOfStock";
+  if (availability === "in_stock") return "https://schema.org/InStock";
   return undefined;
 }
 
@@ -79,12 +80,13 @@ export function getProductSchema(product: Product) {
     "@type": "Product",
     "@id": `${url}#product`,
     name: product.name,
+    sku: getGoogleProductId(product.id),
     url,
     description: getProductSeoDescription(product),
     image: product.images.map(absoluteUrl),
     brand: {
       "@type": "Brand",
-      name: "Marjouxs"
+      name: GOOGLE_PRODUCT_BRAND
     }
   };
 
@@ -183,6 +185,10 @@ export const organizationWebsiteSchema = {
       email: "marjouxsgold@gmail.com",
       telephone: "+5511915818241",
       sameAs: ["https://www.instagram.com/marjouxs/"],
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        merchantReturnLink: absoluteUrl("/trocas-e-devolucoes")
+      },
       address: {
         "@type": "PostalAddress",
         streetAddress: "Avenida João Manoel, 600, Prédio JM 600, Térreo, Loja 05",
