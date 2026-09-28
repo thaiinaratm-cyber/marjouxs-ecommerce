@@ -10,7 +10,7 @@ import { ProductPrice } from "@/components/product-price";
 import { ProductPurchaseActions } from "@/components/product-purchase-actions";
 import { RelatedProducts } from "@/components/related-products";
 import { createSizeGuideClickEvent, createWhatsappClickEvent } from "@/lib/analytics";
-import { getProductBySlug, getRelatedProducts } from "@/lib/products";
+import { getPublicProductBySlug, getPublicRelatedProducts } from "@/lib/catalog";
 import {
   absoluteUrl,
   DEFAULT_SOCIAL_IMAGE,
@@ -21,8 +21,8 @@ import {
 } from "@/lib/seo";
 import { buildQuoteUrl } from "@/lib/whatsapp";
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const product = getProductBySlug(params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const product = await getPublicProductBySlug(params.slug);
 
   if (!product) {
     return {
@@ -67,14 +67,14 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   };
 }
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
-  const product = getProductBySlug(params.slug);
+export default async function ProductPage({ params }: { params: { slug: string } }) {
+  const product = await getPublicProductBySlug(params.slug);
 
   if (!product) {
     notFound();
   }
 
-  const related = getRelatedProducts(product, 4);
+  const related = await getPublicRelatedProducts(product, 4);
   const isAlliance = product.category === "Alianças";
   const imageNotice = isAlliance
     ? "Imagem ilustrativa. Modelos sob encomenda podem variar conforme largura, numeração, acabamento e gravação escolhidos."

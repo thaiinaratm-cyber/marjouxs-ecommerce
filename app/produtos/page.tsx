@@ -1,8 +1,8 @@
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductFilters } from "@/components/product-filters";
 import { Reveal } from "@/components/reveal";
+import { getPublicProducts } from "@/lib/catalog";
 import { normalizeSortOrder } from "@/lib/product-sorting";
-import { getVisibleProducts } from "@/lib/products";
 import { absoluteUrl, DEFAULT_SOCIAL_IMAGE } from "@/lib/seo";
 
 type ProductSearchParams = {
@@ -54,14 +54,14 @@ export function generateMetadata({ searchParams }: { searchParams?: ProductSearc
   };
 }
 
-export default function ProductsPage({
+export default async function ProductsPage({
   searchParams
 }: {
   searchParams?: ProductSearchParams;
 }) {
   const searchTerm = searchParams?.busca ?? "";
   const sortOrder = normalizeSortOrder(searchParams?.ordem);
-  const visibleProducts = getVisibleProducts();
+  const visibleProducts = await getPublicProducts();
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">

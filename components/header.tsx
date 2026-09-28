@@ -27,6 +27,8 @@ import { getVisibleProducts } from "@/lib/products";
 import { searchProducts } from "@/lib/product-discovery";
 import { getInstallmentsText, hasValidPrice } from "@/lib/product-pricing";
 import { useCart } from "@/context/cart-context";
+import type { CatalogSource } from "@/lib/catalog/config";
+import type { Product } from "@/types/product";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -162,18 +164,60 @@ const serviceItems = [
 
 const searchableProducts = getVisibleProducts();
 
-function SearchBarWithSuggestions({ onSearch }: { onSearch?: () => void }) {
+function SearchBarWithSuggestions({ onSearch, catalogSource }: { onSearch?: () => void; catalogSource: CatalogSource }) {
   const router = useRouter();
   const [term, setTerm] = useState("");
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+  const [databaseSuggestions, setDatabaseSuggestions] = useState<Product[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [suggestionsUnavailable, setSuggestionsUnavailable] = useState(false);
   const searchRef = useRef<HTMLFormElement>(null);
   const suggestionsId = useId();
   const trimmedTerm = term.trim();
   const deferredTerm = useDeferredValue(trimmedTerm);
   const shouldShowSuggestions = trimmedTerm.length >= 2 && isSuggestionsOpen;
-  const suggestions = useMemo(() => {
-    return deferredTerm.length >= 2 ? searchProducts(searchableProducts, deferredTerm, 6) : [];
-  }, [deferredTerm]);
+  const staticSuggestions = useMemo(() => {
+    return catalogSource === "static" && deferredTerm.length >= 2
+      ? searchProducts(searchableProducts, deferredTerm, 6)
+      : [];
+  }, [catalogSource, deferredTerm]);
+  const suggestions = catalogSource === "database" ? databaseSuggestions : staticSuggestions;
+
+  useEffect(() => {
+    if (catalogSource !== "database" || trimmedTerm.length < 2) {
+      setDatabaseSuggestions([]);
+      setIsLoadingSuggestions(false);
+      setSuggestionsUnavailable(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setIsLoadingSuggestions(true);
+    setDatabaseSuggestions([]);
+    setSuggestionsUnavailable(false);
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/catalog/suggestions?busca=${encodeURIComponent(trimmedTerm)}`, {
+          signal: controller.signal
+        });
+        if (!response.ok) throw new Error("suggestions_unavailable");
+        const data = await response.json() as { products: Product[] };
+        setDatabaseSuggestions(data.products);
+      } catch {
+        if (!controller.signal.aborted) {
+          setDatabaseSuggestions([]);
+          setSuggestionsUnavailable(true);
+        }
+      } finally {
+        if (!controller.signal.aborted) setIsLoadingSuggestions(false);
+      }
+    }, 180);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [catalogSource, trimmedTerm]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -238,7 +282,11 @@ function SearchBarWithSuggestions({ onSearch }: { onSearch?: () => void }) {
           aria-label="Sugestões de produtos"
           className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[60] overflow-hidden rounded-lg border border-black/10 bg-white shadow-soft"
         >
-          {suggestions.length > 0 ? (
+          {isLoadingSuggestions ? (
+            <p className="px-4 py-4 text-sm text-taupe">Buscando produtos...</p>
+          ) : suggestionsUnavailable ? (
+            <p className="px-4 py-4 text-sm text-taupe">Busca indisponível no momento</p>
+          ) : suggestions.length > 0 ? (
             <>
               <div className="marjouxs-scrollbar max-h-[min(62vh,25rem)] overflow-y-auto py-2">
                 {suggestions.map((product) => {
@@ -313,7 +361,7 @@ function MenuTitle({ category }: { category: CategoryMenuItem }) {
   );
 }
 
-export function Header() {
+export function Header({ catalogSource = "static" }: { catalogSource?: CatalogSource }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMegaOpen, setIsMegaOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -369,7 +417,7 @@ export function Header() {
           </Link>
 
           <div className="hidden justify-self-center md:block md:w-full md:max-w-xl">
-            <SearchBarWithSuggestions onSearch={closeMenus} />
+            <SearchBarWithSuggestions onSearch={closeMenus} catalogSource={catalogSource} />
           </div>
 
           <div className="flex items-center gap-2 justify-self-end">
@@ -403,7 +451,7 @@ export function Header() {
         </div>
 
         <div className="md:hidden">
-          <SearchBarWithSuggestions onSearch={() => setIsOpen(false)} />
+          <SearchBarWithSuggestions onSearch={() => setIsOpen(false)} catalogSource={catalogSource} />
         </div>
 
         <nav className="hidden items-center justify-center gap-7 lg:flex">

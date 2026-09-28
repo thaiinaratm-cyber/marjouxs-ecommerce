@@ -4,6 +4,7 @@ import { FloatingWhatsappButton } from "@/components/floating-whatsapp-button";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { Header } from "@/components/header";
 import { Providers } from "@/app/providers";
+import { getCatalogSource } from "@/lib/catalog/config";
 import {
   absoluteUrl,
   DEFAULT_SOCIAL_IMAGE,
@@ -50,7 +51,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationWebsiteSchema) }}
         />
         <Providers>
-          <Header />
+          <Header catalogSource={getCatalogSource()} />
           <main>{children}</main>
           <Footer />
           <FloatingWhatsappButton />

@@ -32,6 +32,12 @@ export type Product = {
   isCustomOrder: boolean;
   allowWhatsappQuote: boolean;
   stockStatus: StockStatus;
+  saleUnit?: "pair" | "unit";
+  engravingAvailable?: boolean;
+  engravingIncluded?: boolean;
+  jewelryBoxIncluded?: boolean;
+  sizeMin?: number | null;
+  sizeMax?: number | null;
 };
 
 export type RingPairCustomization = {

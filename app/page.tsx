@@ -5,7 +5,7 @@ import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { createCategoryClickEvent, createContactClickEvent, createDirectionsClickEvent, createSizeGuideClickEvent, createWhatsappClickEvent } from "@/lib/analytics";
 import { normalizeText } from "@/lib/format";
 import { hasValidPrice } from "@/lib/product-pricing";
-import { getHomeFeaturedProducts, getVisibleProducts } from "@/lib/products";
+import { getPublicProducts } from "@/lib/catalog";
 import { AnalyticsLink } from "@/components/analytics-link";
 import { FaqSection } from "@/components/faq-section";
 import { HelpCard } from "@/components/help-card";
@@ -44,10 +44,6 @@ export const metadata = {
 
 function getProductText(product: Product) {
   return normalizeText([product.name, product.category, product.subcategory, product.material, product.description].join(" "));
-}
-
-function getCatalogProducts() {
-  return getVisibleProducts().filter((product) => product.category !== "Serviços");
 }
 
 function pickProducts(products: Product[], predicate: (product: Product) => boolean, limit = 4) {
@@ -217,10 +213,16 @@ function ProductSection({
   );
 }
 
-export default function HomePage() {
-  const catalogProducts = getCatalogProducts();
+export default async function HomePage() {
+  const visibleProducts = await getPublicProducts();
+  const catalogProducts = visibleProducts.filter((product) => product.category !== "Serviços");
   const pricedProducts = catalogProducts.filter((product) => hasValidPrice(product));
-  const featuredProducts = getHomeFeaturedProducts(8).filter((product) => product.category !== "Serviços").slice(0, 4);
+  const featured = visibleProducts.filter((product) => product.featured);
+  const featuredIds = new Set(featured.map((product) => product.id));
+  const featuredProducts = (featured.length >= 8
+    ? featured
+    : [...featured, ...visibleProducts.filter((product) => !featuredIds.has(product.id))].slice(0, 8))
+    .filter((product) => product.category !== "Serviços").slice(0, 4);
   const allianceProducts = pickProducts(pricedProducts, (product) => product.category === "Alianças");
   const goldProducts = pickProducts(pricedProducts, (product) => getProductText(product).includes("ouro 18k"));
   const silverProducts = pickProducts(pricedProducts, (product) => getProductText(product).includes("prata"));

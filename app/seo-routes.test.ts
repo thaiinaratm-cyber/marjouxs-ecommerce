@@ -1,10 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
+import { getVisibleProducts } from "@/lib/products";
+
+vi.mock("@/lib/catalog", () => ({ getPublicProducts: () => Promise.resolve(getVisibleProducts()) }));
 
 describe("rotas técnicas de SEO", () => {
-  it("inclui páginas públicas, produtos e subcategorias no sitemap", () => {
-    const urls = sitemap().map((entry) => entry.url);
+  it("inclui páginas públicas, produtos e subcategorias no sitemap", async () => {
+    const urls = (await sitemap()).map((entry) => entry.url);
 
     expect(urls).toContain("https://marjouxsjoias.com.br/");
     expect(urls).toContain("https://marjouxsjoias.com.br/produtos");
@@ -13,8 +16,8 @@ describe("rotas técnicas de SEO", () => {
     expect(urls.some((url) => url.startsWith("https://marjouxsjoias.com.br/produtos/"))).toBe(true);
   });
 
-  it("não inclui áreas transacionais ou privadas no sitemap", () => {
-    const urls = sitemap().map((entry) => entry.url);
+  it("não inclui áreas transacionais ou privadas no sitemap", async () => {
+    const urls = (await sitemap()).map((entry) => entry.url);
 
     expect(urls.some((url) => url.includes("/checkout"))).toBe(false);
     expect(urls.some((url) => url.includes("/carrinho"))).toBe(false);

@@ -7,9 +7,10 @@ import { ProductFilters } from "@/components/product-filters";
 import { Reveal } from "@/components/reveal";
 import { getCategoryBanner } from "@/lib/category-banners";
 import { categoryFilters, getCategoryFilterHref } from "@/lib/category-navigation";
+import { getPublicProductsByCategory } from "@/lib/catalog";
 import { toProductFilterValue } from "@/lib/product-discovery";
 import { normalizeSortOrder } from "@/lib/product-sorting";
-import { getCategoryBySlug, getProductsByCategory } from "@/lib/products";
+import { getCategoryBySlug } from "@/lib/products";
 import { matchesRingMaterial } from "@/lib/ring-filters";
 import {
   absoluteUrl,
@@ -157,7 +158,7 @@ function matchesProductFilter(product: Product, selectedFilter: string) {
   return subcategory === selectedFilter;
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
   searchParams
 }: {
@@ -187,7 +188,7 @@ export function generateMetadata({
   }
 
   const baseSeo = getCategorySeo(category);
-  const categoryProducts = getProductsByCategory(category.name);
+  const categoryProducts = await getPublicProductsByCategory(category.name);
   const selectedSubcategory = searchParams?.subcategoria ?? "";
   const filterOptions = categoryFilters[category.slug] ?? [];
   const selectedFilter = filterOptions.find((filter) => filter.slug === selectedSubcategory);
@@ -250,7 +251,7 @@ export function generateMetadata({
   };
 }
 
-export default function CategoryPage({
+export default async function CategoryPage({
   params,
   searchParams
 }: {
@@ -267,7 +268,7 @@ export default function CategoryPage({
     notFound();
   }
 
-  const categoryProducts = getProductsByCategory(category.name);
+  const categoryProducts = await getPublicProductsByCategory(category.name);
   const selectedSubcategory = searchParams?.subcategoria ?? "";
   const sortOrder = normalizeSortOrder(searchParams?.ordem);
   const filterOptions = categoryFilters[category.slug] ?? [];

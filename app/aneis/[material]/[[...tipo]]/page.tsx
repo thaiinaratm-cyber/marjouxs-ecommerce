@@ -7,6 +7,7 @@ import { CategoryBanner } from "@/components/category-banner";
 import { ProductFilters } from "@/components/product-filters";
 import { Reveal } from "@/components/reveal";
 import { createSizeGuideClickEvent } from "@/lib/analytics";
+import { getPublicRingProducts } from "@/lib/catalog";
 import { getCategoryBanner } from "@/lib/category-banners";
 import { normalizeSortOrder } from "@/lib/product-sorting";
 import {
@@ -16,7 +17,6 @@ import {
 } from "@/lib/seo";
 import {
   getRingMaterialGroup,
-  getRingProducts,
   getRingSubcategory,
   isRingMaterialSlug,
   ringMaterialGroups,
@@ -30,17 +30,9 @@ type RingSearchParams = {
   ordem?: string;
 };
 
-export function generateStaticParams() {
-  return ringMaterialGroups.flatMap((group) => [
-    { material: group.slug },
-    ...group.subcategories.map((subcategory) => ({
-      material: group.slug,
-      tipo: [subcategory.slug]
-    }))
-  ]);
-}
+export const dynamic = "force-dynamic";
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
   searchParams
 }: {
@@ -64,8 +56,8 @@ export function generateMetadata({
   const description = subcategory
     ? `Modelos ${subcategory.label.toLowerCase()} em ${group?.label}, selecionados para momentos especiais.`
     : `Todos os modelos de anéis em ${group?.label}, reunidos em uma seleção elegante da Marjouxs.`;
-  const products = getRingProducts(params.material, subcategory?.slug);
-  const bannerProduct = products[0] ?? getRingProducts(params.material)[0];
+  const products = await getPublicRingProducts(params.material, subcategory?.slug);
+  const bannerProduct = products[0] ?? (await getPublicRingProducts(params.material))[0];
   const seoDescription = getCategorySeoDescription(description, products);
   const url = absoluteUrl(
     subcategory
@@ -109,7 +101,7 @@ export function generateMetadata({
   };
 }
 
-export default function RingCategoryPage({
+export default async function RingCategoryPage({
   params,
   searchParams
 }: {
@@ -132,8 +124,8 @@ export default function RingCategoryPage({
   }
 
   const sortOrder = normalizeSortOrder(searchParams?.ordem);
-  const products = getRingProducts(materialSlug, subcategory?.slug);
-  const bannerProduct = products[0] ?? getRingProducts(materialSlug)[0];
+  const products = await getPublicRingProducts(materialSlug, subcategory?.slug);
+  const bannerProduct = products[0] ?? (await getPublicRingProducts(materialSlug))[0];
   const title = subcategory ? `Anéis ${group.label} ${subcategory.label}` : `Anéis ${group.label}`;
   const subtitle = subcategory
     ? `Modelos ${subcategory.label.toLowerCase()} em ${group.label}, selecionados para momentos especiais.`

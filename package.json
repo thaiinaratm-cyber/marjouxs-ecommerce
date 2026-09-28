@@ -9,6 +9,7 @@
     "test": "vitest run",
     "gerar-produtos": "node scripts/gerar-produtos.ts",
     "import-products": "node scripts/import-products.ts",
+    "catalog:shadow-check": "node --env-file-if-exists=.env.local scripts/catalog-shadow-check.ts",
     "start": "next start",
     "lint": "next lint"
   },
