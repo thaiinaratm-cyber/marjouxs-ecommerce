@@ -9,7 +9,7 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 GA4_API_SECRET=seu-segredo-do-measurement-protocol
 ```
 
-Use `.env.local` no desenvolvimento e a variável de ambiente do Netlify em produção. O valor não é um segredo, mas não fica gravado no código. Quando a variável está ausente ou não começa com `G-`, nenhum script é carregado e os helpers permanecem inativos.
+Use `.env.local` no desenvolvimento e a variável de ambiente do Netlify em produção. O valor não é um segredo, mas não fica gravado no código. Quando a variável está ausente ou não começa com `G-`, os eventos e helpers do GA4 permanecem inativos. A Google Tag compartilhada continua carregando o Google Ads; veja `docs/google-ads.md`.
 
 ## Eventos implementados
 

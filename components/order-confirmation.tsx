@@ -10,6 +10,7 @@ import {
   TriangleAlert
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { trackGoogleAdsPurchaseWhenReady } from "@/lib/google-ads";
 import { OrderDeliveryDetails, OrderItemsList, OrderPurchaseSummary } from "@/components/order-summary";
 import { OrderTimeline } from "@/components/order-timeline";
 import { useCart } from "@/context/cart-context";
@@ -58,6 +59,7 @@ export function OrderConfirmation({ token }: { token: string }) {
     }
 
     let active = true;
+    let stopPurchaseTracking = () => {};
     let timeoutId: ReturnType<typeof setTimeout>;
 
     async function loadOrder() {
@@ -74,6 +76,8 @@ export function OrderConfirmation({ token }: { token: string }) {
         if (!active) return;
 
         const nextOrder = body as PublicOrder;
+        stopPurchaseTracking();
+        stopPurchaseTracking = trackGoogleAdsPurchaseWhenReady(nextOrder);
         setOrder(nextOrder);
         setError("");
         if (nextOrder.paymentStatus === "pending") {
@@ -93,6 +97,7 @@ export function OrderConfirmation({ token }: { token: string }) {
     void loadOrder();
     return () => {
       active = false;
+      stopPurchaseTracking();
       clearTimeout(timeoutId);
     };
   }, [token]);

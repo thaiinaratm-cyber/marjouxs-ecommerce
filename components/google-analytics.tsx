@@ -3,11 +3,13 @@
 import Script from "next/script";
 import { Suspense, useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { trackPageView } from "@/lib/analytics";
 import {
-  GA_MEASUREMENT_ID,
-  isGoogleAnalyticsConfigured,
-  trackPageView
-} from "@/lib/analytics";
+  GOOGLE_TAG_SCRIPT_URL,
+  initializeGoogleTag,
+  markGoogleTagReady,
+  updateGooglePageContext
+} from "@/lib/google-tag";
 
 let lastTrackedNavigation = "";
 
@@ -19,11 +21,10 @@ function PageViewTracker() {
   useEffect(() => {
     const navigationKey = pathname + "?" + searchParamsKey;
 
-    if (lastTrackedNavigation === navigationKey) {
-      return;
-    }
+    if (lastTrackedNavigation === navigationKey) return;
 
     lastTrackedNavigation = navigationKey;
+    updateGooglePageContext();
     trackPageView(pathname, document.title);
   }, [pathname, searchParamsKey]);
 
@@ -31,34 +32,25 @@ function PageViewTracker() {
 }
 
 export function GoogleAnalytics() {
+  const [isInitialized, setIsInitialized] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  if (!isGoogleAnalyticsConfigured()) {
-    return null;
-  }
+  useEffect(() => {
+    setIsInitialized(initializeGoogleTag());
+  }, []);
 
-  const debugMode = process.env.NODE_ENV === "development";
-  const bootstrapScript = [
-    "window.dataLayer = window.dataLayer || [];",
-    "window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};",
-    "window.gtag('js', new Date());",
-    "window.gtag('config', " +
-      JSON.stringify(GA_MEASUREMENT_ID) +
-      ", { send_page_view: false, debug_mode: " +
-      String(debugMode) +
-      " });"
-  ].join("\n");
+  if (!isInitialized) return null;
 
   return (
     <>
-      <Script id="ga4-bootstrap" strategy="afterInteractive">
-        {bootstrapScript}
-      </Script>
       <Script
         id="ga4-script"
-        src={"https://www.googletagmanager.com/gtag/js?id=" + GA_MEASUREMENT_ID}
+        src={GOOGLE_TAG_SCRIPT_URL}
         strategy="afterInteractive"
-        onReady={() => setIsReady(true)}
+        onReady={() => {
+          markGoogleTagReady();
+          setIsReady(true);
+        }}
       />
       {isReady ? (
         <Suspense fallback={null}>
