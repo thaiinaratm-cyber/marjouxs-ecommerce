@@ -1,4 +1,5 @@
-import { CheckoutValidationError, resolveCheckoutCart } from "@/lib/checkout/catalog";
+import { CheckoutValidationError } from "@/lib/checkout/catalog";
+import { resolveAuthoritativeCheckoutCart } from "@/lib/checkout/catalog-server";
 import {
   CheckoutProcessError,
   checkoutRpcError,
@@ -17,6 +18,7 @@ import { quoteShipping } from "@/lib/checkout/shipping";
 import { getSupabaseAdmin } from "@/lib/checkout/supabase";
 import type { createCheckoutSchema } from "@/lib/checkout/schemas";
 import type { z } from "zod";
+import type { ValidatedCart } from "@/types/checkout";
 
 type CheckoutRequest = z.infer<typeof createCheckoutSchema>;
 
@@ -90,7 +92,7 @@ async function failAttempt(
 async function createProviderLink(
   rpcCheckout: CreateCheckoutRpcRow,
   request: CheckoutRequest,
-  cart: ReturnType<typeof resolveCheckoutCart>,
+  cart: ValidatedCart,
   shipping: Awaited<ReturnType<typeof quoteShipping>>[number] | null,
   siteUrl: string
 ): Promise<CheckoutResult> {
@@ -213,7 +215,7 @@ async function createProviderLink(
 }
 
 export async function createCheckout(request: CheckoutRequest, siteUrl: string) {
-  const cart = resolveCheckoutCart(request.items);
+  const cart = await resolveAuthoritativeCheckoutCart(request.items);
   let selectedShipping: Awaited<ReturnType<typeof quoteShipping>>[number] | null = null;
 
   if (request.delivery.method === "shipping") {

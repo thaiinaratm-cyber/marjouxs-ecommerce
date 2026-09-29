@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resolveShipmentCart } from "@/lib/checkout/catalog";
+import { resolveAuthoritativeShipmentCart } from "@/lib/checkout/catalog-server";
 import { apiError, validationError } from "@/lib/checkout/http";
 import { shippingQuoteRequestSchema } from "@/lib/checkout/schemas";
 import {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       return validationError();
     }
 
-    const cart = resolveShipmentCart(parsed.data.items);
+    const cart = await resolveAuthoritativeShipmentCart(parsed.data.items);
     const sandboxDiagnostics = isMelhorEnvioSandbox();
     const options = await quoteShipping(
       parsed.data.postalCode,

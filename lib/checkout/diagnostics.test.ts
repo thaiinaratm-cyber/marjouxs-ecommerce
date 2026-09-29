@@ -2,8 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import {
   checkoutRpcError,
   logCheckoutFailure,
-  requestValidationError
+  requestValidationError,
+  toCheckoutProcessError
 } from "@/lib/checkout/diagnostics";
+import { CheckoutValidationError } from "@/lib/checkout/catalog";
+import { CheckoutCatalogReadError } from "@/lib/checkout/catalog-server";
 
 describe("checkout diagnostics", () => {
   it("registra somente a projeção segura de um erro do Supabase", () => {
@@ -70,6 +73,29 @@ describe("checkout diagnostics", () => {
         constraint_name: null,
         order_nsu: null
       }
+    });
+  });
+
+  it("expõe só o preço atual seguro e mantém o log sem dados do cliente", () => {
+    const failure = toCheckoutProcessError(new CheckoutValidationError(
+      "O preço mudou.", "price_changed", 409,
+      { productSlug: "anel-solitario-prata-950", currentPriceCents: 16000 }
+    ));
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    logCheckoutFailure(failure);
+
+    expect(failure.publicDetails).toEqual({ productSlug: "anel-solitario-prata-950", currentPriceCents: 16000 });
+    expect(failure.diagnostic).toMatchObject({ stage: "price_recalculation", error_code: "price_changed", http_status: 409 });
+    expect(JSON.stringify(consoleSpy.mock.calls)).not.toContain("anel-solitario-prata-950");
+    consoleSpy.mockRestore();
+  });
+
+  it("distingue indisponibilidade técnica do catálogo", () => {
+    const failure = toCheckoutProcessError(new CheckoutCatalogReadError());
+    expect(failure).toMatchObject({
+      publicCode: "checkout_catalog_unavailable",
+      status: 503,
+      diagnostic: { stage: "catalog_read", error_code: "catalog_read_error" }
     });
   });
 });

@@ -143,6 +143,8 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shippingError, setShippingError] = useState("");
   const [checkoutError, setCheckoutError] = useState("");
+  const [priceReviewAccepted, setPriceReviewAccepted] = useState(false);
+  const [validationRevision, setValidationRevision] = useState(0);
   const checkoutAttempt = useRef<{ fingerprint: string; requestId: string } | null>(null);
   const submissionLocked = useRef(false);
   const trackedCheckout = useRef(false);
@@ -151,14 +153,22 @@ export default function CheckoutPage() {
   const lastPostalCodeLookup = useRef("");
 
   const apiItems = useMemo(
-    () =>
-      lines.map(({ productId, productSlug, quantity, customization }) => ({
-        productId,
-        productSlug,
-        quantity,
-        customization
-      })),
-    [lines]
+    () => {
+      const productsByLine = new Map(items.map((item) => [item.lineId, item.product]));
+      return lines.map(({ lineId, productId, productSlug, quantity, customization }) => {
+        const price = productsByLine.get(lineId)?.price;
+        return {
+          productId,
+          productSlug,
+          quantity,
+          customization,
+          ...(price !== null && price !== undefined
+            ? { displayedUnitPriceCents: Math.round(price * 100) }
+            : {})
+        };
+      });
+    },
+    [items, lines]
   );
   const shippingItems = useMemo(
     () => lines.map(({ productId, productSlug, quantity }) => ({ productId, productSlug, quantity })),
@@ -166,6 +176,7 @@ export default function CheckoutPage() {
   );
   const selectedShipping =
     shippingOptions.find((option) => option.shippingQuoteId === selectedShippingId) ?? null;
+  const priceReviewRequired = Boolean(validatedCart?.priceChanges?.length);
   const fallbackSubtotal = items.reduce(
     (sum, item) => sum + (item.product.price ?? 0) * item.quantity,
     0
@@ -180,6 +191,8 @@ export default function CheckoutPage() {
 
     const controller = new AbortController();
     setIsValidating(true);
+    setValidatedCart(null);
+    setPriceReviewAccepted(false);
     setCheckoutError("");
 
     fetch("/api/cart/validate", {
@@ -210,7 +223,7 @@ export default function CheckoutPage() {
       .finally(() => setIsValidating(false));
 
     return () => controller.abort();
-  }, [apiItems, isReady, items]);
+  }, [apiItems, isReady, items, validationRevision]);
 
   const lookupPostalCode = useCallback(
     async (rawPostalCode: string, force = false) => {
@@ -420,7 +433,8 @@ export default function CheckoutPage() {
 
   async function submitCheckout(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!validatedCart || isValidating || submissionLocked.current) return;
+    if (!validatedCart || isValidating || submissionLocked.current ||
+        (priceReviewRequired && !priceReviewAccepted)) return;
 
     const nextErrors = validateCheckoutForm({
       customer,
@@ -436,6 +450,10 @@ export default function CheckoutPage() {
     }
 
     const normalizedCustomer = normalizeCheckoutCustomer(customer);
+    const paymentItems = apiItems.map((line, index) => ({
+      ...line,
+      displayedUnitPriceCents: validatedCart.items[index]?.unitPriceCents ?? line.displayedUnitPriceCents
+    }));
     const normalizedAddress = normalizeCheckoutAddress(address);
     const delivery =
       deliveryMethod === "pickup"
@@ -448,7 +466,7 @@ export default function CheckoutPage() {
               shippingQuoteId: selectedShipping!.shippingQuoteId
             }
           };
-    const fingerprint = JSON.stringify({ apiItems, customer: normalizedCustomer, delivery });
+    const fingerprint = JSON.stringify({ paymentItems, customer: normalizedCustomer, delivery });
     if (!checkoutAttempt.current || checkoutAttempt.current.fingerprint !== fingerprint) {
       checkoutAttempt.current = { fingerprint, requestId: crypto.randomUUID() };
     }
@@ -467,7 +485,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           requestId: checkoutAttempt.current.requestId,
-          items: apiItems,
+          items: paymentItems,
           customer: normalizedCustomer,
           delivery,
           analytics: getGoogleAnalyticsIdentifiers()
@@ -475,9 +493,22 @@ export default function CheckoutPage() {
       });
       const body = await response.json().catch(() => null);
       if (!response.ok) {
+        const code = responseCode(body);
+        if (code === "price_changed") {
+          checkoutAttempt.current = null;
+          setValidatedCart(null);
+          setPriceReviewAccepted(false);
+          if (deliveryMethod === "shipping") {
+            setShippingOptions([]);
+            setSelectedShippingId("");
+          }
+          setValidationRevision((current) => current + 1);
+        } else if (code === "product_unavailable" || code === "product_without_price") {
+          setValidatedCart(null);
+        }
         throw new Error(
           getCheckoutRequestErrorMessage(
-            responseCode(body),
+            code,
             response.status,
             responseMessage(body, "Não foi possível iniciar o pagamento.")
           )
@@ -1085,9 +1116,30 @@ export default function CheckoutPage() {
             </p>
           ) : null}
 
+          {priceReviewRequired && !priceReviewAccepted ? (
+            <div className="mt-4 rounded-md border border-gold/30 bg-pearl p-4 text-sm text-ink" role="status">
+              <p className="font-semibold">O preço de um produto mudou.</p>
+              <p className="mt-1 text-taupe">Revise o resumo atualizado antes de continuar.</p>
+              <ul className="mt-2 space-y-1 text-taupe">
+                {validatedCart?.priceChanges?.map((change) => (
+                  <li key={change.productSlug}>
+                    {validatedCart.items.find((item) => item.productSlug === change.productSlug)?.name}: {formatCurrency(change.currentPriceCents / 100)}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() => setPriceReviewAccepted(true)}
+                className="mt-3 min-h-11 font-semibold text-ink underline decoration-gold underline-offset-4 hover:text-gold"
+              >
+                Confirmar preços atualizados
+              </button>
+            </div>
+          ) : null}
+
           <button
             type="submit"
-            disabled={isSubmitting || isValidating || !validatedCart}
+            disabled={isSubmitting || isValidating || !validatedCart || (priceReviewRequired && !priceReviewAccepted)}
             aria-busy={isSubmitting}
             className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-gold disabled:cursor-not-allowed disabled:opacity-60"
           >

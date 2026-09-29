@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { CheckoutConfigurationError } from "@/lib/checkout/config";
 import { CheckoutValidationError } from "@/lib/checkout/catalog";
+import { CheckoutCatalogReadError } from "@/lib/checkout/catalog-server";
 
 export function apiError(error: unknown) {
   if (error instanceof CheckoutValidationError) {
-    return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
+    return NextResponse.json({ error: error.message, code: error.code, ...error.details }, { status: error.status });
+  }
+
+  if (error instanceof CheckoutCatalogReadError) {
+    return NextResponse.json(
+      { error: "O catálogo está temporariamente indisponível.", code: "checkout_catalog_unavailable" },
+      { status: 503 }
+    );
   }
 
   if (error instanceof CheckoutConfigurationError) {

@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     const failure = toCheckoutProcessError(error);
     logCheckoutFailure(failure);
     return NextResponse.json(
-      { error: failure.publicMessage, code: failure.publicCode },
+      { error: failure.publicMessage, code: failure.publicCode, ...failure.publicDetails },
       { status: failure.status }
     );
   }

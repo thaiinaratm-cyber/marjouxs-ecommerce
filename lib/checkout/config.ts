@@ -13,6 +13,24 @@ export class CheckoutConfigurationError extends Error {
   }
 }
 
+export type CheckoutCatalogSource = "static" | "database";
+
+export function getCheckoutCatalogSource(env: Record<string, string | undefined> = process.env): CheckoutCatalogSource {
+  const value = env.CHECKOUT_CATALOG_SOURCE?.trim() || "static";
+  if (value !== "static" && value !== "database") {
+    throw new CheckoutConfigurationError("A fonte do catálogo do checkout é inválida.", "invalid_checkout_catalog_source");
+  }
+  return value;
+}
+
+export function isCheckoutCatalogFallbackEnabled(env: Record<string, string | undefined> = process.env) {
+  const value = env.CHECKOUT_CATALOG_FALLBACK?.trim() || "true";
+  if (value !== "true" && value !== "false") {
+    throw new CheckoutConfigurationError("O fallback do catálogo do checkout é inválido.", "invalid_checkout_catalog_fallback");
+  }
+  return value === "true";
+}
+
 function requiredEnvironment(name: string) {
   const value = process.env[name]?.trim();
   if (!value) {

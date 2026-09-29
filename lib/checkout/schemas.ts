@@ -25,7 +25,8 @@ export const cartLineSchema = z
     productId: z.string().trim().min(1).max(200),
     productSlug: z.string().trim().min(1).max(200),
     quantity: z.number().int().positive(),
-    customization: ringPairCustomizationSchema.nullable()
+    customization: ringPairCustomizationSchema.nullable(),
+    displayedUnitPriceCents: z.number().int().nonnegative().safe().optional()
   })
   .strict();
 

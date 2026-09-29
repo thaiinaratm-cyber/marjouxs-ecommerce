@@ -162,6 +162,14 @@ export function getCheckoutRequestErrorMessage(
   fallback?: string
 ) {
   switch (code) {
+    case "price_changed":
+      return "O preço de um produto mudou. Revise o valor atualizado antes de continuar.";
+    case "product_unavailable":
+      return "Um produto da sacola não está mais disponível. Revise sua sacola.";
+    case "product_without_price":
+      return "Este produto está disponível somente por atendimento no WhatsApp.";
+    case "checkout_catalog_unavailable":
+      return "O catálogo está temporariamente indisponível. Tente novamente em instantes.";
     case "checkout_validation_error":
       return "Revise os dados do pedido e tente novamente.";
     case "checkout_order_creation_error":

@@ -10,7 +10,8 @@ export class CheckoutValidationError extends Error {
   constructor(
     message: string,
     readonly code: string,
-    readonly status = 400
+    readonly status = 400,
+    readonly details?: { productSlug: string; currentPriceCents: number }
   ) {
     super(message);
     this.name = "CheckoutValidationError";
@@ -25,9 +26,11 @@ export function getProductById(productId: string) {
   return products.find((product) => product.id === productId);
 }
 
-function getCheckoutProduct(productId: string, productSlug: string) {
-  const product = getProductById(productId);
+export type CheckoutProductRecord = { product: Product; unitPriceCents?: number };
+export type CheckoutProductResolver = (productId: string, productSlug: string) => CheckoutProductRecord;
 
+function getStaticCheckoutProduct(productId: string, productSlug: string): CheckoutProductRecord {
+  const product = getProductById(productId);
   if (!product || product.slug !== productSlug) {
     throw new CheckoutValidationError(
       "Um produto do carrinho não foi encontrado.",
@@ -35,6 +38,13 @@ function getCheckoutProduct(productId: string, productSlug: string) {
       404
     );
   }
+
+  return { product };
+}
+
+function getCheckoutProduct(productId: string, productSlug: string, resolver: CheckoutProductResolver) {
+  const record = resolver(productId, productSlug);
+  const { product } = record;
 
   if (!hasValidPrice(product) || typeof product.price !== "number") {
     throw new CheckoutValidationError(
@@ -57,11 +67,11 @@ function getCheckoutProduct(productId: string, productSlug: string) {
     );
   }
 
-  return product;
+  return record;
 }
 
-function getPriceCents(product: Product) {
-  const cents = Math.round((product.price ?? 0) * 100);
+function getPriceCents({ product, unitPriceCents }: CheckoutProductRecord) {
+  const cents = unitPriceCents ?? Math.round((product.price ?? 0) * 100);
 
   if (!Number.isSafeInteger(cents) || cents <= 0) {
     throw new CheckoutValidationError(
@@ -75,6 +85,9 @@ function getPriceCents(product: Product) {
 
 function validateCustomization(product: Product, quantity: number, customization: CartCustomization) {
   if (isAlliance(product)) {
+    if (product.saleUnit && product.saleUnit !== "pair") {
+      throw new CheckoutValidationError("Este produto não está disponível para checkout.", "product_unavailable", 409);
+    }
     if (quantity !== 1) {
       throw new CheckoutValidationError(
         "Cada par de alianças deve ser uma linha com quantidade 1.",
@@ -90,7 +103,21 @@ function validateCustomization(product: Product, quantity: number, customization
       );
     }
 
+    const { ring1, ring2 } = parsedCustomization.data;
+    const minimum = product.sizeMin ?? 8;
+    const maximum = product.sizeMax ?? 35;
+    if ([ring1.size, ring2.size].some((size) => size < minimum || size > maximum)) {
+      throw new CheckoutValidationError("Informe os dois aros dentro da faixa disponível.", "invalid_alliance_customization");
+    }
+    if (product.engravingAvailable === false && [ring1.engraving, ring2.engraving].some((text) => Boolean(text?.trim()))) {
+      throw new CheckoutValidationError("Este produto não aceita gravação.", "unsupported_customization");
+    }
+
     return parsedCustomization.data;
+  }
+
+  if (product.saleUnit === "pair") {
+    throw new CheckoutValidationError("Este produto não está disponível para checkout.", "product_unavailable", 409);
   }
 
   if (customization !== null) {
@@ -103,10 +130,30 @@ function validateCustomization(product: Product, quantity: number, customization
   return null;
 }
 
-export function resolveCheckoutCart(lines: CartLineInput[]): ValidatedCart {
+export function resolveCheckoutCart(
+  lines: CartLineInput[],
+  resolver: CheckoutProductResolver = getStaticCheckoutProduct,
+  priceChangePolicy: "reject" | "report" = "reject"
+): ValidatedCart {
+  const priceChanges: NonNullable<ValidatedCart["priceChanges"]> = [];
   const items = lines.map<ValidatedCartItem>((line) => {
-    const product = getCheckoutProduct(line.productId, line.productSlug);
-    const unitPriceCents = getPriceCents(product);
+    if (!Number.isSafeInteger(line.quantity) || line.quantity <= 0) {
+      throw new CheckoutValidationError("A quantidade informada é inválida.", "invalid_quantity");
+    }
+    const record = getCheckoutProduct(line.productId, line.productSlug, resolver);
+    const { product } = record;
+    const unitPriceCents = getPriceCents(record);
+    if (line.displayedUnitPriceCents !== undefined && line.displayedUnitPriceCents !== unitPriceCents) {
+      if (priceChangePolicy === "reject") {
+        throw new CheckoutValidationError(
+          "O preço de um produto mudou. Revise o valor atualizado antes de continuar.",
+          "price_changed",
+          409,
+          { productSlug: product.slug, currentPriceCents: unitPriceCents }
+        );
+      }
+      priceChanges.push({ productSlug: product.slug, currentPriceCents: unitPriceCents });
+    }
     const customization = validateCustomization(product, line.quantity, line.customization);
     const subtotalCents = unitPriceCents * line.quantity;
 
@@ -139,16 +186,20 @@ export function resolveCheckoutCart(lines: CartLineInput[]): ValidatedCart {
     throw new CheckoutValidationError("O subtotal do carrinho é inválido.", "invalid_cart_subtotal");
   }
 
-  return { items, subtotalCents };
+  return { items, subtotalCents, ...(priceChanges.length > 0 ? { priceChanges } : {}) };
 }
 
-export function resolveShipmentCart(lines: ShippingLineInput[]) {
+export function resolveShipmentCart(
+  lines: ShippingLineInput[],
+  resolver: CheckoutProductResolver = getStaticCheckoutProduct
+) {
   const items = lines.map((line) => {
     if (!Number.isInteger(line.quantity) || line.quantity <= 0) {
       throw new CheckoutValidationError("A quantidade informada é inválida.", "invalid_quantity");
     }
 
-    const product = getCheckoutProduct(line.productId, line.productSlug);
+    const record = getCheckoutProduct(line.productId, line.productSlug, resolver);
+    const { product } = record;
 
     if (isAlliance(product) && line.quantity !== 1) {
       throw new CheckoutValidationError(
@@ -157,13 +208,17 @@ export function resolveShipmentCart(lines: ShippingLineInput[]) {
       );
     }
 
-    const unitPriceCents = getPriceCents(product);
+    const unitPriceCents = getPriceCents(record);
+    const subtotalCents = unitPriceCents * line.quantity;
+    if (!Number.isSafeInteger(subtotalCents)) {
+      throw new CheckoutValidationError("O valor do carrinho ultrapassa o limite suportado.", "cart_total_overflow");
+    }
     return {
       productId: product.id,
       productSlug: product.slug,
       quantity: line.quantity,
       unitPriceCents,
-      subtotalCents: unitPriceCents * line.quantity
+      subtotalCents
     };
   });
 

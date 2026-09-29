@@ -1,4 +1,5 @@
 import { CheckoutValidationError } from "@/lib/checkout/catalog";
+import { CheckoutCatalogReadError } from "@/lib/checkout/catalog-server";
 import { CheckoutConfigurationError } from "@/lib/checkout/config";
 import { InfinitePayError } from "@/lib/checkout/infinitepay";
 import { ShippingProviderError } from "@/lib/checkout/shipping";
@@ -6,6 +7,7 @@ import { ShippingProviderError } from "@/lib/checkout/shipping";
 export type CheckoutFailureStage =
   | "request_payload_validation"
   | "cart_validation"
+  | "catalog_read"
   | "price_recalculation"
   | "customer_validation"
   | "pickup_validation"
@@ -88,7 +90,8 @@ export class CheckoutProcessError extends Error {
     readonly publicMessage: string,
     readonly publicCode: string,
     readonly status: number,
-    diagnostic: Omit<CheckoutDiagnosticEntry, "http_status">
+    diagnostic: Omit<CheckoutDiagnosticEntry, "http_status">,
+    readonly publicDetails?: { productSlug: string; currentPriceCents: number }
   ) {
     super(publicMessage);
     this.name = "CheckoutProcessError";
@@ -225,7 +228,7 @@ export function checkoutRpcError(
 }
 
 function stageForValidationCode(code: string): CheckoutFailureStage {
-  if (["product_without_price", "invalid_catalog_price", "cart_total_overflow"].includes(code)) {
+  if (["product_without_price", "invalid_catalog_price", "cart_total_overflow", "price_changed"].includes(code)) {
     return "price_recalculation";
   }
   if (code.startsWith("shipping_")) {
@@ -277,7 +280,22 @@ export function toCheckoutProcessError(error: unknown) {
       constraint_name: null,
       rpc_name: null,
       order_nsu: null
-    });
+    }, error.details);
+  }
+  if (error instanceof CheckoutCatalogReadError) {
+    return new CheckoutProcessError(
+      "O catálogo está temporariamente indisponível.",
+      "checkout_catalog_unavailable",
+      503,
+      {
+        stage: "catalog_read",
+        error_code: "catalog_read_error",
+        postgres_code: null,
+        constraint_name: null,
+        rpc_name: null,
+        order_nsu: null
+      }
+    );
   }
   if (error instanceof InfinitePayError) {
     return new CheckoutProcessError(
@@ -339,7 +357,7 @@ export function withOrderNsu(error: unknown, orderNsu: string) {
     constraint_name: failure.diagnostic.constraint_name,
     rpc_name: failure.diagnostic.rpc_name,
     order_nsu: orderNsu
-  });
+  }, failure.publicDetails);
 }
 
 export function logCheckoutFailure(failure: CheckoutProcessError) {

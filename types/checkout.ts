@@ -5,6 +5,7 @@ export type CartLineInput = {
   productSlug: string;
   quantity: number;
   customization: CartCustomization;
+  displayedUnitPriceCents?: number;
 };
 
 export type ShippingLineInput = Omit<CartLineInput, "customization">;
@@ -27,6 +28,7 @@ export type ValidatedCartItem = {
 export type ValidatedCart = {
   items: ValidatedCartItem[];
   subtotalCents: number;
+  priceChanges?: Array<{ productSlug: string; currentPriceCents: number }>;
 };
 
 export type ShippingQuoteOption = {

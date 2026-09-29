@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resolveCheckoutCart } from "@/lib/checkout/catalog";
+import { resolveAuthoritativeCheckoutCart } from "@/lib/checkout/catalog-server";
 import { apiError, validationError } from "@/lib/checkout/http";
 import { cartValidationRequestSchema } from "@/lib/checkout/schemas";
 
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       return validationError();
     }
 
-    return NextResponse.json(resolveCheckoutCart(parsed.data.items));
+    return NextResponse.json(await resolveAuthoritativeCheckoutCart(parsed.data.items, "report"));
   } catch (error) {
     return apiError(error);
   }
