@@ -26,6 +26,9 @@ export type Product = {
   priceLabel: string;
   installments: string;
   description: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  imageAlt?: string | null;
   tags?: string[];
   images: string[];
   featured: boolean;
@@ -60,6 +63,7 @@ export type CartLine = {
   productSlug: string;
   quantity: number;
   customization: CartCustomization;
+  productSnapshot?: Product;
 };
 
 export type CartItem = CartLine & {

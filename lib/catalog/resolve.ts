@@ -8,9 +8,15 @@ export class CatalogUnavailableError extends Error {
   }
 }
 
+export class CatalogDataError extends Error {
+  constructor(code: string) {
+    super(code);
+    this.name = "CatalogDataError";
+  }
+}
+
 export async function resolvePublicCatalog({
   source,
-  fallback,
   staticProducts,
   readDatabase,
   log = console.info
@@ -29,13 +35,14 @@ export async function resolvePublicCatalog({
   try {
     const databaseProducts = await readDatabase();
     if (!Array.isArray(databaseProducts) || databaseProducts.length === 0) {
-      throw new Error("invalid_catalog_shape");
+      throw new CatalogDataError("invalid_catalog_shape");
     }
     log("public_catalog", { catalog_source: "database", catalog_fallback_used: false });
     return databaseProducts;
-  } catch {
-    log("public_catalog", { catalog_source: "database", catalog_fallback_used: fallback });
-    if (fallback) return staticProducts;
+  } catch (error) {
+    if (error instanceof CatalogDataError) throw new CatalogUnavailableError();
+    // A static snapshot cannot distinguish a newly deactivated product during an outage.
+    log("public_catalog", { catalog_source: "database", catalog_fallback_used: false });
     throw new CatalogUnavailableError();
   }
 }

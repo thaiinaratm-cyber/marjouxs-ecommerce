@@ -1,4 +1,5 @@
 import type { DatabaseProduct, DatabaseProductImage } from "@/lib/catalog/database-products";
+import { catalogImageUrl } from "@/lib/catalog/image-url";
 import {
   CheckoutValidationError,
   resolveCheckoutCart,
@@ -6,7 +7,7 @@ import {
   type CheckoutProductRecord,
   type CheckoutProductResolver
 } from "@/lib/checkout/catalog";
-import { getCheckoutCatalogSource, isCheckoutCatalogFallbackEnabled } from "@/lib/checkout/config";
+import { getCheckoutCatalogSource } from "@/lib/checkout/config";
 import { getSupabaseAdmin } from "@/lib/checkout/supabase";
 import type { CartLineInput, ShippingLineInput } from "@/types/checkout";
 import type { CategoryName, Product, StockStatus } from "@/types/product";
@@ -38,6 +39,11 @@ const PRODUCT_COLUMNS = [
   "id", "legacy_id", "name", "slug", "category_id", "subcategory_id", "material_id",
   "price", "stock_status", "sale_unit", "is_active", "engraving_available", "size_min", "size_max"
 ].join(",");
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function publicProductId(row: CheckoutProductRow) {
+  return row.legacy_id ?? row.id;
+}
 
 function unique(values: Array<string | null>) {
   return Array.from(new Set(values.filter((value): value is string => Boolean(value))));
@@ -53,17 +59,26 @@ export async function readCheckoutDatabaseProducts(
 
   try {
     const client = getSupabaseAdmin();
-    const productResult = await client.from("ecommerce_products")
-      .select(PRODUCT_COLUMNS)
-      .in("legacy_id", ids)
-      .abortSignal(AbortSignal.timeout(8000));
-    if (productResult.error || !Array.isArray(productResult.data)) throw new CheckoutCatalogReadError();
-    const products = productResult.data as unknown as CheckoutProductRow[];
+    const uuidIds = ids.filter((id) => UUID.test(id));
+    const [legacyResult, manualResult] = await Promise.all([
+      client.from("ecommerce_products").select(PRODUCT_COLUMNS)
+        .in("legacy_id", ids).abortSignal(AbortSignal.timeout(8000)),
+      uuidIds.length
+        ? client.from("ecommerce_products").select(PRODUCT_COLUMNS)
+          .in("id", uuidIds).abortSignal(AbortSignal.timeout(8000))
+        : Promise.resolve({ data: [], error: null })
+    ]);
+    if (legacyResult.error || manualResult.error || !Array.isArray(legacyResult.data) ||
+        !Array.isArray(manualResult.data)) throw new CheckoutCatalogReadError();
+    const returnedRows = [...legacyResult.data, ...manualResult.data] as unknown as CheckoutProductRow[];
+    const products = Array.from(new Map(
+      returnedRows.map((row) => [row.id, row])
+    ).values());
     if (expectedLines) {
-      const byLegacyId = new Map(products.map((row) => [row.legacy_id, row]));
+      const byProductId = new Map(products.map((row) => [publicProductId(row), row]));
       for (const line of expectedLines) {
-        const row = byLegacyId.get(line.productId);
-        if (!row || !row.is_active || row.slug !== line.productSlug ||
+        const row = byProductId.get(line.productId);
+        if (!row || !row.is_active ||
             !["available", "made_to_order"].includes(row.stock_status)) unavailable();
         if (row.price === null) {
           throw new CheckoutValidationError("Este produto está disponível somente por atendimento.", "product_without_price");
@@ -133,7 +148,7 @@ function unavailable(): never {
 }
 
 function databaseResolver(snapshot: CheckoutCatalogSnapshot): CheckoutProductResolver {
-  const rows = new Map(snapshot.products.map((row) => [row.legacy_id, row]));
+  const rows = new Map(snapshot.products.map((row) => [publicProductId(row), row]));
   const categories = new Map(snapshot.categories.map((row) => [row.id, row]));
   const subcategories = new Map(snapshot.subcategories.map((row) => [row.id, row]));
   const materials = new Map(snapshot.materials.map((row) => [row.id, row]));
@@ -144,34 +159,38 @@ function databaseResolver(snapshot: CheckoutCatalogSnapshot): CheckoutProductRes
 
   return (productId, productSlug): CheckoutProductRecord => {
     const row = rows.get(productId);
-    if (!row || row.legacy_id !== productId || row.slug !== productSlug || !row.is_active || !row.name) unavailable();
+    if (!row || publicProductId(row) !== productId || !row.is_active || !row.name) unavailable();
     const category = row.category_id ? categories.get(row.category_id) : null;
     const subcategory = row.subcategory_id ? subcategories.get(row.subcategory_id) : null;
     const material = row.material_id ? materials.get(row.material_id) : null;
     const primaryImages = images.get(row.id) ?? [];
-    if (!category?.is_active || !subcategory?.is_active || !material?.is_active ||
-        subcategory.category_id !== category.id || primaryImages.length !== 1 ||
-        primaryImages[0].source_type !== "local" || !primaryImages[0].path.startsWith("/produtos/") ||
+    const imageUrl = primaryImages.length === 1
+      ? catalogImageUrl(primaryImages[0], process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL)
+      : null;
+    if (!category?.is_active || !material?.is_active ||
+        (row.subcategory_id && (!subcategory?.is_active || subcategory.category_id !== category.id)) ||
+        primaryImages.length !== 1 || !imageUrl ||
         !primaryImages[0].is_primary ||
         !["available", "made_to_order"].includes(row.stock_status) ||
         (category.name === "Alianças"
-          ? row.sale_unit !== "pair" || row.size_min !== 8 || row.size_max !== 35
+          ? row.sale_unit !== "pair" || row.size_min === null || row.size_min < 8 ||
+            row.size_max === null || row.size_max > 35 || row.size_min > row.size_max
           : row.sale_unit !== "unit")) unavailable();
 
     const unitPriceCents = decimalCents(row.price, row.slug);
     const stockStatus: StockStatus = row.stock_status === "made_to_order" ? "Sob encomenda" : "Disponível";
     const product: Product = {
-      id: row.legacy_id,
+      id: publicProductId(row),
       name: row.name,
       slug: row.slug,
       category: category.name as CategoryName,
-      subcategory: subcategory.name,
+      subcategory: subcategory?.name ?? "",
       material: material.name,
       price: unitPriceCents === null ? null : unitPriceCents / 100,
       priceLabel: "",
       installments: "",
       description: "",
-      images: [primaryImages[0].path],
+      images: [imageUrl],
       featured: false,
       isCustomOrder: false,
       allowWhatsappQuote: false,
@@ -213,9 +232,8 @@ async function getResolver(lines: ShippingLineInput[], options: CatalogOptions) 
     return databaseResolver(snapshot);
   } catch (error) {
     if (!(error instanceof CheckoutCatalogReadError)) throw error;
-    if (!isCheckoutCatalogFallbackEnabled(options.env)) throw error;
-    console.info("checkout_catalog", JSON.stringify({ checkout_catalog_source: "static", checkout_catalog_fallback_used: true }));
-    return undefined;
+    // Once the database is authoritative, static data cannot prove a product is still active.
+    throw error;
   }
 }
 

@@ -6,6 +6,7 @@ import {
 } from "../../scripts/migrate-products-to-supabase.ts";
 import type { Product } from "../../types/product";
 import type { DatabaseCatalog, DatabaseProduct, DatabaseProductImage } from "./database-products";
+import { catalogImageUrl } from "./image-url.ts";
 
 export type ShadowDifference = {
   severity: "critical" | "expected" | "informational";
@@ -155,10 +156,10 @@ export function compareStaticAndDatabaseCatalog(
       const actual = row[field as keyof DatabaseProduct];
       const expectedValue = MONEY_FIELDS.has(field) ? decimal(expected) : display(expected);
       const actualValue = MONEY_FIELDS.has(field) ? decimal(actual) : display(actual);
-      if (expectedValue !== actualValue) add("critical", product.slug, field, expectedValue, actualValue);
+      if (expectedValue !== actualValue) add(row.updated_by ? "expected" : "critical", product.slug, field, expectedValue, actualValue);
     }
     if (plan.activationCandidate !== row.is_active) {
-      add("critical", product.slug, "is_active", plan.activationCandidate, row.is_active);
+      add(row.updated_by ? "expected" : "critical", product.slug, "is_active", plan.activationCandidate, row.is_active);
     } else if (!plan.activationCandidate) {
       add(
         "expected",
@@ -182,7 +183,7 @@ export function compareStaticAndDatabaseCatalog(
     if (expectedImages.map(imageKey).join("\n") === actualImages.map(imageKey).join("\n")) {
       images.equal += 1;
     } else {
-      add("critical", product.slug, "images", expectedImages.map(imageKey).join("; ") || "none", actualImages.map(imageKey).join("; ") || "none");
+      add(row.updated_by ? "expected" : "critical", product.slug, "images", expectedImages.map(imageKey).join("; ") || "none", actualImages.map(imageKey).join("; ") || "none");
     }
 
     if (product.category === "Alianças") {
@@ -200,7 +201,9 @@ export function compareStaticAndDatabaseCatalog(
     add("critical", row.slug, "legacy_id", "absent", row.legacy_id);
   }
 
-  const manual = manualProducts[0];
+  const manual = manualBaseline
+    ? manualProducts.find((row) => row.id === manualBaseline.id)
+    : manualProducts[0];
   images.manualImages = manualProducts.reduce((sum, row) => sum + imagesFor(row.id, database.images).length, 0);
   const productIds = new Set(database.products.map((row) => row.id));
   for (const image of database.images) {
@@ -208,14 +211,41 @@ export function compareStaticAndDatabaseCatalog(
       add("critical", "database", "orphan_image", "product present", "missing");
     }
   }
-  const baselineMatches = !manualBaseline || Boolean(
-    manual && manual.id === manualBaseline.id && manual.name === manualBaseline.name &&
-    manual.slug === manualBaseline.slug && manual.is_active === manualBaseline.is_active
-  );
-  const manualValid = manualProducts.length === 1 && manual?.slug === "anel-feminino" &&
-    manual.is_active === true && images.manualImages === 1 && baselineMatches;
-  if (!manualValid) add("critical", "anel-feminino", "manual_product", "one unchanged active product and image", "mismatch");
-  else add("expected", "anel-feminino", "admin_only", "excluded from static catalog", "one manual product");
+  const activeTaxonomy = (row: DatabaseProduct) => {
+    const category = database.categories.find((item) => item.id === row.category_id && item.is_active);
+    const material = database.materials.find((item) => item.id === row.material_id && item.is_active);
+    const subcategory = row.subcategory_id
+      ? database.subcategories.find((item) => item.id === row.subcategory_id && item.category_id === row.category_id && item.is_active)
+      : true;
+    return category && material && subcategory &&
+      (category.name === "Alianças"
+        ? row.sale_unit === "pair" && row.size_min !== null && row.size_max !== null &&
+          row.size_min >= 8 && row.size_max <= 35 && row.size_min <= row.size_max
+        : row.sale_unit === "unit");
+  };
+  for (const row of legacy.filter((item) => item.is_active)) {
+    const rowImages = imagesFor(row.id, database.images);
+    const valid = Boolean(activeTaxonomy(row)) &&
+      rowImages.filter((image) => image.is_primary).length === 1 &&
+      rowImages.every((image) => catalogImageUrl(image, "https://example.supabase.co"));
+    if (!valid) add("critical", row.slug, "active_product_invalid", "valid taxonomy and one primary image", "invalid");
+  }
+  let manualValid = !manualBaseline || Boolean(manual);
+  for (const row of manualProducts) {
+    const rowImages = imagesFor(row.id, database.images);
+    const primaryImages = rowImages.filter((image) => image.is_primary);
+    const valid = !row.is_active || Boolean(
+      activeTaxonomy(row) && row.name.trim() && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(row.slug) &&
+      primaryImages.length === 1 && rowImages.every((image) => catalogImageUrl(image, "https://example.supabase.co"))
+    );
+    if (!valid) {
+      manualValid = false;
+      add("critical", row.slug, "admin_only_invalid", "publishable active product", "invalid taxonomy or primary image");
+    } else {
+      add("expected", row.slug, "admin_only", "managed outside static catalog", row.is_active ? "published" : "draft");
+    }
+  }
+  if (!manualValid) add("critical", manualBaseline?.slug ?? "admin_only", "manual_product", "valid admin-only products", "mismatch");
   add("informational", "catalog", "database_metadata", "not compared", "UUIDs and timestamps");
 
   images.sharedPaths = Array.from(sourcePaths.entries())

@@ -5,6 +5,7 @@ import {
   parseStoredCart,
   serializeCart
 } from "@/lib/cart-storage";
+import type { Product } from "@/types/product";
 
 describe("cart storage", () => {
   it("migra o carrinho legado sem confiar no objeto de preço salvo", () => {
@@ -67,5 +68,27 @@ describe("cart storage", () => {
     expect(JSON.parse(serialized).version).toBe(CART_STORAGE_VERSION);
     expect(parseStoredCart(serialized)).toHaveLength(2);
     expect(first.lineId).not.toBe(second.lineId);
+  });
+
+  it("preserva produto admin-only após recarregar a sacola, sem confiar nele no checkout", () => {
+    const manual: Product = {
+      id: "00000000-0000-4000-8000-000000000099",
+      slug: "anel-admin",
+      name: "Anel admin",
+      category: "Anéis",
+      subcategory: "Feminino",
+      material: "Ouro 18k",
+      price: 990,
+      priceLabel: "R$ 990,00",
+      installments: "12x sem juros",
+      description: "",
+      images: ["https://example.supabase.co/storage/v1/object/public/ecommerce-product-images/admin/anel.jpg"],
+      featured: false,
+      isCustomOrder: false,
+      allowWhatsappQuote: true,
+      stockStatus: "Disponível"
+    };
+    const stored = serializeCart([newCartLine(manual.id, manual.slug, 1, null, manual)]);
+    expect(parseStoredCart(stored)[0].productSnapshot).toEqual(manual);
   });
 });

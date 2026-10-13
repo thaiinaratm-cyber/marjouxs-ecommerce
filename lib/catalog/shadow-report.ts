@@ -29,7 +29,7 @@ export function renderShadowReport(result: ShadowResult, generatedAt = new Date(
 
 Gerado em: ${generatedAt}.
 
-Consulta somente leitura. O catálogo público e o checkout continuam usando \`data/products.ts\`.
+Consulta somente leitura. A fonte da vitrine e do checkout depende das configurações de ambiente.
 
 ## Resumo
 
@@ -108,9 +108,9 @@ ${sectionRows(taxonomyDifferences)}
 
 - \`admin_only\`: ${result.adminOnlyCount}.
 - Slug: \`${result.manual.slug ?? "ausente"}\`.
-- \`legacy_id = null\`, ativo e com uma imagem: ${result.manual.valid ? "sim" : "não"}.
-- Comparação de identidade, nome e status com o snapshot anterior: ${result.manual.baselineChecked ? "realizada" : "snapshot indisponível"}.
-- A imagem manual é validada por quantidade. O snapshot anterior não inclui seu caminho nem todos os campos, portanto a verificação integral pré/pós depende do resultado \`manual_preserved = true\` da Fase 2C.
+- Produtos admin-only válidos (rascunhos ou publicados com imagem principal): ${result.manual.valid ? "sim" : "não"}.
+- Identidade do produto manual anterior conferida: ${result.manual.baselineChecked ? "sim" : "snapshot indisponível"}.
+- O status ativo pode mudar pelo painel; o snapshot anterior não é uma fonte comercial autoritativa.
 
 ## Diferenças esperadas
 

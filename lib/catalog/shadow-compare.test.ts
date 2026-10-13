@@ -65,7 +65,7 @@ function fixture(product = makeProduct(), audit: ImageAudit = validAudit) {
     id: `image-${index}`, product_id: row.id, source_type: image.source_type,
     path: image.path, is_primary: image.is_primary, sort_order: image.sort_order
   }));
-  const manual = { ...row, id: "manual-1", legacy_id: null, slug: "anel-feminino", name: "Anel feminino", is_active: true };
+  const manual = { ...row, id: "manual-1", legacy_id: null, slug: "anel-feminino", name: "Anel feminino", is_active: false };
   const manualImage = { id: "manual-image", product_id: manual.id, source_type: "storage", path: "manual.jpg", is_primary: true, sort_order: 0 };
   const catalog: DatabaseCatalog = {
     products: [row, manual],
@@ -127,10 +127,10 @@ describe("catálogo em modo sombra", () => {
     expect(result.extraInDb).toEqual([]);
   });
 
-  it("detecta alteração do produto manual contra o snapshot anterior", () => {
+  it("detecta ausência do produto manual original", () => {
     const f = fixture();
     const result = compareStaticAndDatabaseCatalog([f.product], f.catalog, f.audits, {
-      id: "manual-1", legacy_id: null, slug: "anel-feminino", name: "Nome anterior", is_active: true
+      id: "outro-id", legacy_id: null, slug: "anel-feminino", name: "Nome anterior", is_active: true
     });
     expect(result.manual.valid).toBe(false);
   });
@@ -191,6 +191,23 @@ describe("catálogo em modo sombra", () => {
   it("classifica diferença de preço como crítica", () => {
     const f = fixture(); f.row.price = "249.91";
     expect(compare(f).prices.divergent).toBe(1);
+  });
+
+  it("distingue preço alterado pelo admin de divergência não rastreada", () => {
+    const f = fixture();
+    f.row.price = "249.91";
+    f.row.updated_by = "admin-id";
+    expect(compare(f).differences.find((item) => item.field === "price")?.severity).toBe("expected");
+  });
+
+  it("aceita novo produto admin-only ativo com imagem, sem alterar o pareamento legado", () => {
+    const f = fixture();
+    f.catalog.products.push({ ...f.row, id: "manual-2", legacy_id: null, slug: "anel-novo", name: "Anel novo", is_active: true });
+    f.catalog.images.push({ id: "new-image", product_id: "manual-2", source_type: "storage", path: "manual-2/anel.jpg", is_primary: true, sort_order: 0 });
+    const result = compare(f);
+    expect(result.adminOnlyCount).toBe(2);
+    expect(result.manual.valid).toBe(true);
+    expect(shadowMetrics(result).critical_diff_count).toBe(0);
   });
 
   it("detecta diferença de old_price", () => {

@@ -119,20 +119,25 @@ describe("catálogo autoritativo do checkout", () => {
     expect(readDatabase).toHaveBeenCalledTimes(1);
   });
 
-  it("não usa fallback para produto inexistente, removido ou de slug diferente", async () => {
-    for (const data of [
-      { ...snapshot(), products: [] },
-      snapshot({ slug: "slug-atualizado" })
-    ]) {
-      await expect(resolveAuthoritativeCheckoutCart(
-        [commonLine], "reject", databaseOptions(async () => data)
-      )).rejects.toMatchObject({ code: "product_unavailable" });
-    }
+  it("não usa fallback para produto inexistente e conserva o id após renomear slug", async () => {
+    await expect(resolveAuthoritativeCheckoutCart(
+      [commonLine], "reject", databaseOptions(async () => ({ ...snapshot(), products: [] }))
+    )).rejects.toMatchObject({ code: "product_unavailable" });
+    const cart = await resolveAuthoritativeCheckoutCart(
+      [commonLine], "reject", databaseOptions(async () => snapshot({ slug: "slug-atualizado" }))
+    );
+    expect(cart.items[0].unitPriceCents).toBe(16000);
   });
 
-  it("não permite produto manual com legacy_id nulo", async () => {
+  it("aceita produto manual ativo por UUID e bloqueia o mesmo produto inativo", async () => {
+    const manualId = snapshot().products[0].id;
+    const line = { ...commonLine, productId: manualId };
+    const cart = await resolveAuthoritativeCheckoutCart(
+      [line], "reject", databaseOptions(async () => snapshot({ legacy_id: null }))
+    );
+    expect(cart.items[0].unitPriceCents).toBe(16000);
     await expect(resolveAuthoritativeCheckoutCart(
-      [commonLine], "reject", databaseOptions(async () => snapshot({ legacy_id: null }))
+      [line], "reject", databaseOptions(async () => snapshot({ legacy_id: null, is_active: false }))
     )).rejects.toMatchObject({ code: "product_unavailable" });
   });
 
@@ -229,17 +234,12 @@ describe("catálogo autoritativo do checkout", () => {
     )).rejects.toMatchObject({ code: "unsupported_customization" });
   });
 
-  it("usa static só em falha técnica real quando fallback está ligado", async () => {
+  it("falha fechada em database mode mesmo se fallback estiver ligado", async () => {
     const readDatabase = vi.fn().mockRejectedValue(new Error("segredo não deve aparecer no log"));
-    const cart = await resolveAuthoritativeCheckoutCart(
+    await expect(resolveAuthoritativeCheckoutCart(
       [{ ...commonLine, displayedUnitPriceCents: 17990 }],
       "reject", databaseOptions(readDatabase)
-    );
-    expect(cart.items[0].unitPriceCents).toBe(17990);
-    expect(console.info).toHaveBeenCalledWith(
-      "checkout_catalog",
-      JSON.stringify({ checkout_catalog_source: "static", checkout_catalog_fallback_used: true })
-    );
+    )).rejects.toBeInstanceOf(CheckoutCatalogReadError);
     expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("segredo");
   });
 

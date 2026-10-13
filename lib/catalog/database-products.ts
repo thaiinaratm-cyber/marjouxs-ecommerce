@@ -18,6 +18,8 @@ export type DatabaseProduct = {
   price_label_override: string | null;
   installments_text_override: string | null;
   description: string;
+  seo_title?: string | null;
+  seo_description?: string | null;
   tags: string[];
   stock_status: string;
   sale_unit: string;
@@ -30,6 +32,7 @@ export type DatabaseProduct = {
   jewelry_box_included: boolean;
   size_min: number | null;
   size_max: number | null;
+  updated_by?: string | null;
 };
 
 export type DatabaseProductImage = {
@@ -37,8 +40,10 @@ export type DatabaseProductImage = {
   product_id: string;
   source_type: string;
   path: string;
+  alt_text?: string | null;
   is_primary: boolean;
   sort_order: number;
+  created_by?: string | null;
 };
 
 export type DatabaseCatalog = {
@@ -53,9 +58,9 @@ const PAGE_SIZE = 500;
 const PRODUCT_COLUMNS = [
   "id", "legacy_id", "name", "slug", "category_id", "subcategory_id", "material_id",
   "price", "old_price", "discount_percent", "cash_discount_percent", "installments_count",
-  "price_label_override", "installments_text_override", "description", "tags", "stock_status",
+  "price_label_override", "installments_text_override", "description", "seo_title", "seo_description", "tags", "stock_status",
   "sale_unit", "is_custom_order", "is_active", "is_featured", "allow_whatsapp_quote",
-  "engraving_available", "engraving_included", "jewelry_box_included", "size_min", "size_max"
+  "engraving_available", "engraving_included", "jewelry_box_included", "size_min", "size_max", "updated_by"
 ].join(",");
 
 async function readAllRows<T>(client: SupabaseClient, table: string, columns: string): Promise<T[]> {
@@ -78,7 +83,7 @@ async function readAllRows<T>(client: SupabaseClient, table: string, columns: st
 export async function readDatabaseCatalog(client: SupabaseClient): Promise<DatabaseCatalog> {
   const [products, images, categories, subcategories, materials] = await Promise.all([
     readAllRows<DatabaseProduct>(client, "ecommerce_products", PRODUCT_COLUMNS),
-    readAllRows<DatabaseProductImage>(client, "ecommerce_product_images", "id,product_id,source_type,path,is_primary,sort_order"),
+    readAllRows<DatabaseProductImage>(client, "ecommerce_product_images", "id,product_id,source_type,path,alt_text,is_primary,sort_order,created_by"),
     readAllRows<TaxonomyRow>(client, "ecommerce_categories", "id,name,slug,is_active"),
     readAllRows<SubcategoryRow>(client, "ecommerce_subcategories", "id,category_id,name,slug,is_active"),
     readAllRows<TaxonomyRow>(client, "ecommerce_materials", "id,name,slug,is_active")
@@ -95,7 +100,6 @@ export async function readPublicDatabaseCatalog(client: SupabaseClient): Promise
       .from("ecommerce_products")
       .select(PRODUCT_COLUMNS)
       .eq("is_active", true)
-      .not("legacy_id", "is", null)
       .order("id")
       .range(offset, offset + PAGE_SIZE - 1);
 
@@ -106,7 +110,7 @@ export async function readPublicDatabaseCatalog(client: SupabaseClient): Promise
   }
 
   const [images, categories, subcategories, materials] = await Promise.all([
-    readAllRows<DatabaseProductImage>(client, "ecommerce_product_images", "id,product_id,source_type,path,is_primary,sort_order"),
+    readAllRows<DatabaseProductImage>(client, "ecommerce_product_images", "id,product_id,source_type,path,alt_text,is_primary,sort_order,created_by"),
     readAllRows<TaxonomyRow>(client, "ecommerce_categories", "id,name,slug,is_active"),
     readAllRows<SubcategoryRow>(client, "ecommerce_subcategories", "id,category_id,name,slug,is_active"),
     readAllRows<TaxonomyRow>(client, "ecommerce_materials", "id,name,slug,is_active")

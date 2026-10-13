@@ -39,7 +39,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const items = lines.flatMap<CartItem>((line) => {
-      const product = getProductById(line.productId);
+      const product = line.productSnapshot ?? getProductById(line.productId);
       return product ? [{ ...line, product }] : [];
     });
     const totalItems = items.reduce((total, item) => total + item.quantity, 0);
@@ -69,14 +69,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
             if (existing) {
               return current.map((item) =>
-                item.lineId === existing.lineId ? { ...item, quantity: item.quantity + 1 } : item
+                item.lineId === existing.lineId ? { ...item, quantity: item.quantity + 1, productSnapshot: product } : item
               );
             }
           }
 
           return [
             ...current,
-            newCartLine(product.id, product.slug, 1, normalizedCustomization)
+            newCartLine(product.id, product.slug, 1, normalizedCustomization, product)
           ];
         });
         trackAddToCart(product, 1);

@@ -29,7 +29,7 @@ function fixture(): DatabaseCatalog {
     size_min: null, size_max: null
   };
   return {
-    products: [row, { ...row, id: "manual", legacy_id: null, slug: "anel-feminino" },
+    products: [row, { ...row, id: "manual", legacy_id: null, slug: "anel-feminino", is_active: false },
       { ...row, id: "inactive", legacy_id: "legacy-2", slug: "inactive", is_active: false }],
     images: [{ id: "image-1", product_id: row.id, source_type: "local", path: product.images[0], is_primary: true, sort_order: 0 }],
     categories: [{ id: "category-1", name: "Anéis", slug: "aneis", is_active: true }],
@@ -55,11 +55,12 @@ describe("catálogo público controlado", () => {
     expect(await resolvePublicCatalog({ source: "database", fallback: true, staticProducts: [], readDatabase: reader, log })).toEqual([product]);
   });
 
-  it("faz fallback apenas para falha de leitura", async () => {
+  it("falha fechada em database mode, sem ressuscitar inativos do estático", async () => {
     const reader = () => Promise.reject(new Error("secret connection detail"));
     const log = vi.fn();
-    expect(await resolvePublicCatalog({ source: "database", fallback: true, staticProducts: [product], readDatabase: reader, log })).toEqual([product]);
-    expect(log).toHaveBeenCalledWith("public_catalog", { catalog_source: "database", catalog_fallback_used: true });
+    await expect(resolvePublicCatalog({ source: "database", fallback: true, staticProducts: [product], readDatabase: reader, log }))
+      .rejects.toBeInstanceOf(CatalogUnavailableError);
+    expect(log).toHaveBeenCalledWith("public_catalog", { catalog_source: "database", catalog_fallback_used: false });
     await expect(resolvePublicCatalog({ source: "database", fallback: false, staticProducts: [product], readDatabase: reader, log })).rejects.toBeInstanceOf(CatalogUnavailableError);
     expect(JSON.stringify(log.mock.calls)).not.toContain("secret connection detail");
   });
@@ -69,7 +70,7 @@ describe("catálogo público controlado", () => {
     expect(rows.find((row) => row.slug === product.slug)).toBeUndefined();
   });
 
-  it("normaliza preço, imagem local, status visual e exclui manual/inativo", () => {
+  it("normaliza preço, imagem local, status visual e exclui rascunhos", () => {
     const rows = normalizePublicDatabaseCatalog(fixture(), [product]);
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ id: product.id, price: 300, oldPrice: 400, images: product.images, stockStatus: "Disponível", tags: product.tags });
@@ -99,12 +100,22 @@ describe("catálogo público controlado", () => {
     expect(normalizePublicDatabaseCatalog(catalog, [alliance])[0]).toMatchObject({ saleUnit: "pair", sizeMin: 8, sizeMax: 35 });
   });
 
-  it("recusa preço ou slug incompatível com o checkout estático", () => {
+  it("aceita edição comercial do banco sem alterar o catálogo estático", () => {
     const catalog = fixture();
     catalog.products[0].price = "301.00";
-    expect(() => normalizePublicDatabaseCatalog(catalog, [product])).toThrow("checkout_catalog_mismatch");
-    catalog.products[0].price = "300.00";
     catalog.products[0].slug = "outro-slug";
-    expect(() => normalizePublicDatabaseCatalog(catalog, [product])).toThrow("checkout_catalog_mismatch");
+    expect(normalizePublicDatabaseCatalog(catalog, [product])[0]).toMatchObject({ price: 301, slug: "outro-slug" });
+  });
+
+  it("publica manual válido e preserva produto sem preço somente para consulta", () => {
+    const catalog = fixture();
+    catalog.products[1] = { ...catalog.products[1], name: "Anel feminino", is_active: true, price: null, seo_title: "Anel feminino | Marjouxs" };
+    catalog.images.push({ id: "manual-image", product_id: "manual", source_type: "storage", path: "manual/anel.jpg", alt_text: "Anel feminino", is_primary: true, sort_order: 0 });
+    const rows = normalizePublicDatabaseCatalog(catalog, [product], "https://example.supabase.co");
+    expect(rows).toHaveLength(2);
+    expect(rows[1]).toMatchObject({ id: "manual", price: null, priceLabel: "Preço sob consulta", seoTitle: "Anel feminino | Marjouxs" });
+    expect(rows[1].images[0]).toBe("https://example.supabase.co/storage/v1/object/public/ecommerce-product-images/manual/anel.jpg");
+    expect(searchProducts(rows, "anel feminino")).toHaveLength(1);
+    expect(selectRelatedProducts(rows[0], rows)).toHaveLength(1);
   });
 });

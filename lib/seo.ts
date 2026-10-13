@@ -36,6 +36,7 @@ function appendWithinLimit(parts: string[], text: string, maximum = 160) {
 }
 
 export function getProductSeoDescription(product: Product) {
+  if (product.seoDescription?.trim()) return product.seoDescription.trim();
   const normalizedName = normalizeText(product.name);
   const material = product.material.trim();
   const materialSuffix = material && !normalizedName.includes(normalizeText(material)) ? ` em ${material}` : "";

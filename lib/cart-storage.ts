@@ -1,6 +1,6 @@
 import { hasValidPrice } from "@/lib/product-pricing";
 import { getProductById, isAlliance } from "@/lib/checkout/catalog";
-import type { CartLine } from "@/types/product";
+import type { CartLine, Product } from "@/types/product";
 import { ringPairCustomizationSchema } from "@/lib/checkout/schemas";
 
 export const CART_STORAGE_KEY = "marjouxs-cart";
@@ -19,13 +19,31 @@ function createLineId() {
   return `line-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function storedProduct(value: unknown, id: string, slug: string): Product | null {
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Partial<Product>;
+  if (candidate.id !== id || candidate.slug !== slug ||
+      typeof candidate.name !== "string" || typeof candidate.description !== "string" ||
+      typeof candidate.category !== "string" || typeof candidate.subcategory !== "string" ||
+      typeof candidate.material !== "string" || typeof candidate.priceLabel !== "string" ||
+      typeof candidate.installments !== "string" || typeof candidate.featured !== "boolean" ||
+      typeof candidate.isCustomOrder !== "boolean" || typeof candidate.allowWhatsappQuote !== "boolean" ||
+      !Array.isArray(candidate.images) || !candidate.images.every((image) => typeof image === "string") ||
+      !["Disponível", "Sob encomenda"].includes(candidate.stockStatus ?? "") ||
+      !hasValidPrice(candidate as Product)) return null;
+  return candidate as Product;
+}
+
 function normalizeLine(value: unknown): CartLine | null {
   if (!value || typeof value !== "object") {
     return null;
   }
 
   const candidate = value as Partial<CartLine>;
-  const product = typeof candidate.productId === "string" ? getProductById(candidate.productId) : undefined;
+  const snapshot = typeof candidate.productId === "string" && typeof candidate.productSlug === "string"
+    ? storedProduct(candidate.productSnapshot, candidate.productId, candidate.productSlug)
+    : null;
+  const product = snapshot ?? (typeof candidate.productId === "string" ? getProductById(candidate.productId) : undefined);
 
   if (!product || !hasValidPrice(product)) {
     return null;
@@ -41,7 +59,8 @@ function normalizeLine(value: unknown): CartLine | null {
     productId: product.id,
     productSlug: product.slug,
     quantity,
-    customization: isAlliance(product) ? customization : null
+    customization: isAlliance(product) ? customization : null,
+    ...(snapshot ? { productSnapshot: snapshot } : {})
   };
 }
 
@@ -116,13 +135,15 @@ export function newCartLine(
   productId: string,
   productSlug: string,
   quantity = 1,
-  customization: CartLine["customization"] = null
+  customization: CartLine["customization"] = null,
+  productSnapshot?: Product
 ): CartLine {
   return {
     lineId: createLineId(),
     productId,
     productSlug,
     quantity,
-    customization
+    customization,
+    ...(productSnapshot ? { productSnapshot } : {})
   };
 }

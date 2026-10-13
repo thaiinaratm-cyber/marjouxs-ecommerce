@@ -7,9 +7,10 @@ import { ProductImage } from "@/components/product-image";
 type ProductGalleryProps = {
   images: string[];
   productName: string;
+  imageAlt?: string | null;
 };
 
-export function ProductGallery({ images, productName }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, imageAlt }: ProductGalleryProps) {
   const validImages = images.filter((image) => image?.trim());
   const galleryImages = validImages.length > 0 ? validImages : [""];
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -65,7 +66,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
       >
         <ProductImage
           src={selectedImage}
-          alt={productName}
+          alt={imageAlt?.trim() || productName}
           sizes="(min-width: 1024px) 50vw, 100vw"
           className="object-cover transition duration-500 group-hover:scale-105"
           priority

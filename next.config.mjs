@@ -10,6 +10,9 @@ const merchantImages = readdirSync(productImagesDirectory, { recursive: true })
     return asset.isFile() && asset.size > 0;
   })
   .map((file) => `/produtos/${file.replace(/\\/g, "/")}`);
+const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+  : null;
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: { MERCHANT_PRODUCT_IMAGES: JSON.stringify(merchantImages) },
@@ -19,7 +22,12 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com"
-      }
+      },
+      ...(supabaseHostname ? [{
+        protocol: "https",
+        hostname: supabaseHostname,
+        pathname: "/storage/v1/object/public/ecommerce-product-images/**"
+      }] : [])
     ]
   }
 };

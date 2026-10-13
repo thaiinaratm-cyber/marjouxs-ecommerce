@@ -25,7 +25,8 @@ export function hasValidProductImage(product: Product) {
     return false;
   }
 
-  return image.startsWith("/produtos/");
+  return image.startsWith("/produtos/") ||
+    /^https:\/\/[^/]+\/storage\/v1\/object\/public\/ecommerce-product-images\/[^?#]+$/.test(image);
 }
 
 export function getVisibleProducts(productList: Product[] = products) {

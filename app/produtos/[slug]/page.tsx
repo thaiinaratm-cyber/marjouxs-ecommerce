@@ -35,17 +35,18 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 
   const description = getProductSeoDescription(product);
+  const title = product.seoTitle?.trim() || `${product.name} | Marjouxs Joalheria`;
   const url = absoluteUrl(`/produtos/${product.slug}`);
   const image = absoluteUrl(product.images[0] ?? DEFAULT_SOCIAL_IMAGE);
 
   return {
-    title: `${product.name} | Marjouxs Joalheria`,
+    title,
     description,
     alternates: {
       canonical: url
     },
     openGraph: {
-      title: `${product.name} | Marjouxs Joalheria`,
+      title,
       description,
       url,
       siteName: "Marjouxs",
@@ -54,13 +55,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       images: [
         {
           url: image,
-          alt: product.name
+          alt: product.imageAlt?.trim() || product.name
         }
       ]
     },
     twitter: {
       card: "summary_large_image",
-      title: `${product.name} | Marjouxs Joalheria`,
+      title,
       description,
       images: [image]
     }
@@ -95,7 +96,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
       <div className="grid gap-8 lg:grid-cols-[1.04fr_0.96fr] lg:items-start">
         <div>
-          <ProductGallery images={product.images} productName={product.name} />
+          <ProductGallery images={product.images} productName={product.name} imageAlt={product.imageAlt} />
           <p className="mt-3 text-xs leading-5 text-taupe">{imageNotice}</p>
         </div>
 
