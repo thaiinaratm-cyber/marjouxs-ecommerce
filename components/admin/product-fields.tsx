@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { AdminTaxonomy } from "@/lib/admin/catalog";
 import { toProductSlug, type AdminProductInput } from "@/lib/admin/product-form";
 
@@ -12,7 +12,14 @@ export type AdminProductFieldValues = Omit<Partial<AdminProductInput>, "price" |
 type ProductFieldsProps = {
   taxonomy: AdminTaxonomy;
   values?: AdminProductFieldValues;
+  fieldErrors?: Record<string, string>;
 };
+
+const Errors = createContext<Record<string, string>>({});
+function FieldError({ name }: { name: string }) {
+  const message = useContext(Errors)[name];
+  return message ? <span id={`error-${name}`} className="text-sm font-normal text-red-700">{message}</span> : null;
+}
 
 const inputClass =
   "h-11 w-full rounded-md border border-black/15 bg-white px-3 text-sm font-normal text-ink outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20";
@@ -42,6 +49,7 @@ function Field({ label, name, value, suffix, inputMode = "text" }: {
         <input className={`${inputClass} ${suffix ? "pr-10" : ""}`} name={name} inputMode={inputMode} defaultValue={value ?? ""} />
         {suffix ? <span className="pointer-events-none absolute right-3 top-3 text-sm font-normal text-taupe">{suffix}</span> : null}
       </div>
+      <FieldError name={name} />
     </label>
   );
 }
@@ -55,7 +63,7 @@ function Checkbox({ name, label, defaultChecked }: { name: string; label: string
   );
 }
 
-export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
+export function ProductFields({ taxonomy, values = {}, fieldErrors = {} }: ProductFieldsProps) {
   const firstCategoryId = taxonomy.categories.find((category) => category.is_active)?.id ?? "";
   const [categoryId, setCategoryId] = useState(values.categoryId ?? firstCategoryId);
   const [subcategoryId, setSubcategoryId] = useState(values.subcategoryId ?? "");
@@ -66,6 +74,8 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
   ));
   const [seoTitle, setSeoTitle] = useState(values.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = useState(values.seoDescription ?? "");
+  const [engravingAvailable, setEngravingAvailable] = useState(Boolean(values.engravingAvailable));
+  const [engravingIncluded, setEngravingIncluded] = useState(Boolean(values.engravingAvailable && values.engravingIncluded));
   const category = taxonomy.categories.find((item) => item.id === categoryId);
   const isAlliance = category?.name === "Alianças";
   const availableSubcategories = useMemo(
@@ -74,7 +84,7 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
   );
 
   return (
-    <div className="grid gap-7">
+    <Errors.Provider value={fieldErrors}><div className="grid gap-7">
       <Section title="Informações básicas">
         <div className="grid gap-5 md:grid-cols-2">
           <label className="grid gap-2 text-sm font-semibold text-ink">
@@ -89,6 +99,7 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
                 if (!slugWasEdited) setSlug(toProductSlug(event.target.value));
               }}
             />
+            <FieldError name="name" />
           </label>
           <label className="grid gap-2 text-sm font-semibold text-ink">
             Slug *
@@ -104,6 +115,7 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
                 setSlug(toProductSlug(event.target.value));
               }}
             />
+            <FieldError name="slug" />
           </label>
         </div>
       </Section>
@@ -128,6 +140,7 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
                 <option key={item.id} value={item.id}>{item.name}</option>
               ))}
             </select>
+            <FieldError name="categoryId" />
           </label>
           <label className="grid gap-2 text-sm font-semibold text-ink">
             Subcategoria
@@ -137,6 +150,7 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
                 <option key={item.id} value={item.id}>{item.name}</option>
               ))}
             </select>
+            <FieldError name="subcategoryId" />
           </label>
           <label className="grid gap-2 text-sm font-semibold text-ink">
             Material *
@@ -146,6 +160,7 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
                 <option key={item.id} value={item.id}>{item.name}</option>
               ))}
             </select>
+            <FieldError name="materialId" />
           </label>
         </div>
       </Section>
@@ -162,6 +177,7 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
               <option value="unavailable">Indisponível</option>
               {category?.name === "Serviços" ? <option value="service">Serviço</option> : null}
             </select>
+            <FieldError name="stockStatus" />
           </label>
           <Field label="Desconto anterior" name="discountPercent" value={values.discountPercent} suffix="%" inputMode="decimal" />
           <Field label="Desconto à vista" name="cashDiscountPercent" value={values.cashDiscountPercent} suffix="%" inputMode="decimal" />
@@ -178,10 +194,12 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
         <label className="grid gap-2 text-sm font-semibold text-ink">
           Descrição curta
           <input className={inputClass} name="shortDescription" defaultValue={values.shortDescription ?? ""} maxLength={280} />
+          <FieldError name="shortDescription" />
         </label>
         <label className="grid gap-2 text-sm font-semibold text-ink">
           Descrição completa
           <textarea className={textareaClass} name="description" defaultValue={values.description ?? ""} maxLength={12000} />
+          <FieldError name="description" />
         </label>
       </Section>
 
@@ -202,10 +220,12 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
         <label className="grid gap-2 text-sm font-semibold text-ink">
           Detalhes do material
           <input className={inputClass} name="materialDetails" defaultValue={values.materialDetails ?? ""} maxLength={500} />
+          <FieldError name="materialDetails" />
         </label>
         <label className="grid gap-2 text-sm font-semibold text-ink">
           Observações técnicas
           <textarea className={textareaClass} name="technicalNotes" defaultValue={values.technicalNotes ?? ""} maxLength={2000} />
+          <FieldError name="technicalNotes" />
         </label>
       </Section>
 
@@ -216,6 +236,7 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
             <option value="unit">Unidade</option>
             <option value="pair">Par</option>
           </select>
+          <FieldError name="saleUnit" />
         </label>
         {(isAlliance || category?.name === "Anéis") ? (
           <div className="grid gap-5 sm:grid-cols-2">
@@ -224,8 +245,11 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
           </div>
         ) : null}
         <div className="grid gap-3 sm:grid-cols-2">
-          <Checkbox name="engravingAvailable" label="Gravação disponível" defaultChecked={values.engravingAvailable} />
-          <Checkbox name="engravingIncluded" label="Gravação inclusa" defaultChecked={values.engravingIncluded} />
+          <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" name="engravingAvailable" checked={engravingAvailable} onChange={(event) => {
+            setEngravingAvailable(event.target.checked);
+            if (!event.target.checked) setEngravingIncluded(false);
+          }} className="h-4 w-4 accent-gold" />Gravação disponível</label>
+          <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" name="engravingIncluded" disabled={!engravingAvailable} checked={engravingIncluded} onChange={(event) => setEngravingIncluded(event.target.checked)} className="h-4 w-4 accent-gold disabled:opacity-40" />Gravação inclusa</label>
           <Checkbox name="jewelryBoxIncluded" label="Caixinha inclusa" defaultChecked={values.jewelryBoxIncluded} />
         </div>
       </Section>
@@ -234,14 +258,16 @@ export function ProductFields({ taxonomy, values = {} }: ProductFieldsProps) {
         <label className="grid gap-2 text-sm font-semibold text-ink">
           Título SEO
           <input className={inputClass} name="seoTitle" value={seoTitle} maxLength={180} onChange={(event) => setSeoTitle(event.target.value)} />
+          <FieldError name="seoTitle" />
           <span className="text-xs font-normal text-taupe">{seoTitle.length} caracteres · referência: 50–60</span>
         </label>
         <label className="grid gap-2 text-sm font-semibold text-ink">
           Meta descrição
           <textarea className={textareaClass} name="seoDescription" value={seoDescription} maxLength={500} onChange={(event) => setSeoDescription(event.target.value)} />
+          <FieldError name="seoDescription" />
           <span className="text-xs font-normal text-taupe">{seoDescription.length} caracteres · referência: até 160</span>
         </label>
       </Section>
-    </div>
+    </div></Errors.Provider>
   );
 }

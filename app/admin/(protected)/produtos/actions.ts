@@ -8,10 +8,15 @@ import { catalogImageUrl } from "@/lib/catalog/image-url";
 import {
   parseAdminProductForm,
   validateProductActivation,
-  type AdminProductInput
+  type AdminProductInput,
+  type AdminProductFormState
 } from "@/lib/admin/product-form";
 
 const productIdSchema = z.string().uuid();
+
+function logAdminProductFailure(stage: string, error?: { code?: string } | null) {
+  console.error("admin_product_action_failure", { stage, code: error?.code ?? "no_result" });
+}
 
 function productPayload(input: AdminProductInput) {
   return {
@@ -107,14 +112,25 @@ function commercialValidation(
   return !product.engraving_included || product.engraving_available;
 }
 
-export async function createDraftProductAction(formData: FormData) {
+function commercialFieldErrors(input: AdminProductInput, categoryName: string) {
+  const fields: Record<string, string> = {};
+  if (input.stockStatus === "service" && categoryName !== "Serviços") fields.stockStatus = "Selecione uma disponibilidade válida para a categoria.";
+  if (categoryName === "Alianças") {
+    if (input.saleUnit !== "pair") fields.saleUnit = "Alianças devem ser vendidas por par.";
+    if (input.sizeMin === null) fields.sizeMin = "Informe o aro mínimo antes de publicar.";
+    if (input.sizeMax === null) fields.sizeMax = "Informe o aro máximo antes de publicar.";
+  } else if (input.saleUnit !== "unit") fields.saleUnit = "Esta categoria deve ser vendida por unidade.";
+  return fields;
+}
+
+export async function createDraftProductAction(formData: FormData): Promise<AdminProductFormState> {
   const { supabase } = await requireActiveAdmin();
   const parsed = parseAdminProductForm(formData);
-  if (!parsed.success) redirect(`/admin/produtos/novo?error=${parsed.error}`);
+  if (!parsed.success) return { message: "Revise os campos indicados.", fieldErrors: parsed.fieldErrors };
 
   const categoryName = await taxonomyValidation(supabase, parsed.data);
   if (!categoryName) {
-    redirect("/admin/produtos/novo?error=taxonomy");
+    return { message: "Revise a classificação do produto.", fieldErrors: { categoryId: "Confirme a categoria selecionada.", subcategoryId: "Confirme se a subcategoria pertence à categoria.", materialId: "Confirme o material selecionado." } };
   }
 
   const { data, error } = await supabase
@@ -127,35 +143,41 @@ export async function createDraftProductAction(formData: FormData) {
     .single();
 
   if (error || !data) {
-    redirect(`/admin/produtos/novo?error=${productFormError(error)}`);
+    logAdminProductFailure("create_draft", error);
+    return productFormError(error) === "duplicate"
+      ? { message: "Revise o slug.", fieldErrors: { slug: "Este slug já está sendo utilizado por outro produto." } }
+      : { message: "Não foi possível criar o rascunho. Seus dados foram preservados." };
   }
 
   revalidateAdminProduct(data.id);
-  redirect(`/admin/produtos/${data.id}?created=1`);
+  return { redirectTo: `/admin/produtos/${data.id}?created=1` };
 }
 
-export async function updateProductAction(formData: FormData) {
+export async function updateProductAction(formData: FormData): Promise<AdminProductFormState> {
   const productId = productIdSchema.safeParse(formData.get("productId"));
   if (!productId.success) redirect("/admin/produtos?error=invalid_product");
 
   const { supabase } = await requireActiveAdmin();
   const parsed = parseAdminProductForm(formData);
-  if (!parsed.success) redirect(`/admin/produtos/${productId.data}?error=${parsed.error}`);
+  if (!parsed.success) return { message: "Revise os campos indicados.", fieldErrors: parsed.fieldErrors };
 
   const categoryName = await taxonomyValidation(supabase, parsed.data);
   if (!categoryName) {
-    redirect(`/admin/produtos/${productId.data}?error=taxonomy`);
+    return { message: "Revise a classificação do produto.", fieldErrors: { categoryId: "Confirme a categoria selecionada.", subcategoryId: "Confirme se a subcategoria pertence à categoria.", materialId: "Confirme o material selecionado." } };
   }
 
-  if (parsed.data.version === null) redirect(`/admin/produtos/${productId.data}?error=version_conflict`);
+  if (parsed.data.version === null) return { message: "Recarregue a página antes de salvar: versão do produto ausente." };
   const { data: current, error: readError } = await supabase
     .from("ecommerce_products")
     .select("is_active")
     .eq("id", productId.data)
     .maybeSingle();
-  if (readError || !current) redirect(`/admin/produtos/${productId.data}?error=save`);
+  if (readError || !current) {
+    logAdminProductFailure("update_read", readError);
+    return { message: "Não foi possível consultar o produto. Seus dados foram preservados." };
+  }
   if (current.is_active && !commercialValidation(productPayload(parsed.data), categoryName)) {
-    redirect(`/admin/produtos/${productId.data}?error=invalid_commercial_fields`);
+    return { message: "Revise as regras do produto publicado.", fieldErrors: commercialFieldErrors(parsed.data, categoryName) };
   }
 
   const { data, error } = await supabase
@@ -167,12 +189,15 @@ export async function updateProductAction(formData: FormData) {
     .maybeSingle();
 
   if (error) {
-    redirect(`/admin/produtos/${productId.data}?error=${productFormError(error)}`);
+    logAdminProductFailure("update", error);
+    return productFormError(error) === "duplicate"
+      ? { message: "Revise o slug.", fieldErrors: { slug: "Este slug já está sendo utilizado por outro produto." } }
+      : { message: "Não foi possível salvar. Seus dados foram preservados." };
   }
-  if (!data) redirect(`/admin/produtos/${productId.data}?error=version_conflict`);
+  if (!data) return { message: "Este produto foi alterado em outra sessão. Seus dados estão preservados; confira a versão atual antes de salvar novamente." };
 
   revalidateAdminProduct(productId.data);
-  redirect(`/admin/produtos/${productId.data}?saved=1`);
+  return { redirectTo: `/admin/produtos/${productId.data}?saved=1` };
 }
 
 export async function activateProductAction(formData: FormData) {

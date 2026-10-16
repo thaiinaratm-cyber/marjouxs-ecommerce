@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CheckCircle2, Eye, EyeOff, Save } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import {
   activateProductAction,
   deactivateProductAction,
   updateProductAction
 } from "@/app/admin/(protected)/produtos/actions";
 import { DeactivateProductForm } from "@/components/admin/deactivate-product-form";
-import { ProductFields } from "@/components/admin/product-fields";
+import { ProductForm } from "@/components/admin/product-form";
 import { ProductImageManager } from "@/components/admin/product-image-manager";
 import { ProductImageUpload } from "@/components/admin/product-image-upload";
 import { requireActiveAdmin } from "@/lib/admin/auth";
@@ -85,10 +85,7 @@ export default async function AdminProductDetailPage({ params, searchParams }: P
       {success ? <div className="mt-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="status">{success}</div> : null}
 
       <div className="mt-7 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <form action={updateProductAction} className="rounded-lg border border-black/10 bg-white p-5 shadow-sm sm:p-7">
-          <input type="hidden" name="productId" value={product.id} />
-          <input type="hidden" name="version" value={product.version} />
-          <ProductFields
+        <ProductForm action={updateProductAction} submitLabel="Salvar alterações"
             taxonomy={taxonomy}
             values={{
               name: product.name,
@@ -129,13 +126,10 @@ export default async function AdminProductDetailPage({ params, searchParams }: P
               isFeatured: product.is_featured,
               allowWhatsappQuote: product.allow_whatsapp_quote
             }}
-          />
-          <div className="mt-7 flex justify-end">
-            <button type="submit" className="inline-flex h-11 items-center gap-2 rounded-md bg-ink px-5 text-sm font-bold text-white transition hover:bg-gold">
-              <Save size={17} aria-hidden="true" /> Salvar alterações
-            </button>
-          </div>
-        </form>
+          >
+          <input type="hidden" name="productId" value={product.id} />
+          <input type="hidden" name="version" value={product.version} />
+        </ProductForm>
 
         <aside className="grid content-start gap-5">
           <ProductImageUpload productId={product.id} productName={product.name} />

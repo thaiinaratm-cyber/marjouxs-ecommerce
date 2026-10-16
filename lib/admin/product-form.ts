@@ -91,7 +91,9 @@ export type AdminProductInput = {
 
 export type ProductFormResult =
   | { success: true; data: AdminProductInput }
-  | { success: false; error: "invalid_fields" | "invalid_price" };
+  | { success: false; error: "invalid_fields" | "invalid_price"; fieldErrors: Record<string, string> };
+
+export type AdminProductFormState = { message?: string; fieldErrors?: Record<string, string>; redirectTo?: string };
 
 export function toProductSlug(value: string) {
   return value
@@ -146,7 +148,7 @@ export function parseAdminProductForm(formData: FormData): ProductFormResult {
   const suppliedSlug = String(formData.get("slug") ?? "").trim();
   const parsed = rawProductSchema.safeParse({
     name,
-    slug: suppliedSlug || toProductSlug(name),
+    slug: suppliedSlug,
     categoryId: String(formData.get("categoryId") ?? ""),
     subcategoryId: String(formData.get("subcategoryId") ?? ""),
     materialId: String(formData.get("materialId") ?? ""),
@@ -178,18 +180,34 @@ export function parseAdminProductForm(formData: FormData): ProductFormResult {
     saleUnit: String(formData.get("saleUnit") ?? "unit"),
     isCustomOrder: formData.get("isCustomOrder") === "on",
     engravingAvailable: formData.get("engravingAvailable") === "on",
-    engravingIncluded: formData.get("engravingIncluded") === "on",
+    engravingIncluded: formData.get("engravingAvailable") === "on" && formData.get("engravingIncluded") === "on",
     jewelryBoxIncluded: formData.get("jewelryBoxIncluded") === "on",
     isFeatured: formData.get("isFeatured") === "on",
     allowWhatsappQuote: formData.get("allowWhatsappQuote") === "on",
     version: String(formData.get("version") ?? "")
   });
 
-  if (!parsed.success) return { success: false, error: "invalid_fields" };
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    const messages: Record<string, string> = {
+      name: name ? "Use entre 3 e 180 caracteres." : "Nome do produto é obrigatório.",
+      slug: suppliedSlug ? "Use letras minúsculas, números e hífens (3 a 180 caracteres)." : "Slug é obrigatório.",
+      categoryId: "Selecione uma categoria.", materialId: "Selecione um material.",
+      subcategoryId: "Selecione uma subcategoria válida."
+    };
+    for (const issue of parsed.error.issues) {
+      const field = String(issue.path[0]);
+      fieldErrors[field] = messages[field] ?? "Revise o valor informado neste campo.";
+    }
+    return { success: false, error: "invalid_fields", fieldErrors };
+  }
 
   const price = parseBrazilianPrice(parsed.data.price);
   const oldPrice = parseBrazilianPrice(parsed.data.oldPrice);
-  if (price === undefined || oldPrice === undefined) return { success: false, error: "invalid_price" };
+  if (price === undefined || oldPrice === undefined) return { success: false, error: "invalid_price", fieldErrors: {
+    ...(price === undefined ? { price: "Informe um preço válido ou deixe vazio para consulta." } : {}),
+    ...(oldPrice === undefined ? { oldPrice: "Informe um preço anterior válido ou deixe vazio." } : {})
+  } };
 
   const discountPercent = parseDecimal(parsed.data.discountPercent, 3, 2);
   const cashDiscountPercent = parseDecimal(parsed.data.cashDiscountPercent, 3, 2);
@@ -211,9 +229,15 @@ export function parseAdminProductForm(formData: FormData): ProductFormResult {
       [installmentsCount, stoneQuantity, sizeMin, sizeMax, version].some((value) => value === undefined) ||
       (discountPercent !== null && Number(discountPercent) > 100) ||
       (cashDiscountPercent !== null && Number(cashDiscountPercent) > 100) ||
-      (typeof sizeMin === "number" && typeof sizeMax === "number" && sizeMin > sizeMax) ||
-      (parsed.data.engravingIncluded && !parsed.data.engravingAvailable)) {
-    return { success: false, error: "invalid_fields" };
+      (typeof sizeMin === "number" && typeof sizeMax === "number" && sizeMin > sizeMax)) {
+    const fieldErrors: Record<string, string> = {};
+    for (const [field, value] of Object.entries({ ...measurements, discountPercent, cashDiscountPercent, installmentsCount, stoneQuantity, sizeMin, sizeMax, version })) {
+      if (value === undefined) fieldErrors[field] = "Informe um número válido ou deixe o campo vazio.";
+    }
+    if (discountPercent !== null && Number(discountPercent) > 100) fieldErrors.discountPercent = "O desconto deve estar entre 0 e 100%.";
+    if (cashDiscountPercent !== null && Number(cashDiscountPercent) > 100) fieldErrors.cashDiscountPercent = "O desconto deve estar entre 0 e 100%.";
+    if (typeof sizeMin === "number" && typeof sizeMax === "number" && sizeMin > sizeMax) fieldErrors.sizeMax = "O aro máximo deve ser maior ou igual ao mínimo.";
+    return { success: false, error: "invalid_fields", fieldErrors };
   }
 
   return {

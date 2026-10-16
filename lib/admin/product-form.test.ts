@@ -11,7 +11,36 @@ import {
 const CATEGORY_ID = "11111111-1111-4111-8111-111111111111";
 const MATERIAL_ID = "22222222-2222-4222-8222-222222222222";
 
+function technicalForm() {
+  const form = new FormData();
+  form.set("name", "Peça de teste");
+  form.set("slug", "peca-de-teste");
+  form.set("categoryId", CATEGORY_ID);
+  form.set("materialId", MATERIAL_ID);
+  return form;
+}
+
 describe("admin product form", () => {
+  it.each([
+    ["name", "Nome do produto é obrigatório."], ["slug", "Slug é obrigatório."],
+    ["categoryId", "Selecione uma categoria."], ["materialId", "Selecione um material."]
+  ])("identifica campo obrigatório vazio: %s", (field, message) => {
+    const form = technicalForm(); form.set(field, "");
+    expect(parseAdminProductForm(form)).toMatchObject({ success: false, fieldErrors: { [field]: message } });
+  });
+  it.each(["Pulseira", "Corrente"])("aceita rascunho mínimo de %s sem gravação ou técnicos", (name) => {
+    const form = technicalForm(); form.set("name", name);
+    const result = parseAdminProductForm(form);
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data).toMatchObject({ price: null, installmentsCount: null,
+      engravingAvailable: false, engravingIncluded: false });
+  });
+  it("normaliza gravação inclusa sem disponibilidade sem causar erro", () => {
+    const form = technicalForm(); form.set("engravingIncluded", "on");
+    const result = parseAdminProductForm(form);
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.engravingIncluded).toBe(false);
+  });
   it("normaliza slug com acentos", () => {
     expect(toProductSlug("Anel Pérola Coração 18k")).toBe("anel-perola-coracao-18k");
   });

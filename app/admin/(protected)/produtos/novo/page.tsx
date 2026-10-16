@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { createDraftProductAction } from "@/app/admin/(protected)/produtos/actions";
-import { ProductFields } from "@/components/admin/product-fields";
+import { ProductForm } from "@/components/admin/product-form";
 import { requireActiveAdmin } from "@/lib/admin/auth";
 import { getAdminTaxonomy } from "@/lib/admin/catalog";
 
@@ -35,14 +35,7 @@ export default async function NewAdminProductPage({ searchParams }: NewProductPa
 
       {error ? <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{error}</div> : null}
 
-      <form action={createDraftProductAction} className="mt-7 rounded-lg border border-black/10 bg-white p-5 shadow-sm sm:p-7">
-        <ProductFields taxonomy={taxonomy} />
-        <div className="mt-7 flex justify-end">
-          <button type="submit" className="inline-flex h-11 items-center gap-2 rounded-md bg-ink px-5 text-sm font-bold text-white transition hover:bg-gold">
-            <Save size={17} aria-hidden="true" /> Salvar como rascunho
-          </button>
-        </div>
-      </form>
+      <div className="mt-7"><ProductForm action={createDraftProductAction} taxonomy={taxonomy} submitLabel="Salvar como rascunho" /></div>
     </div>
   );
 }

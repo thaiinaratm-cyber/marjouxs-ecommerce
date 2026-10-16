@@ -15,17 +15,20 @@ import { getVisibleProducts } from "@/lib/products";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
 import type { CategoryName, Product } from "@/types/product";
 
-const readCachedDatabaseProducts = unstable_cache(async (): Promise<Product[]> => {
+async function readDatabaseProducts(): Promise<Product[]> {
   const { url, anonKey } = getSupabasePublicConfig();
   const client = createClient(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
-      fetch: (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(8000) })
+      fetch: (input, init) => fetch(input, { ...init, cache: "no-store", signal: AbortSignal.timeout(8000) })
     }
   });
   const catalog = await readPublicDatabaseCatalog(client);
   return normalizePublicDatabaseCatalog(catalog, products, url);
-}, ["marjouxs-public-catalog-v2"], { revalidate: 300, tags: ["marjouxs-public-catalog"] });
+}
+
+const readCachedDatabaseProducts = unstable_cache(readDatabaseProducts,
+  ["marjouxs-public-catalog-v2"], { revalidate: 300, tags: ["marjouxs-public-catalog"] });
 
 const getPublicCatalog = cache(async (): Promise<Product[]> => {
   unstable_noStore();
@@ -33,7 +36,9 @@ const getPublicCatalog = cache(async (): Promise<Product[]> => {
     source: getCatalogSource(),
     fallback: isCatalogFallbackEnabled(),
     staticProducts: products,
-    readDatabase: readCachedDatabaseProducts
+    // Development admin and storefront can run in separate processes/ports.
+    // Read fresh data there; production retains the shared invalidation tag.
+    readDatabase: process.env.NODE_ENV === "development" ? readDatabaseProducts : readCachedDatabaseProducts
   });
 });
 
