@@ -10,7 +10,19 @@ import { createCheckoutSchema } from "@/lib/checkout/schemas";
 
 export const runtime = "nodejs";
 
+const CHECKOUT_CREATE_CONTAINED = true;
+
 export async function POST(request: Request) {
+  if (CHECKOUT_CREATE_CONTAINED) {
+    return NextResponse.json(
+      {
+        error: "O checkout está temporariamente indisponível. Tente novamente em alguns instantes.",
+        code: "checkout_temporarily_unavailable"
+      },
+      { status: 503, headers: { "Cache-Control": "private, no-store" } }
+    );
+  }
+
   let payload: unknown;
   try {
     payload = await request.json();
