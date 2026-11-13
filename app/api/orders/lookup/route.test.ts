@@ -100,4 +100,13 @@ describe("consulta pública de pedido", () => {
     expect(mocks.getPublicOrderByCustomer).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({ code: "order_not_found" });
   });
+  it("projects out private fields even if a future reader accidentally returns them", async () => {
+    mocks.getPublicOrderByCustomer.mockResolvedValue({ ...publicOrder, customer_email: "private@example.invalid",
+      shippingAddress: { street: "private-address" }, receiptUrl: "https://example.invalid/private-receipt",
+      items: [{ productSlug: "qa", productName: "QA", productImage: "/qa.webp", category: "Alianças", material: "Ouro 18k",
+        quantity: 1, unitPriceCents: 10000, subtotalCents: 10000, customization: { ring1: { engraving: "private-engraving" } } }] });
+    const response = await POST(lookupRequest({ orderNumber: "MJ-000123", email: "qa@example.invalid" }));
+    expect(response.status).toBe(200);
+    expect(JSON.stringify(await response.json())).not.toMatch(/private-|private@|customer_email/);
+  });
 });

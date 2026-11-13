@@ -13,9 +13,10 @@ const errors: Record<string, string> = {
   taxonomy: "A categoria, subcategoria ou material selecionado não é válido."
 };
 
-type NewProductPageProps = { searchParams?: { error?: string } };
+type NewProductPageProps = { searchParams?: Promise<{ error?: string }> };
 
-export default async function NewAdminProductPage({ searchParams }: NewProductPageProps) {
+export default async function NewAdminProductPage({ searchParams: pendingSearchParams }: NewProductPageProps) {
+  const searchParams = await pendingSearchParams;
   const { supabase } = await requireActiveAdmin();
   const taxonomy = await getAdminTaxonomy(supabase);
   const error = searchParams?.error ? errors[searchParams.error] : null;

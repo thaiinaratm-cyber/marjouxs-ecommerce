@@ -3,6 +3,7 @@ import { CheckoutCatalogReadError } from "@/lib/checkout/catalog-server";
 import { CheckoutConfigurationError } from "@/lib/checkout/config";
 import { InfinitePayError } from "@/lib/checkout/infinitepay";
 import { ShippingProviderError } from "@/lib/checkout/shipping";
+import { publicShippingMessage } from "@/lib/checkout/shipping-messages";
 
 export type CheckoutFailureStage =
   | "request_payload_validation"
@@ -313,7 +314,9 @@ export function toCheckoutProcessError(error: unknown) {
     );
   }
   if (error instanceof ShippingProviderError) {
-    return new CheckoutProcessError(error.message, "checkout_validation_error", error.status, {
+    const publicCode = ["invalid_postal_code", "postal_code_not_found", "postal_code_service_unavailable"].includes(error.code)
+      ? error.code : "checkout_validation_error";
+    return new CheckoutProcessError(publicShippingMessage(error.code), publicCode, error.status, {
       stage: "shipping_validation",
       error_code: error.code,
       postgres_code: null,

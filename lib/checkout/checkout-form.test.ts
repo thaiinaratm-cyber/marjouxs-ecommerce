@@ -99,6 +99,8 @@ describe("formulário do checkout", () => {
   });
 
   it("classifica falhas do pedido sem expor detalhes internos", () => {
+    expect(getCheckoutRequestErrorMessage("postal_code_not_found", 404)).toBe("CEP não encontrado. Confira os números informados.");
+    expect(getCheckoutRequestErrorMessage("postal_code_service_unavailable", 503)).toBe("Não foi possível validar o CEP agora. Tente novamente em instantes.");
     expect(getCheckoutRequestErrorMessage("checkout_order_creation_error", 500)).toBe(
       "Não foi possível criar o pedido agora. Tente novamente."
     );
@@ -108,5 +110,18 @@ describe("formulário do checkout", () => {
     expect(getCheckoutRequestErrorMessage("unknown", 503, "detalhe interno")).not.toContain(
       "detalhe interno"
     );
+  });
+
+  it.each([
+    ["checkout_link_in_progress","Aguarde alguns instantes"],
+    ["checkout_link_dispatch_uncertain","Fale com nossa equipe"],
+    ["checkout_link_legacy_unknown","Fale com nossa equipe"],
+    ["checkout_link_state_invalid","Fale com nossa equipe"],
+    ["checkout_link_unavailable","com segurança"]
+  ])("apresenta %s sem detalhes de infraestrutura", (code,message) => {
+    const text = getCheckoutRequestErrorMessage(code,409,"private RPC response");
+    expect(text).toContain(message);
+    expect(text).not.toContain("RPC");
+    expect(text).not.toContain("dispatch");
   });
 });

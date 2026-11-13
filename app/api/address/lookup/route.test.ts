@@ -1,4 +1,6 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
+import * as postalCodeLookup from "@/lib/checkout/postal-code-lookup";
 import { POST } from "@/app/api/address/lookup/route";
 
 function request(postalCode: unknown) {
@@ -10,7 +12,13 @@ function request(postalCode: unknown) {
 }
 
 describe("consulta de CEP", () => {
-  afterEach(() => vi.unstubAllGlobals());
+  beforeEach(() => {
+    vi.spyOn(postalCodeLookup, "lookupPostalCode").mockImplementation(postalCodeLookup.createPostalCodeLookup());
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
 
   it("normaliza o CEP e devolve os campos do endereço", async () => {
     const providerFetch = vi.fn(async () =>
@@ -73,7 +81,7 @@ describe("consulta de CEP", () => {
     await expect(response.json()).resolves.toMatchObject({ code: "postal_code_not_found" });
   });
 
-  it("permite preenchimento manual quando o serviço falha", async () => {
+  it("distingue serviço indisponível sem orientar bypass manual", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => Promise.reject(new Error("network unavailable"))));
 
     const response = await POST(request("07400610"));
@@ -81,7 +89,7 @@ describe("consulta de CEP", () => {
     expect(response.status).toBe(503);
     const body = await response.json();
     expect(body.code).toBe("postal_code_service_unavailable");
-    expect(body.error).toContain("preenchendo o endereço manualmente");
+    expect(body.error).toBe("Não foi possível validar o CEP agora. Tente novamente em instantes.");
     expect(JSON.stringify(body)).not.toContain("network unavailable");
   });
 });

@@ -1,10 +1,11 @@
 const DEFAULT_INFINITEPAY_BASE_URL = "https://api.checkout.infinitepay.io";
 const DEFAULT_MELHOR_ENVIO_BASE_URL = "https://sandbox.melhorenvio.com.br";
+const PRODUCTION_SITE_ORIGIN = "https://marjouxsjoias.com.br";
 
-export const DEFAULT_SHIPMENT_WEIGHT_KG = 0.3;
+export const DEFAULT_SHIPMENT_WEIGHT_KG = 0.07;
 export const DEFAULT_SHIPMENT_LENGTH_CM = 16;
-export const DEFAULT_SHIPMENT_WIDTH_CM = 12;
-export const DEFAULT_SHIPMENT_HEIGHT_CM = 6;
+export const DEFAULT_SHIPMENT_WIDTH_CM = 11;
+export const DEFAULT_SHIPMENT_HEIGHT_CM = 3;
 
 export class CheckoutConfigurationError extends Error {
   constructor(message: string, readonly code: string) {
@@ -139,6 +140,22 @@ export function getMelhorEnvioOAuthSetupKey() {
 
 export function getPublicSiteUrl(fallback?: string) {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (process.env.NODE_ENV === "production") {
+    try {
+      if (!configured) throw new Error("Missing site origin");
+      const url = new URL(configured);
+      if (
+        url.origin !== PRODUCTION_SITE_ORIGIN || url.username || url.password ||
+        url.pathname !== "/" || url.search || url.hash
+      ) throw new Error("Invalid site origin");
+      return url.origin;
+    } catch {
+      throw new CheckoutConfigurationError(
+        "A origem do checkout não está configurada corretamente.",
+        "invalid_production_site_url"
+      );
+    }
+  }
   return baseUrl("NEXT_PUBLIC_SITE_URL", configured || fallback || "http://localhost:3000");
 }
 

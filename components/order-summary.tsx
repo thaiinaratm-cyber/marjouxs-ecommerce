@@ -122,7 +122,7 @@ export function OrderPurchaseSummary({ order }: { order: PublicOrder }) {
   );
 }
 
-export function OrderDeliveryDetails({ order }: { order: PublicOrder }) {
+export function OrderDeliveryDetails({ order, hidePrivateDetails = false }: { order: PublicOrder; hidePrivateDetails?: boolean }) {
   const shippingAddressLines = order.shippingAddress
     ? getShippingAddressLines(order.shippingAddress)
     : [];
@@ -145,6 +145,8 @@ export function OrderDeliveryDetails({ order }: { order: PublicOrder }) {
               <span className="block">{STORE_ADDRESS.complement}</span>
               <span className="block">{STORE_ADDRESS.city} - {STORE_ADDRESS.state}</span>
             </address>
+          ) : hidePrivateDetails ? (
+            <p className="mt-2 text-sm leading-6 text-taupe">Entrega pela modalidade escolhida no pedido.</p>
           ) : shippingAddressLines.length > 0 ? (
             <address className="mt-2 not-italic text-sm leading-6 text-taupe">
               {shippingAddressLines.map((line) => (
@@ -167,7 +169,7 @@ export function OrderDeliveryDetails({ order }: { order: PublicOrder }) {
         </div>
       ) : null}
 
-      {order.trackingCode ? (
+      {!hidePrivateDetails && order.trackingCode ? (
         <p className="mt-3 break-all text-sm text-taupe">
           <strong className="text-ink">Código de rastreio:</strong> {order.trackingCode}
         </p>

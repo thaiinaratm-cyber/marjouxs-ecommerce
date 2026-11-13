@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
 import {
   checkoutRpcError,
   logCheckoutFailure,
@@ -7,8 +8,25 @@ import {
 } from "@/lib/checkout/diagnostics";
 import { CheckoutValidationError } from "@/lib/checkout/catalog";
 import { CheckoutCatalogReadError } from "@/lib/checkout/catalog-server";
+import { ShippingProviderError } from "@/lib/checkout/shipping";
+import { publicShippingMessage } from "@/lib/checkout/shipping-messages";
 
 describe("checkout diagnostics", () => {
+  it.each([
+    ["invalid_postal_code", 400],
+    ["postal_code_not_found", 404],
+    ["postal_code_service_unavailable", 503]
+  ])("preserva o código seguro %s para o cliente", (code, status) => {
+    const failure = toCheckoutProcessError(new ShippingProviderError("Mensagem segura de CEP", String(code), Number(status)));
+    expect(failure).toMatchObject({ publicMessage: publicShippingMessage(String(code)), publicCode: code, status,
+      diagnostic: { stage: "shipping_validation", error_code: code, order_nsu: null } });
+  });
+
+  it("mantém a classificação atual dos demais erros de frete", () => {
+    expect(toCheckoutProcessError(new ShippingProviderError("Frete indisponível", "shipping_provider_unavailable")))
+      .toMatchObject({ publicCode: "checkout_validation_error", diagnostic: { stage: "shipping_validation" } });
+  });
+
   it("registra somente a projeção segura de um erro do Supabase", () => {
     const failure = checkoutRpcError(
       {

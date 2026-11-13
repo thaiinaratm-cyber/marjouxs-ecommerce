@@ -33,12 +33,14 @@ type RingSearchParams = {
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
-  params,
-  searchParams
+  params: pendingParams,
+  searchParams: pendingSearchParams
 }: {
-  params: { material: string; tipo?: string[] };
-  searchParams?: RingSearchParams;
+  params: Promise<{ material: string; tipo?: string[] }>;
+  searchParams?: Promise<RingSearchParams>;
 }) {
+  const params = await pendingParams;
+  const searchParams = await pendingSearchParams;
   if (!isRingMaterialSlug(params.material)) {
     return {
       title: "Anéis | Marjouxs Joalheria",
@@ -102,12 +104,14 @@ export async function generateMetadata({
 }
 
 export default async function RingCategoryPage({
-  params,
-  searchParams
+  params: pendingParams,
+  searchParams: pendingSearchParams
 }: {
-  params: { material: string; tipo?: string[] };
-  searchParams?: RingSearchParams;
+  params: Promise<{ material: string; tipo?: string[] }>;
+  searchParams?: Promise<RingSearchParams>;
 }) {
+  const params = await pendingParams;
+  const searchParams = await pendingSearchParams;
   const materialSlug = params.material;
   const subcategoryPath = params.tipo ?? [];
 

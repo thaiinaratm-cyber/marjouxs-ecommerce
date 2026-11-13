@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { normalizePostalCode, POSTAL_CODE_MESSAGES } from "@/lib/checkout/postal-code";
+import { MAX_CHECKOUT_UNITS, MAX_ENGRAVING_LENGTH } from "@/lib/checkout/limits";
 
-const engravingSchema = z.string().nullable().optional();
+const engravingSchema = z.string().max(MAX_ENGRAVING_LENGTH).nullable().optional();
 
 export const ringPairCustomizationSchema = z
   .object({
@@ -24,20 +26,23 @@ export const cartLineSchema = z
   .object({
     productId: z.string().trim().min(1).max(200),
     productSlug: z.string().trim().min(1).max(200),
-    quantity: z.number().int().positive(),
+    quantity: z.number().int().positive().max(MAX_CHECKOUT_UNITS),
     customization: ringPairCustomizationSchema.nullable(),
     displayedUnitPriceCents: z.number().int().nonnegative().safe().optional()
   })
   .strict();
 
-export const cartLinesSchema = z.array(cartLineSchema).min(1).max(50);
+export const cartLinesSchema = z.array(cartLineSchema).min(1).max(50)
+  .refine(lines => lines.reduce((sum, line) => sum + line.quantity, 0) <= MAX_CHECKOUT_UNITS);
 
 export const shippingLineSchema = cartLineSchema.omit({ customization: true });
-export const shippingLinesSchema = z.array(shippingLineSchema).min(1).max(50);
+export const shippingLinesSchema = z.array(shippingLineSchema).min(1).max(50)
+  .refine(lines => lines.reduce((sum, line) => sum + line.quantity, 0) <= MAX_CHECKOUT_UNITS);
 
 export const postalCodeSchema = z
   .string()
-  .transform((value) => value.replace(/\D/g, ""))
+  .refine((value) => normalizePostalCode(value) !== null, POSTAL_CODE_MESSAGES.invalid)
+  .transform((value) => normalizePostalCode(value)!)
   .pipe(z.string().regex(/^\d{8}$/));
 
 const requiredText = (maximum: number) => z.string().trim().min(1).max(maximum);

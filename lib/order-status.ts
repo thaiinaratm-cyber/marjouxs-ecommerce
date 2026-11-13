@@ -40,6 +40,7 @@ const statusAliases: Record<string, PublicOrderStatusStage> = {
   paid: "payment_approved",
   payment_approved: "payment_approved",
   payment_confirmed: "payment_approved",
+  preparing: "production",
   in_production: "production",
   production: "production",
   quality_control: "quality",
@@ -75,7 +76,11 @@ export function getOrderPresentationStage({
   const steps = deliveryMethod === "pickup" ? pickupSteps : shippingSteps;
   if (paymentStatus !== "paid") return "received";
 
-  const mappedStatus = statusAliases[normalizeStatus(orderStatus)];
+  const normalizedStatus = normalizeStatus(orderStatus);
+  if (normalizedStatus === "completed") {
+    return deliveryMethod === "pickup" ? "picked_up" : "delivered";
+  }
+  const mappedStatus = statusAliases[normalizedStatus];
   if (!mappedStatus || mappedStatus === "received") {
     return "payment_approved";
   }

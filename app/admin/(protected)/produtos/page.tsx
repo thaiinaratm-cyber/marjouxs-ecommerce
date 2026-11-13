@@ -20,13 +20,14 @@ const sorts = {
   price_desc: { column: "price", ascending: false }
 } as const;
 
-type AdminProductsPageProps = { searchParams?: Record<string, string | undefined> };
+type AdminProductsPageProps = { searchParams?: Promise<Record<string, string | undefined>> };
 
 function selection(value: string | undefined, ids: string[]) {
   return value && ids.includes(value) ? value : "";
 }
 
-export default async function AdminProductsPage({ searchParams = {} }: AdminProductsPageProps) {
+export default async function AdminProductsPage({ searchParams: pendingSearchParams }: AdminProductsPageProps) {
+  const searchParams = (await pendingSearchParams) ?? {};
   const { supabase } = await requireActiveAdmin();
   const taxonomy = await getAdminTaxonomy(supabase);
   const categoryId = selection(searchParams.category, taxonomy.categories.map((item) => item.id));

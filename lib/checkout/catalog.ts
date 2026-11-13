@@ -3,6 +3,7 @@ import { hasValidPrice } from "@/lib/product-pricing";
 import type { CartLineInput, ShippingLineInput, ValidatedCart, ValidatedCartItem } from "@/types/checkout";
 import type { CartCustomization, Product } from "@/types/product";
 import { ringPairCustomizationSchema } from "@/lib/checkout/schemas";
+import { MAX_CHECKOUT_UNITS } from "@/lib/checkout/limits";
 
 const CHECKOUT_STOCK_STATUSES = new Set(["Disponível", "Sob encomenda"]);
 
@@ -28,6 +29,15 @@ export function getProductById(productId: string) {
 
 export type CheckoutProductRecord = { product: Product; unitPriceCents?: number };
 export type CheckoutProductResolver = (productId: string, productSlug: string) => CheckoutProductRecord;
+
+function validateQuantities(lines: Array<{ quantity: number }>) {
+  if (lines.some(line => !Number.isSafeInteger(line.quantity) || line.quantity <= 0 || line.quantity > MAX_CHECKOUT_UNITS)) {
+    throw new CheckoutValidationError("A quantidade informada é inválida.", "invalid_quantity");
+  }
+  if (lines.reduce((sum, line) => sum + line.quantity, 0) > MAX_CHECKOUT_UNITS) {
+    throw new CheckoutValidationError(`O limite por checkout é de ${MAX_CHECKOUT_UNITS} unidades comerciais.`, "invalid_quantity");
+  }
+}
 
 function getStaticCheckoutProduct(productId: string, productSlug: string): CheckoutProductRecord {
   const product = getProductById(productId);
@@ -135,11 +145,9 @@ export function resolveCheckoutCart(
   resolver: CheckoutProductResolver = getStaticCheckoutProduct,
   priceChangePolicy: "reject" | "report" = "reject"
 ): ValidatedCart {
+  validateQuantities(lines);
   const priceChanges: NonNullable<ValidatedCart["priceChanges"]> = [];
   const items = lines.map<ValidatedCartItem>((line) => {
-    if (!Number.isSafeInteger(line.quantity) || line.quantity <= 0) {
-      throw new CheckoutValidationError("A quantidade informada é inválida.", "invalid_quantity");
-    }
     const record = getCheckoutProduct(line.productId, line.productSlug, resolver);
     const { product } = record;
     const unitPriceCents = getPriceCents(record);
@@ -193,11 +201,8 @@ export function resolveShipmentCart(
   lines: ShippingLineInput[],
   resolver: CheckoutProductResolver = getStaticCheckoutProduct
 ) {
+  validateQuantities(lines);
   const items = lines.map((line) => {
-    if (!Number.isInteger(line.quantity) || line.quantity <= 0) {
-      throw new CheckoutValidationError("A quantidade informada é inválida.", "invalid_quantity");
-    }
-
     const record = getCheckoutProduct(line.productId, line.productSlug, resolver);
     const { product } = record;
 

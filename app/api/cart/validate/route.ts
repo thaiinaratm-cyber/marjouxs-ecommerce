@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
 import { resolveAuthoritativeCheckoutCart } from "@/lib/checkout/catalog-server";
-import { apiError, validationError } from "@/lib/checkout/http";
+import { apiError, checkoutJson, validationError } from "@/lib/checkout/http";
 import { cartValidationRequestSchema } from "@/lib/checkout/schemas";
 
 export const runtime = "nodejs";
@@ -12,7 +11,7 @@ export async function POST(request: Request) {
       return validationError();
     }
 
-    return NextResponse.json(await resolveAuthoritativeCheckoutCart(parsed.data.items, "report"));
+    return checkoutJson(await resolveAuthoritativeCheckoutCart(parsed.data.items, "report"));
   } catch (error) {
     return apiError(error);
   }

@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
 
 export async function createSupabaseServerClient() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const { url, anonKey } = getSupabasePublicConfig();
 
   return createServerClient(url, anonKey, {

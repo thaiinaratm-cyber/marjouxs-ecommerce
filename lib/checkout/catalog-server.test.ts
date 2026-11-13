@@ -5,7 +5,12 @@ import {
   resolveAuthoritativeShipmentCart,
   type CheckoutCatalogSnapshot
 } from "@/lib/checkout/catalog-server";
-import { CheckoutConfigurationError } from "@/lib/checkout/config";
+import {
+  CheckoutConfigurationError,
+  getCheckoutCatalogSource,
+  isCheckoutCatalogFallbackEnabled
+} from "@/lib/checkout/config";
+import { getProductById } from "@/lib/checkout/catalog";
 import type { CartLineInput } from "@/types/checkout";
 
 const commonLine: CartLineInput = {
@@ -97,6 +102,18 @@ describe("catálogo autoritativo do checkout", () => {
     expect(readDatabase).not.toHaveBeenCalled();
   });
 
+  it.each(["development", "test", "production"])("respeita a configuração explícita em %s sem herdar flags da vitrine", (nodeEnv) => {
+    const env = {
+      NODE_ENV: nodeEnv,
+      PRODUCT_CATALOG_SOURCE: "static",
+      PRODUCT_CATALOG_FALLBACK: "true",
+      CHECKOUT_CATALOG_SOURCE: "database",
+      CHECKOUT_CATALOG_FALLBACK: "false"
+    };
+    expect(getCheckoutCatalogSource(env)).toBe("database");
+    expect(isCheckoutCatalogFallbackEnabled(env)).toBe(false);
+  });
+
   it("lê preço e dados comerciais do banco sem consultar o preço estático", async () => {
     const readDatabase = vi.fn().mockResolvedValue(snapshot());
     const cart = await resolveAuthoritativeCheckoutCart(
@@ -136,6 +153,7 @@ describe("catálogo autoritativo do checkout", () => {
       [line], "reject", databaseOptions(async () => snapshot({ legacy_id: null }))
     );
     expect(cart.items[0].unitPriceCents).toBe(16000);
+    expect(cart.items[0].productId).toBe(manualId);
     await expect(resolveAuthoritativeCheckoutCart(
       [line], "reject", databaseOptions(async () => snapshot({ legacy_id: null, is_active: false }))
     )).rejects.toMatchObject({ code: "product_unavailable" });
@@ -155,6 +173,45 @@ describe("catálogo autoritativo do checkout", () => {
       code: "price_changed",
       details: { productSlug: commonLine.productSlug, currentPriceCents: 16000 }
     });
+  });
+
+  it("usa R$ 3.600 do banco para o anel com pérola, nunca os R$ 990 do estático", async () => {
+    const legacy = getProductById("anel-ouro-18k-com-perola")!;
+    expect(legacy.price).toBe(990);
+    const line: CartLineInput = {
+      productId: legacy.id,
+      productSlug: legacy.slug,
+      quantity: 1,
+      customization: null,
+      displayedUnitPriceCents: 99000
+    };
+    const readDatabase = vi.fn().mockResolvedValue(snapshot({
+      legacy_id: legacy.id,
+      slug: legacy.slug,
+      name: legacy.name,
+      price: "3600.00"
+    }, "Anéis"));
+    const options = databaseOptions(readDatabase, "false");
+    const review = await resolveAuthoritativeCheckoutCart([line], "report", options);
+    expect(review.subtotalCents).toBe(360000);
+    expect(review.priceChanges).toEqual([{ productSlug: legacy.slug, currentPriceCents: 360000 }]);
+    await expect(resolveAuthoritativeCheckoutCart([line], "reject", options))
+      .rejects.toMatchObject({ code: "price_changed", details: { currentPriceCents: 360000 } });
+    const accepted = await resolveAuthoritativeCheckoutCart(
+      [{ ...line, displayedUnitPriceCents: 360000 }], "reject", options
+    );
+    expect(accepted.items[0].unitPriceCents).toBe(360000);
+    expect(accepted.subtotalCents).toBe(360000);
+  });
+
+  it.each(["category", "material", "subcategory"])("bloqueia taxonomia inválida de %s sem recorrer ao estático", async (field) => {
+    const data = snapshot();
+    if (field === "category") data.categories[0].is_active = false;
+    if (field === "material") data.materials[0].is_active = false;
+    if (field === "subcategory") data.subcategories[0].category_id = "other-category";
+    await expect(resolveAuthoritativeCheckoutCart(
+      [commonLine], "reject", databaseOptions(async () => data, "false")
+    )).rejects.toMatchObject({ code: "product_unavailable" });
   });
 
   it("exige revisão quando um cliente antigo não informa o preço exibido", async () => {
@@ -246,6 +303,16 @@ describe("catálogo autoritativo do checkout", () => {
   it("retorna erro técnico controlado sem fallback", async () => {
     await expect(resolveAuthoritativeCheckoutCart(
       [commonLine], "reject", databaseOptions(async () => { throw new Error("query failed"); }, "false")
+    )).rejects.toBeInstanceOf(CheckoutCatalogReadError);
+  });
+
+  it("não ressuscita produto inativo nem preço estático na leitura usada pelo frete", async () => {
+    const lines = [{ productId: commonLine.productId, productSlug: commonLine.productSlug, quantity: 1 }];
+    await expect(resolveAuthoritativeShipmentCart(
+      lines, databaseOptions(async () => snapshot({ is_active: false }), "false")
+    )).rejects.toMatchObject({ code: "product_unavailable" });
+    await expect(resolveAuthoritativeShipmentCart(
+      lines, databaseOptions(async () => { throw new Error("database unavailable"); }, "false")
     )).rejects.toBeInstanceOf(CheckoutCatalogReadError);
   });
 

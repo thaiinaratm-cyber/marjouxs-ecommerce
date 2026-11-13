@@ -28,6 +28,15 @@ const standardItem: PublicOrderItem = {
 };
 
 describe("getOrderTimeline", () => {
+  it("reconhece preparing real sem promover pagamento pendente", () => {
+    expect(getOrderPresentationStage({ deliveryMethod: "shipping", paymentStatus: "paid", orderStatus: "preparing" })).toBe("production");
+    expect(getOrderPresentationStage({ deliveryMethod: "shipping", paymentStatus: "pending", orderStatus: "preparing" })).toBe("received");
+  });
+  it.each(["shipping", "pickup"] as const)("completed real respeita modalidade %s e confirmacao financeira", deliveryMethod => {
+    expect(getOrderPresentationStage({ deliveryMethod, paymentStatus: "paid", orderStatus: "completed" }))
+      .toBe(deliveryMethod === "pickup" ? "picked_up" : "delivered");
+    expect(getOrderPresentationStage({ deliveryMethod, paymentStatus: "pending", orderStatus: "completed" })).toBe("received");
+  });
   it("não avança além de pedido recebido enquanto o pagamento está pendente", () => {
     const timeline = getOrderTimeline({
       deliveryMethod: "shipping",

@@ -74,9 +74,21 @@ export function trackGoogleAdsPurchaseWhenReady(order: unknown): () => void {
   const purchase = getGoogleAdsPurchase(order);
   if (!purchase || typeof window === "undefined") return () => {};
 
-  const stop = () => window.removeEventListener(GOOGLE_TAG_READY_EVENT, attempt);
+  let stopped = false;
+  let waiting = false;
+  const stop = () => { stopped = true; window.removeEventListener(GOOGLE_TAG_READY_EVENT, attempt); };
   function attempt() {
-    if (sendPurchase(purchase!)) stop();
+    if (stopped || waiting || !window.marjouxsGoogleTagReady || typeof window.gtag !== "function") return;
+    const locks = window.navigator?.locks;
+    if (!locks) {
+      if (sendPurchase(purchase!)) stop();
+      return;
+    }
+    waiting = true;
+    // Serialize the existing storage check + send + marker across same-origin tabs.
+    void locks.request("marjouxs-google-ads-purchase", () => !stopped && sendPurchase(purchase!))
+      .then(sent => { waiting = false; if (sent) stop(); })
+      .catch(() => { waiting = false; });
   }
   window.addEventListener(GOOGLE_TAG_READY_EVENT, attempt);
   attempt();

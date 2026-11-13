@@ -10,13 +10,14 @@ const errorMessages: Record<string, string> = {
 };
 
 type AdminLoginPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     error?: string;
     logged_out?: string;
-  };
+  }>;
 };
 
-export default function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
+export default async function AdminLoginPage({ searchParams: pendingSearchParams }: AdminLoginPageProps) {
+  const searchParams = await pendingSearchParams;
   const error = searchParams?.error ? errorMessages[searchParams.error] : null;
 
   return (

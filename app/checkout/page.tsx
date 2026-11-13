@@ -43,6 +43,8 @@ import {
   PRODUCT_PAGE_PIX_DISCOUNT_PERCENT
 } from "@/lib/product-pricing";
 import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
+import { normalizePostalCode, POSTAL_CODE_MESSAGES } from "@/lib/checkout/postal-code";
+import { prepareBrowserCheckoutIntent } from "@/lib/checkout/intent";
 import type { ShippingQuoteOption, ValidatedCart } from "@/types/checkout";
 
 type PostalCodeLookupStatus =
@@ -151,6 +153,7 @@ export default function CheckoutPage() {
   const postalCodeController = useRef<AbortController | null>(null);
   const postalCodeRequestSequence = useRef(0);
   const lastPostalCodeLookup = useRef("");
+  const shippingController = useRef<AbortController | null>(null);
 
   const apiItems = useMemo(
     () => {
@@ -227,8 +230,8 @@ export default function CheckoutPage() {
 
   const lookupPostalCode = useCallback(
     async (rawPostalCode: string, force = false) => {
-      const postalCode = onlyDigits(rawPostalCode);
-      if (deliveryMethod !== "shipping" || postalCode.length !== 8) return;
+      const postalCode = normalizePostalCode(rawPostalCode);
+      if (deliveryMethod !== "shipping" || !postalCode) return;
       if (!force && lastPostalCodeLookup.current === postalCode) return;
 
       lastPostalCodeLookup.current = postalCode;
@@ -247,20 +250,17 @@ export default function CheckoutPage() {
           signal: controller.signal
         });
         const body = await response.json().catch(() => null);
-        if (requestSequence !== postalCodeRequestSequence.current) return;
+        if (controller.signal.aborted || requestSequence !== postalCodeRequestSequence.current) return;
 
         if (!response.ok) {
           const code = responseCode(body);
           const unavailable = code === "postal_code_service_unavailable";
           setPostalCodeStatus(code === "postal_code_not_found" ? "not_found" : "error");
-          setPostalCodeMessage(
-            responseMessage(
-              body,
-              unavailable
-                ? "Não foi possível consultar o CEP agora. Você pode continuar preenchendo o endereço manualmente."
-                : "CEP não encontrado. Confira os números ou preencha o endereço manualmente."
-            )
-          );
+          setPostalCodeMessage(code === "postal_code_not_found" ? POSTAL_CODE_MESSAGES.notFound : POSTAL_CODE_MESSAGES.unavailable);
+          shippingController.current?.abort();
+          setIsQuoting(false);
+          setShippingOptions([]);
+          setSelectedShippingId("");
           if (unavailable) lastPostalCodeLookup.current = "";
           return;
         }
@@ -306,12 +306,16 @@ export default function CheckoutPage() {
         );
       } catch (requestError) {
         if (requestError instanceof DOMException && requestError.name === "AbortError") return;
-        if (requestSequence !== postalCodeRequestSequence.current) return;
+        if (controller.signal.aborted || requestSequence !== postalCodeRequestSequence.current) return;
         lastPostalCodeLookup.current = "";
         setPostalCodeStatus("error");
         setPostalCodeMessage(
-          "Não foi possível consultar o CEP agora. Você pode continuar preenchendo o endereço manualmente."
+          POSTAL_CODE_MESSAGES.unavailable
         );
+        shippingController.current?.abort();
+        setIsQuoting(false);
+        setShippingOptions([]);
+        setSelectedShippingId("");
       } finally {
         if (postalCodeController.current === controller) {
           postalCodeController.current = null;
@@ -323,9 +327,16 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     const postalCode = onlyDigits(address.postalCode);
+    postalCodeController.current?.abort();
+    postalCodeRequestSequence.current += 1;
+    shippingController.current?.abort();
+    setIsQuoting(false);
+    setShippingOptions([]);
+    setSelectedShippingId("");
+    setShippingError("");
+    lastPostalCodeLookup.current = "";
 
     if (deliveryMethod !== "shipping") {
-      postalCodeController.current?.abort();
       setPostalCodeStatus("idle");
       setPostalCodeMessage("");
       return;
@@ -354,6 +365,7 @@ export default function CheckoutPage() {
   useEffect(
     () => () => {
       postalCodeController.current?.abort();
+      shippingController.current?.abort();
     },
     []
   );
@@ -381,13 +393,13 @@ export default function CheckoutPage() {
   }
 
   async function calculateShipping() {
-    if (isQuoting) return;
+    if (isQuoting || deliveryMethod !== "shipping") return;
 
-    const postalCode = onlyDigits(address.postalCode);
-    if (postalCode.length !== 8) {
+    const postalCode = normalizePostalCode(address.postalCode);
+    if (!postalCode || postalCodeStatus === "not_found") {
       const nextErrors = {
         ...fieldErrors,
-        postalCode: "Informe um CEP válido com 8 números."
+        postalCode: !postalCode ? POSTAL_CODE_MESSAGES.invalid : POSTAL_CODE_MESSAGES.notFound
       };
       setFieldErrors(nextErrors);
       setShippingError("");
@@ -400,34 +412,51 @@ export default function CheckoutPage() {
     setShippingOptions([]);
     setSelectedShippingId("");
     setIsQuoting(true);
+    shippingController.current?.abort();
+    const controller = new AbortController();
+    shippingController.current = controller;
     resetAttempt();
 
     try {
       const response = await fetch("/api/shipping/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postalCode, items: shippingItems })
+        body: JSON.stringify({ postalCode, items: shippingItems }),
+        signal: controller.signal
       });
       const body = await response.json().catch(() => null);
+      if (controller.signal.aborted) return;
       if (!response.ok) {
+        const code = responseCode(body);
+        if (code === "postal_code_not_found" || code === "postal_code_service_unavailable") {
+          const message = code === "postal_code_not_found" ? POSTAL_CODE_MESSAGES.notFound : POSTAL_CODE_MESSAGES.unavailable;
+          setPostalCodeStatus(code === "postal_code_not_found" ? "not_found" : "error");
+          setPostalCodeMessage(message);
+        }
         throw new Error(responseMessage(body, "Não foi possível calcular o frete."));
       }
 
       const options = (body?.options ?? []) as ShippingQuoteOption[];
       setShippingOptions(options);
+      setPostalCodeStatus("success");
+      setPostalCodeMessage("CEP validado. Confira os dados do endereço.");
       if (options.length === 0) {
         setShippingError(
-          "Nenhuma modalidade autorizada está disponível para este CEP. Escolha retirada ou fale com a equipe."
+          "Não encontramos uma opção de entrega para este CEP."
         );
       }
     } catch (requestError) {
+      if (controller.signal.aborted) return;
       setShippingError(
         requestError instanceof Error
           ? requestError.message
           : "Não foi possível calcular o frete."
       );
     } finally {
-      setIsQuoting(false);
+      if (shippingController.current === controller) {
+        shippingController.current = null;
+        setIsQuoting(false);
+      }
     }
   }
 
@@ -442,6 +471,9 @@ export default function CheckoutPage() {
       deliveryMethod,
       hasSelectedShipping: Boolean(selectedShipping)
     });
+    if (deliveryMethod === "shipping" && postalCodeStatus === "not_found") {
+      nextErrors.postalCode = POSTAL_CODE_MESSAGES.notFound;
+    }
     setFieldErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
       setCheckoutError("Revise os campos destacados antes de continuar.");
@@ -466,11 +498,6 @@ export default function CheckoutPage() {
               shippingQuoteId: selectedShipping!.shippingQuoteId
             }
           };
-    const fingerprint = JSON.stringify({ paymentItems, customer: normalizedCustomer, delivery });
-    if (!checkoutAttempt.current || checkoutAttempt.current.fingerprint !== fingerprint) {
-      checkoutAttempt.current = { fingerprint, requestId: crypto.randomUUID() };
-    }
-
     submissionLocked.current = true;
     setCheckoutError("");
     setIsSubmitting(true);
@@ -480,11 +507,16 @@ export default function CheckoutPage() {
     trackAddPaymentInfo(items, "infinitepay");
 
     try {
+      const intent = await prepareBrowserCheckoutIntent({
+        items: paymentItems, customer: normalizedCustomer, delivery, shippingCents, totalCents,
+        cartLineIds: lines.map((line) => line.lineId)
+      });
+      checkoutAttempt.current = intent;
       const response = await fetch("/api/payments/infinitepay/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          requestId: checkoutAttempt.current.requestId,
+          requestId: intent.requestId,
           items: paymentItems,
           customer: normalizedCustomer,
           delivery,
@@ -494,7 +526,12 @@ export default function CheckoutPage() {
       const body = await response.json().catch(() => null);
       if (!response.ok) {
         const code = responseCode(body);
-        if (code === "price_changed") {
+        if (code === "postal_code_not_found" || code === "postal_code_service_unavailable") {
+          setShippingOptions([]);
+          setSelectedShippingId("");
+          setPostalCodeStatus(code === "postal_code_not_found" ? "not_found" : "error");
+          setPostalCodeMessage(code === "postal_code_not_found" ? POSTAL_CODE_MESSAGES.notFound : POSTAL_CODE_MESSAGES.unavailable);
+        } else if (code === "price_changed") {
           checkoutAttempt.current = null;
           setValidatedCart(null);
           setPriceReviewAccepted(false);
@@ -612,6 +649,8 @@ export default function CheckoutPage() {
                     value={value}
                     checked={deliveryMethod === value}
                     onChange={() => {
+                      postalCodeController.current?.abort();
+                      shippingController.current?.abort();
                       setDeliveryMethod(value);
                       setCheckoutError("");
                       setShippingError("");
@@ -675,6 +714,10 @@ export default function CheckoutPage() {
                       required
                       value={address.postalCode}
                       onChange={(event) => {
+                        postalCodeController.current?.abort();
+                        shippingController.current?.abort();
+                        setPostalCodeStatus("idle");
+                        setPostalCodeMessage("");
                         updateAddressField("postalCode", formatPostalCode(event.target.value));
                         setShippingOptions([]);
                         setSelectedShippingId("");
@@ -710,7 +753,8 @@ export default function CheckoutPage() {
                       <span
                         id="checkout-postalCode-status"
                         className={`flex items-center gap-1.5 text-xs font-normal ${
-                          postalCodeStatus === "success" ? "text-green-700" : "text-taupe"
+                          postalCodeStatus === "success" ? "text-green-700"
+                            : postalCodeStatus === "not_found" || postalCodeStatus === "error" ? "text-red-700" : "text-taupe"
                         }`}
                         role={postalCodeStatus === "loading" || postalCodeStatus === "success" ? "status" : "alert"}
                         aria-live="polite"
@@ -774,7 +818,7 @@ export default function CheckoutPage() {
                           />
                           <span>
                             <strong className="block text-ink">
-                              {option.carrierName} {option.serviceName}
+                              {option.carrierName} — {option.serviceName}
                             </strong>
                             <span className="mt-1 block text-xs text-taupe">
                               Transporte: até {option.deliveryTimeDays} dias úteis

@@ -1,7 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
 import { buildGa4PurchasePayload, type Ga4OrderRow } from "@/lib/checkout/outbox";
 
 describe("GA4 purchase payload", () => {
+  it("preserva convenção de value total e shipping separado sem item de frete", () => {
+    const payload = buildGa4PurchasePayload({ id: "fixture", order_number: "MJ-000001", total_cents: 52885,
+      shipping_cents: 2885, ga_client_id: "123.456", ga_session_id: null,
+      ecommerce_order_items: [{ product_id: "fixture", product_name: "Peça", category: "Anéis",
+        subcategory: null, material: null, unit_price_cents: 50000, quantity: 1 }] });
+    expect(payload.events[0].params).toMatchObject({ value: 528.85, shipping: 28.85 });
+    expect(payload.events[0].params.items).toHaveLength(1);
+  });
   it("envia somente dados comerciais, sem PII ou gravações", () => {
     const order = {
       id: "00000000-0000-4000-8000-000000000001",

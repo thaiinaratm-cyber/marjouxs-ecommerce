@@ -37,7 +37,7 @@ vi.mock("@/lib/checkout/supabase", () => ({
   })
 }));
 
-import { getPublicOrderByCustomer } from "@/lib/checkout/orders";
+import { getPublicOrder, getPublicOrderByCustomer } from "@/lib/checkout/orders";
 
 const orderRow = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -111,11 +111,7 @@ describe("getPublicOrderByCustomer", () => {
       orderNumber: "MJ-000123",
       statusStage: "payment_approved",
       deliveryMethod: "shipping",
-      shippingAddress: {
-        street: "Avenida João Manoel",
-        number: "600",
-        city: "Arujá"
-      },
+      shippingAddress: null,
       trackingCode: null
     });
     expect(JSON.stringify(order)).not.toContain("Cliente@Example.com");
@@ -129,6 +125,14 @@ describe("getPublicOrderByCustomer", () => {
     expect(mocks.paymentMaybeSingle).not.toHaveBeenCalled();
   });
 
+  it("knowing an order number and email does not disclose address, engraving or receipt", async () => {
+    mocks.paymentMaybeSingle.mockResolvedValue({ data: { capture_method: "pix", receipt_url: "https://example.invalid/private-receipt" }, error: null });
+    const order = await getPublicOrderByCustomer("MJ-000123", "cliente@example.com");
+    expect(order).toMatchObject({ shippingAddress: null, receiptUrl: null });
+    expect(order!.items[0].customization).toBeNull();
+    expect(JSON.stringify(order)).not.toMatch(/Avenida|João|private-receipt|customer_email/);
+  });
+
   it("retorna ausência genérica quando o número não existe", async () => {
     mocks.orderMaybeSingle.mockResolvedValue({ data: null, error: null });
 
@@ -136,5 +140,23 @@ describe("getPublicOrderByCustomer", () => {
       getPublicOrderByCustomer("MJ-999999", "cliente@example.com")
     ).resolves.toBeNull();
     expect(mocks.paymentMaybeSingle).not.toHaveBeenCalled();
+  });
+  it("a bearer confirmation token never exposes address, engraving, receipt or customer identity", async () => {
+    mocks.paymentMaybeSingle.mockResolvedValue({ data: { capture_method: "pix", status: "paid", receipt_url: "https://example.invalid/private-receipt" }, error: null });
+    const order = await getPublicOrder("00000000-0000-4000-8000-000000000099");
+    expect(mocks.orderEq).toHaveBeenCalledWith("public_token", "00000000-0000-4000-8000-000000000099");
+    expect(order).toMatchObject({ shippingAddress: null, receiptUrl: null });
+    expect(order!.items[0].customization).toBeNull();
+    expect(JSON.stringify(order)).not.toMatch(/customer_email|Cliente@|João|Avenida|private-receipt|transaction_nsu|public_token/);
+  });
+  it("a different token is queried exactly, with no fallback to a previous order", async () => {
+    mocks.orderMaybeSingle.mockResolvedValue({ data: null, error: null });
+    expect(await getPublicOrder("00000000-0000-4000-8000-000000000098")).toBeNull();
+    expect(mocks.paymentMaybeSingle).not.toHaveBeenCalled();
+  });
+  it("an order without an attempt remains readable without fabricated payment data", async () => {
+    mocks.paymentMaybeSingle.mockResolvedValue({ data: null, error: null });
+    expect(await getPublicOrder("00000000-0000-4000-8000-000000000099"))
+      .toMatchObject({ paymentMethod: null, receiptUrl: null, installments: null });
   });
 });

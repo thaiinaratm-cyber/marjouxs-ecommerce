@@ -1,4 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { CheckoutValidationError } from "@/lib/checkout/catalog";
+import { blockedCheckoutLink, checkoutLinkError, transitionCheckoutLink } from "@/lib/checkout/checkout-link";
 import { resolveAuthoritativeCheckoutCart } from "@/lib/checkout/catalog-server";
 import {
   CheckoutProcessError,
@@ -9,8 +11,10 @@ import {
   withOrderNsu
 } from "@/lib/checkout/diagnostics";
 import { checkoutIdempotencyKey, checkoutRequestHash } from "@/lib/checkout/hash";
+import { checkoutIntentSnapshot } from "@/lib/checkout/intent";
 import {
-  createInfinitePayCheckout,
+  prepareInfinitePayCheckout,
+  InfinitePayLinkError,
   InfinitePayError,
   type InfinitePayCheckoutItem
 } from "@/lib/checkout/infinitepay";
@@ -31,12 +35,6 @@ type CreateCheckoutRpcRow = {
   result_total_cents: number;
   result_attempt_status: string;
   result_checkout_url: string | null;
-};
-
-type LinkRpcRow = {
-  result_code: string;
-  result_attempt_id: string;
-  result_attempt_status: string;
 };
 
 const attemptLocks = new Map<string, Promise<CheckoutResult>>();
@@ -98,35 +96,25 @@ async function createProviderLink(
 ): Promise<CheckoutResult> {
   const confirmationUrl = `${siteUrl}/pedido/confirmacao?token=${rpcCheckout.result_public_token}`;
 
-  if (rpcCheckout.result_attempt_status === "paid") {
-    return {
+  const claimToken = randomUUID();
+  const attemptId = rpcCheckout.result_payment_attempt_id;
+  const resultFor = (checkoutUrl: string, alreadyPaid = false): CheckoutResult => ({
       orderNumber: rpcCheckout.result_order_number,
       publicToken: rpcCheckout.result_public_token,
-      checkoutUrl: confirmationUrl,
+      checkoutUrl,
       confirmationUrl,
       totalCents: Number(rpcCheckout.result_total_cents),
-      alreadyPaid: true
-    };
-  }
-
-  if (rpcCheckout.result_checkout_url && rpcCheckout.result_attempt_status === "pending") {
-    return {
-      orderNumber: rpcCheckout.result_order_number,
-      publicToken: rpcCheckout.result_public_token,
-      checkoutUrl: rpcCheckout.result_checkout_url,
-      confirmationUrl,
-      totalCents: Number(rpcCheckout.result_total_cents),
-      alreadyPaid: false
-    };
-  }
-
-  if (rpcCheckout.result_attempt_status !== "creating") {
-    throw new CheckoutValidationError(
-      "Este pedido precisa de atendimento antes de uma nova tentativa de pagamento.",
-      "payment_attempt_not_available",
-      409
-    );
-  }
+      alreadyPaid
+  });
+  const reusedResult = (row: Awaited<ReturnType<typeof transitionCheckoutLink>>) => {
+    if (row.result_code === "already_paid") return resultFor(confirmationUrl, true);
+    if (row.result_code === "reuse_link") return resultFor(row.result_checkout_url!);
+    return null;
+  };
+  const claim = await transitionCheckoutLink(attemptId, "claim", claimToken);
+  const existing = reusedResult(claim);
+  if (existing) return existing;
+  if (claim.result_code !== "reserved") blockedCheckoutLink(claim);
 
   const providerItems: InfinitePayCheckoutItem[] = cart.items.map((item) => ({
     quantity: item.quantity,
@@ -141,9 +129,7 @@ async function createProviderLink(
     });
   }
 
-  let provider: Awaited<ReturnType<typeof createInfinitePayCheckout>>;
-  try {
-    provider = await createInfinitePayCheckout({
+  const sendProvider = prepareInfinitePayCheckout({
       orderNsu: rpcCheckout.result_order_nsu,
       redirectUrl: confirmationUrl,
       webhookUrl: `${siteUrl}/api/payments/infinitepay/webhook`,
@@ -167,51 +153,41 @@ async function createProviderLink(
           }
         : {})
     });
+  let dispatch: Awaited<ReturnType<typeof transitionCheckoutLink>>;
+  try {
+    dispatch = await transitionCheckoutLink(attemptId, "begin_dispatch", claimToken);
+  } catch {
+    throw checkoutLinkError("checkout_link_dispatch_uncertain");
+  }
+  const reused = reusedResult(dispatch);
+  if (reused) return reused;
+  if (dispatch.result_code !== "dispatch_granted") blockedCheckoutLink(dispatch);
+
+  let provider: Awaited<ReturnType<typeof sendProvider>>;
+  try {
+    provider = await sendProvider();
   } catch (error) {
-    await failAttempt(rpcCheckout.result_payment_attempt_id, rpcCheckout.result_order_nsu, error);
-    throw withOrderNsu(error, rpcCheckout.result_order_nsu);
+    if (error instanceof InfinitePayLinkError && error.outcome === "rejected") {
+      await failAttempt(attemptId, rpcCheckout.result_order_nsu, error);
+      throw withOrderNsu(error, rpcCheckout.result_order_nsu);
+    }
+    // Once dispatch was committed, no unknown result can authorize a second HTTP call.
+    throw checkoutLinkError("checkout_link_dispatch_uncertain");
   }
 
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase.rpc("ecommerce_set_checkout_link", {
-    p_attempt_id: rpcCheckout.result_payment_attempt_id,
-    p_checkout_url: provider.checkoutUrl,
-    p_provider_checkout_id: provider.providerCheckoutId
-  });
-
-  if (error) {
-    const registrationError = checkoutRpcError(
-      error,
-      "ecommerce_set_checkout_link",
-      rpcCheckout.result_order_nsu
-    );
-    await failAttempt(
-      rpcCheckout.result_payment_attempt_id,
-      rpcCheckout.result_order_nsu,
-      registrationError,
-      true
-    );
-    throw registrationError;
+  let completed: Awaited<ReturnType<typeof transitionCheckoutLink>>;
+  try {
+    completed = await transitionCheckoutLink(attemptId, "complete", claimToken, provider);
+  } catch {
+    // Completion may have committed even when its response was lost. Retry only reads/reuses.
+    throw checkoutLinkError("checkout_link_dispatch_uncertain");
   }
-
-  const linkResult = getRpcRow<LinkRpcRow>(data, "ecommerce_set_checkout_link");
-  logCheckoutRpcSuccess("ecommerce_set_checkout_link", rpcCheckout.result_order_nsu);
-  if (!["registered", "already_registered", "already_paid"].includes(linkResult.result_code)) {
-    throw new CheckoutValidationError(
-      "O pagamento precisa de revisão antes de continuar.",
-      linkResult.result_code || "checkout_link_conflict",
-      409
-    );
+  const completedReuse = reusedResult(completed);
+  if (completedReuse) return completedReuse;
+  if (completed.result_code === "registered" || completed.result_code === "already_registered") {
+    return resultFor(completed.result_checkout_url!);
   }
-
-  return {
-    orderNumber: rpcCheckout.result_order_number,
-    publicToken: rpcCheckout.result_public_token,
-    checkoutUrl: linkResult.result_code === "already_paid" ? confirmationUrl : provider.checkoutUrl,
-    confirmationUrl,
-    totalCents: Number(rpcCheckout.result_total_cents),
-    alreadyPaid: linkResult.result_code === "already_paid"
-  };
+  blockedCheckoutLink(completed);
 }
 
 export async function createCheckout(request: CheckoutRequest, siteUrl: string) {
@@ -240,11 +216,13 @@ export async function createCheckout(request: CheckoutRequest, siteUrl: string) 
     throw new CheckoutValidationError("O total do pedido é inválido.", "invalid_checkout_total");
   }
 
-  const requestHash = checkoutRequestHash({
+  const requestHash = checkoutRequestHash(checkoutIntentSnapshot({
     customer: request.customer,
     delivery: request.delivery,
-    items: cart.items
-  });
+    items: cart.items.map((item) => ({ ...item, displayedUnitPriceCents: item.unitPriceCents })),
+    shippingCents,
+    totalCents
+  }));
   const idempotencyKey = checkoutIdempotencyKey(request.requestId);
   const orderPayload = {
     customer_name: request.customer.name,

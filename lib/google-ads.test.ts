@@ -33,6 +33,29 @@ beforeEach(async () => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("Google Ads Compra", () => {
+  it("serializa duas abas independentes e refresh antes de enviar a mesma conversão", async () => {
+    let queue = Promise.resolve();
+    const request = vi.fn((_key: string, callback: () => unknown) => {
+      const result = queue.then(callback); queue = result.then(() => undefined, () => undefined); return result;
+    });
+    Object.defineProperty(window, "navigator", { value: { locks: { request } }, configurable: true });
+    vi.resetModules(); const otherTab = await import("@/lib/google-ads");
+    ads.trackGoogleAdsPurchaseWhenReady(confirmedOrder); otherTab.trackGoogleAdsPurchaseWhenReady(confirmedOrder);
+    await queue; expect(events).toHaveBeenCalledOnce(); expect(request).toHaveBeenCalledTimes(2);
+    vi.resetModules(); const refresh = await import("@/lib/google-ads");
+    refresh.trackGoogleAdsPurchaseWhenReady(confirmedOrder); await queue; expect(events).toHaveBeenCalledOnce();
+    expect(events.mock.calls[0][1]).toBe("conversion");
+  });
+  it("desmontar antes de obter o lock cancela a conversão atrasada", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    let completed: Promise<unknown> = gate;
+    Object.defineProperty(window, "navigator", { value: { locks: { request: (_key: string, callback: () => unknown) => {
+      completed = gate.then(callback); return completed;
+    } } }, configurable: true });
+    const stop = ads.trackGoogleAdsPurchaseWhenReady(confirmedOrder); stop(); release(); await completed;
+    expect(events).not.toHaveBeenCalled(); expect(storage.size).toBe(0);
+  });
   it("usa destino, moeda, total em reais e ID estável do pedido da API; não copia dados privados", () => {
     expect(ads.getGoogleAdsPurchase(confirmedOrder)).toEqual({
       send_to: "AW-18482833340/t-gCCNS624odELzPpu1E",

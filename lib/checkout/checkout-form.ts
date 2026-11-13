@@ -1,3 +1,5 @@
+import { normalizePostalCode, POSTAL_CODE_MESSAGES } from "@/lib/checkout/postal-code";
+
 export type CheckoutDeliveryMethod = "pickup" | "shipping";
 
 export type CheckoutCustomerInput = {
@@ -121,8 +123,8 @@ export function validateCheckoutForm({
 
   if (deliveryMethod === "shipping") {
     const normalizedAddress = normalizeCheckoutAddress(address);
-    if (!/^\d{8}$/.test(normalizedAddress.postalCode)) {
-      errors.postalCode = "Informe um CEP válido com 8 números.";
+    if (!normalizePostalCode(address.postalCode)) {
+      errors.postalCode = POSTAL_CODE_MESSAGES.invalid;
     }
     if (!normalizedAddress.street) errors.street = "Informe a rua.";
     if (!normalizedAddress.number) errors.number = "Informe o número.";
@@ -162,6 +164,20 @@ export function getCheckoutRequestErrorMessage(
   fallback?: string
 ) {
   switch (code) {
+    case "checkout_link_in_progress":
+      return "Seu pagamento está sendo preparado. Aguarde alguns instantes e tente novamente.";
+    case "checkout_link_dispatch_uncertain":
+    case "checkout_link_legacy_unknown":
+    case "checkout_link_state_invalid":
+      return "Precisamos conferir esta tentativa de pagamento. Fale com nossa equipe antes de tentar novamente.";
+    case "checkout_link_unavailable":
+      return "Não foi possível preparar o pagamento com segurança. Tente novamente em instantes.";
+    case "invalid_postal_code":
+      return POSTAL_CODE_MESSAGES.invalid;
+    case "postal_code_not_found":
+      return POSTAL_CODE_MESSAGES.notFound;
+    case "postal_code_service_unavailable":
+      return POSTAL_CODE_MESSAGES.unavailable;
     case "price_changed":
       return "O preço de um produto mudou. Revise o valor atualizado antes de continuar.";
     case "product_unavailable":

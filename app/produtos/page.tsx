@@ -13,7 +13,8 @@ type ProductSearchParams = {
   ordem?: string;
 };
 
-export function generateMetadata({ searchParams }: { searchParams?: ProductSearchParams }) {
+export async function generateMetadata({ searchParams: pendingSearchParams }: { searchParams?: Promise<ProductSearchParams> }) {
+  const searchParams = await pendingSearchParams;
   const title = "Produtos | Marjouxs Joalheria";
   const description = "Explore joias, alianças, ouro 18k, prata e relógios da Marjouxs Joalheria. Use busca e filtros para encontrar a peça ideal.";
   const url = absoluteUrl("/produtos");
@@ -55,10 +56,11 @@ export function generateMetadata({ searchParams }: { searchParams?: ProductSearc
 }
 
 export default async function ProductsPage({
-  searchParams
+  searchParams: pendingSearchParams
 }: {
-  searchParams?: ProductSearchParams;
+  searchParams?: Promise<ProductSearchParams>;
 }) {
+  const searchParams = await pendingSearchParams;
   const searchTerm = searchParams?.busca ?? "";
   const sortOrder = normalizeSortOrder(searchParams?.ordem);
   const visibleProducts = await getPublicProducts();

@@ -30,11 +30,13 @@ const errors: Record<string, string> = {
 };
 
 type ProductDetailPageProps = {
-  params: { id: string };
-  searchParams?: Record<string, string | undefined>;
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<Record<string, string | undefined>>;
 };
 
-export default async function AdminProductDetailPage({ params, searchParams }: ProductDetailPageProps) {
+export default async function AdminProductDetailPage({ params: pendingParams, searchParams: pendingSearchParams }: ProductDetailPageProps) {
+  const params = await pendingParams;
+  const searchParams = await pendingSearchParams;
   const { supabase } = await requireActiveAdmin();
   const [productResult, imagesResult, taxonomy] = await Promise.all([
     supabase.from("ecommerce_products").select("*").eq("id", params.id).maybeSingle(),

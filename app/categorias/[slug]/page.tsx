@@ -159,12 +159,14 @@ function matchesProductFilter(product: Product, selectedFilter: string) {
 }
 
 export async function generateMetadata({
-  params,
-  searchParams
+  params: pendingParams,
+  searchParams: pendingSearchParams
 }: {
-  params: { slug: string };
-  searchParams?: CategorySearchParams;
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<CategorySearchParams>;
 }) {
+  const params = await pendingParams;
+  const searchParams = await pendingSearchParams;
   if (params.slug === "servicos") {
     return {
       title: "Serviços | Marjouxs",
@@ -252,12 +254,14 @@ export async function generateMetadata({
 }
 
 export default async function CategoryPage({
-  params,
-  searchParams
+  params: pendingParams,
+  searchParams: pendingSearchParams
 }: {
-  params: { slug: string };
-  searchParams?: CategorySearchParams;
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<CategorySearchParams>;
 }) {
+  const params = await pendingParams;
+  const searchParams = await pendingSearchParams;
   if (params.slug === "servicos") {
     redirect("/servicos");
   }

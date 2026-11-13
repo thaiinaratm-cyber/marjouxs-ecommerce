@@ -7,6 +7,7 @@ import { AnalyticsAnchor, AnalyticsLink } from "@/components/analytics-link";
 import { useCart } from "@/context/cart-context";
 import { createSizeGuideClickEvent, createWhatsappClickEvent } from "@/lib/analytics";
 import { isAlliance } from "@/lib/checkout/catalog";
+import { MAX_ENGRAVING_LENGTH } from "@/lib/checkout/limits";
 import { formatCurrency } from "@/lib/format";
 import { hasValidPrice } from "@/lib/product-pricing";
 import type { Product, RingPairCustomization } from "@/types/product";
@@ -133,6 +134,7 @@ export function ProductPurchaseActions({
                   Gravação opcional
                   <input
                     value={ring.engraving}
+                    maxLength={MAX_ENGRAVING_LENGTH}
                     onChange={(event) => ring.setEngraving(event.target.value)}
                     className="h-11 rounded-md border border-black/10 bg-white px-3 text-sm outline-none transition placeholder:text-taupe focus:border-gold focus:ring-2 focus:ring-gold/15"
                     placeholder="Nome, data ou símbolo"

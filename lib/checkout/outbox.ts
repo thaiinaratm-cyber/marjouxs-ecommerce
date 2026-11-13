@@ -1,10 +1,12 @@
 import { getGa4ServerConfiguration } from "@/lib/checkout/config";
 import { getSupabaseAdmin } from "@/lib/checkout/supabase";
+import { orderNotificationsEnabled, OrderNotificationError } from "@/lib/notifications/order-email";
+import { reconcilePaidOrderEvents, sendOrderPaidEmail } from "@/lib/notifications/order-paid";
 
 type ClaimedOutboxEvent = {
   result_id: string;
   result_order_id: string;
-  result_event_type: "ga4_purchase" | "erp_financial";
+  result_event_type: "ga4_purchase" | "erp_financial" | "order.paid";
   result_payload: Record<string, unknown>;
   result_attempt_count: number;
   result_lock_token: string;
@@ -109,26 +111,31 @@ async function completeEvent(event: ClaimedOutboxEvent) {
 }
 
 async function failEvent(event: ClaimedOutboxEvent, processingError: unknown) {
-  const message = processingError instanceof Error ? processingError.message : "Unknown outbox error";
+  const message = processingError instanceof OrderNotificationError ? processingError.code : "outbox_processing_failed";
   const { error } = await getSupabaseAdmin().rpc("ecommerce_fail_outbox", {
     p_event_id: event.result_id,
     p_lock_token: event.result_lock_token,
     p_error: message
   });
   if (error) {
-    console.error("Could not release failed outbox event", error.message);
+    console.error("outbox_failure_release_failed", { code: "outbox_failure_release_failed" });
   }
 }
 
 export async function processEcommerceOutbox(batchSize = 5) {
   const supabase = getSupabaseAdmin();
+  const emailEnabled = orderNotificationsEnabled();
+  if (emailEnabled) {
+    try { await reconcilePaidOrderEvents(); }
+    catch { console.error("order_paid_notification_failure", { stage: "reconcile", code: "notification_reconciliation_failed" }); }
+  }
   const { data, error } = await supabase.rpc("ecommerce_claim_outbox", {
-    p_event_types: ["ga4_purchase"],
+    p_event_types: emailEnabled ? ["ga4_purchase", "order.paid"] : ["ga4_purchase"],
     p_limit: batchSize
   });
 
   if (error) {
-    throw new Error(`Could not claim ecommerce outbox: ${error.message}`);
+    throw new Error("outbox_claim_failed");
   }
 
   const events = (Array.isArray(data) ? data : []) as ClaimedOutboxEvent[];
@@ -137,10 +144,13 @@ export async function processEcommerceOutbox(batchSize = 5) {
 
   for (const event of events) {
     try {
-      if (event.result_event_type !== "ga4_purchase") {
+      if (event.result_event_type === "order.paid") {
+        if (!await sendOrderPaidEmail(event)) throw new OrderNotificationError("notification_disabled");
+      } else if (event.result_event_type === "ga4_purchase") {
+        await sendGa4Purchase(event.result_order_id);
+      } else {
         throw new Error(`Unsupported event type: ${event.result_event_type}`);
       }
-      await sendGa4Purchase(event.result_order_id);
       await completeEvent(event);
       processed += 1;
     } catch (processingError) {

@@ -21,7 +21,8 @@ import {
 } from "@/lib/seo";
 import { buildQuoteUrl } from "@/lib/whatsapp";
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params: pendingParams }: { params: Promise<{ slug: string }> }) {
+  const params = await pendingParams;
   const product = await getPublicProductBySlug(params.slug);
 
   if (!product) {
@@ -68,7 +69,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage({ params: pendingParams }: { params: Promise<{ slug: string }> }) {
+  const params = await pendingParams;
   const product = await getPublicProductBySlug(params.slug);
 
   if (!product) {

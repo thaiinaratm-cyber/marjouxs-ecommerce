@@ -1,7 +1,10 @@
-import { NextResponse } from "next/server";
 import { resolveAuthoritativeShipmentCart } from "@/lib/checkout/catalog-server";
-import { apiError, validationError } from "@/lib/checkout/http";
+import { apiError, checkoutJson, validationError } from "@/lib/checkout/http";
 import { shippingQuoteRequestSchema } from "@/lib/checkout/schemas";
+import { CheckoutConfigurationError } from "@/lib/checkout/config";
+import { CheckoutValidationError } from "@/lib/checkout/catalog";
+import { CheckoutCatalogReadError } from "@/lib/checkout/catalog-server";
+import { publicShippingMessage } from "@/lib/checkout/shipping-messages";
 import {
   quoteShipping,
   ShippingProviderError,
@@ -38,11 +41,18 @@ export async function POST(request: Request) {
           }
         : {}
     );
-    return NextResponse.json({ options });
+    return checkoutJson({ options });
   } catch (error) {
     if (error instanceof ShippingProviderError) {
-      return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
+      return checkoutJson({ error: publicShippingMessage(error.code), code: error.code }, { status: error.status });
     }
-    return apiError(error);
+    if (error instanceof CheckoutConfigurationError) {
+      return checkoutJson({ error: publicShippingMessage(error.code), code: "shipping_unavailable" }, { status: 503 });
+    }
+    if (error instanceof CheckoutValidationError || error instanceof CheckoutCatalogReadError || error instanceof SyntaxError) {
+      return apiError(error);
+    }
+    console.error("shipping_quote_failure", { code: "shipping_unavailable" });
+    return checkoutJson({ error: publicShippingMessage("shipping_unavailable"), code: "shipping_unavailable" }, { status: 502 });
   }
 }

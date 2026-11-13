@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPublicOrderByCustomer } from "@/lib/checkout/orders";
 import { orderLookupSchema } from "@/lib/checkout/schemas";
+import { parseConfirmationOrder } from "@/lib/checkout/confirmation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +33,9 @@ export async function POST(request: Request) {
       return orderNotFound();
     }
 
-    return NextResponse.json(order, { headers: noStoreHeaders });
+    const publicOrder = parseConfirmationOrder(order);
+    if (!publicOrder) throw new Error("public_order_contract_invalid");
+    return NextResponse.json(publicOrder, { headers: noStoreHeaders });
   } catch {
     console.error("Public order lookup is temporarily unavailable");
     return NextResponse.json(

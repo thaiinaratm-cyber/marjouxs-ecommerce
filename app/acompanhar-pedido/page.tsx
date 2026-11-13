@@ -10,10 +10,11 @@ export const metadata: Metadata = {
   }
 };
 
-export default function TrackOrderPage({
-  searchParams
+export default async function TrackOrderPage({
+  searchParams: pendingSearchParams
 }: {
-  searchParams: { pedido?: string };
+  searchParams: Promise<{ pedido?: string }>;
 }) {
+  const searchParams = await pendingSearchParams;
   return <OrderTracking initialOrderNumber={searchParams.pedido ?? ""} />;
 }
