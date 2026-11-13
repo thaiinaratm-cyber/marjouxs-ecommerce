@@ -1,6 +1,24 @@
 # Validacao de amount e paid_amount - InfinitePay
 
-Auditoria: 30/10/2026. Nenhuma transacao real foi executada.
+## Contrato vigente (Etapa 13C)
+
+Na resposta oficial de `payment_check`, `amount` e o valor original da cobranca e
+`paid_amount` e o valor efetivamente pago. A confirmacao exige `success === true`,
+`paid === true`, identificadores compativeis e `amount` exatamente igual ao
+valor solicitado. Ambos os valores devem ser inteiros seguros e positivos;
+o metodo e as parcelas ainda sao validados.
+
+Uma diferenca isolada em `paid_amount` nao causa revisao. Por exemplo, Pix com
+`amount=16000` e `paid_amount=14400` passa pela guarda financeira se os demais
+requisitos forem atendidos. A mesma regra vale para cartao com repasse de taxas.
+Nao ha formula de desconto, tolerancia nem arredondamento. A RPC existente
+registra os dois valores separadamente, sem reescrever o total do pedido.
+
+## Auditoria historica (30/10/2026)
+
+O restante deste documento registra o comportamento e as conclusoes daquela
+auditoria, antes da Etapa 13C. A exigencia de igualdade descrita abaixo nao
+esta mais em vigor. Nenhuma transacao real foi executada naquela auditoria.
 
 ## Evidencias oficiais e lacunas
 

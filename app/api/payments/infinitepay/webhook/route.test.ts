@@ -165,6 +165,7 @@ describe("InfinitePay webhook", () => {
     mocks.paymentCheck.mockResolvedValue({ success: true, paid: false, amount: 99000, paid_amount: 0 });
     expect((await POST(webhookRequest())).status).toBe(400);
     expect(mocks.enqueue).not.toHaveBeenCalled();
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 
   it.each(["pix", "credit_card"])("confirma base exata de produtos + frete (%s)", async (method) => {
@@ -188,17 +189,24 @@ describe("InfinitePay webhook", () => {
   });
 
   it.each([
-    [90000,"pix","payment_pix_discount_unverified"],
-    [89999,"pix","payment_pix_discount_unverified"],
-    [90001,"pix","payment_pix_discount_unverified"],
-    [1,"pix","payment_pix_discount_unverified"],
-    [110000,"pix","payment_paid_amount_mismatch"],
-    [90000,"credit_card","payment_paid_amount_mismatch"],
-    [110000,"credit_card","payment_paid_amount_mismatch"],
-    [0,"pix","payment_paid_amount_invalid"]
-  ])("reviews paid_amount=%i method=%s before confirmation", async (paid_amount,capture_method,code) => {
-    mocks.attempt.requested_amount_cents = 100000;
-    mocks.paymentCheck.mockResolvedValue({ success:true,paid:true,amount:100000,paid_amount,installments:1,capture_method });
+    { paid_amount: 14400, capture_method: "pix", installments: 1 },
+    { paid_amount: 16800, capture_method: "credit_card", installments: 3 }
+  ])("preserves the official original and paid amounts for $capture_method", async fields => {
+    mocks.attempt.requested_amount_cents = 16000;
+    mocks.paymentCheck.mockResolvedValue({ success:true,paid:true,amount:16000,...fields });
+    expect((await POST(webhookRequest())).status).toBe(200);
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+    expect(mocks.rpc).toHaveBeenCalledWith("ecommerce_confirm_payment", expect.objectContaining({
+      p_order_nsu:"MJ-000001",p_provider_checkout_id:"fatura-1",p_transaction_nsu:"transacao-1",
+      p_amount_cents:16000,p_paid_amount_cents:fields.paid_amount,p_capture_method:fields.capture_method,
+      p_installments:fields.installments,p_payment_verified:true,p_check_success:true,p_check_paid:true
+    }));
+  });
+
+  it.each([0,-1,1.5,"14400",undefined])("reviews invalid paid_amount=%j before confirmation", async paid_amount => {
+    const code = "payment_paid_amount_invalid";
+    mocks.attempt.requested_amount_cents = 16000;
+    mocks.paymentCheck.mockResolvedValue({ success:true,paid:true,amount:16000,paid_amount,installments:1,capture_method:"pix" });
     const response = await POST(webhookRequest());
     expect(response.status).toBe(409);
     expect(await response.json()).toMatchObject({code});
@@ -209,7 +217,7 @@ describe("InfinitePay webhook", () => {
 
   it("does not accept a forged notice amount instead of the official payment_check result", async () => {
     mocks.attempt.requested_amount_cents = 100000;
-    mocks.paymentCheck.mockResolvedValue({ success:true,paid:true,amount:100000,paid_amount:1,installments:1,capture_method:"pix" });
+    mocks.paymentCheck.mockResolvedValue({ success:true,paid:true,amount:99999,paid_amount:90000,installments:1,capture_method:"pix" });
     const request = new Request("https://marjouxsjoias.com.br/api/payments/infinitepay/webhook",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({invoice_slug:"fatura-1",transaction_nsu:"transacao-1",order_nsu:"MJ-000001",amount:100000,paid_amount:100000})
@@ -229,7 +237,7 @@ describe("InfinitePay webhook", () => {
   });
 
   it.each([false,true])("failed review persistence (transport=%s) fails closed without leaking errors", async transport => {
-    mocks.paymentCheck.mockResolvedValue({success:true,paid:true,amount:99000,paid_amount:1,capture_method:"pix",installments:1});
+    mocks.paymentCheck.mockResolvedValue({success:true,paid:true,amount:99000,paid_amount:0,capture_method:"pix",installments:1});
     mocks.rpc.mockImplementation(async () => {
       if (transport) throw new Error("secret-token customer@example.invalid");
       return { data:null,error:{message:"secret-token customer@example.invalid"} };

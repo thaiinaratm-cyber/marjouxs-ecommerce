@@ -93,7 +93,7 @@ describe("manual reconciliation and webhook share the same payment path (mocks o
     expect(effectiveConfirmations).toBe(1);
   });
   it.each([
-    { amount: 15999 }, { paid_amount: 1 }, { paid_amount: 0 },
+    { amount: 15999 }, { paid_amount: -1 }, { paid_amount: 0 },
     { capture_method: "invalid" }, { capture_method: "pix", installments: 2 }
   ])("D: inconsistent financial response requires review, never confirms (%j)", async (fields) => {
     mocks.check.mockResolvedValue({ ...paidCheck, ...fields });
@@ -149,7 +149,7 @@ describe("manual reconciliation and webhook share the same payment path (mocks o
   it("a late divergent reconciliation cannot downgrade an order confirmed by the webhook", async () => {
     mocks.check.mockImplementation(async () => {
       order.payment_status = "paid"; attempt.status = "paid";
-      return { ...paidCheck, paid_amount: 1 };
+      return { ...paidCheck, amount: 15999 };
     });
     expect(await reconcileAdminOrderPayment(orderId)).toBe("reconcile_review");
     expect(order.payment_status).toBe("paid"); expect(attempt.status).toBe("paid");

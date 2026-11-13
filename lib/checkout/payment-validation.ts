@@ -3,9 +3,7 @@ type ReviewCode =
   | "payment_amount_mismatch"
   | "payment_paid_amount_invalid"
   | "payment_method_invalid"
-  | "payment_installments_invalid"
-  | "payment_pix_discount_unverified"
-  | "payment_paid_amount_mismatch";
+  | "payment_installments_invalid";
 
 export type PaymentAmountDecision =
   | { status: "confirm" }
@@ -17,9 +15,7 @@ const reviewDetails: Record<ReviewCode, string> = {
   payment_amount_mismatch: "Official payment_check amount differs from the requested amount",
   payment_paid_amount_invalid: "Official paid_amount is not a positive safe integer in cents",
   payment_method_invalid: "Official capture_method is unsupported",
-  payment_installments_invalid: "Official installments are incompatible with the payment method",
-  payment_pix_discount_unverified: "Pix discount and rounding are not verified for this payment",
-  payment_paid_amount_mismatch: "Official paid_amount differs without a verified discount or fee rule"
+  payment_installments_invalid: "Official installments are incompatible with the payment method"
 };
 
 function positiveCents(value: unknown): value is number {
@@ -52,11 +48,6 @@ export function evaluatePaymentAmounts(expectedAmountCents: unknown, verifiedRes
     (check.capture_method === "pix" && check.installments !== 1)
   ) return review("payment_installments_invalid");
 
-  // The provider allows configurable discounts/fees but does not prove their exact rule here.
-  // Do not turn the product-page marketing percentage into payment authorization.
-  if (check.paid_amount !== expected) {
-    return review(check.capture_method === "pix" && check.paid_amount < expected
-      ? "payment_pix_discount_unverified" : "payment_paid_amount_mismatch");
-  }
+  // The original charge must match the order. The provider reports what was actually paid.
   return { status: "confirm" };
 }
