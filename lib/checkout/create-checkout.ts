@@ -46,6 +46,7 @@ export type CheckoutResult = {
   confirmationUrl: string;
   totalCents: number;
   alreadyPaid: boolean;
+  reusedLink: boolean;
 };
 
 function normalizePhone(phone: string) {
@@ -98,17 +99,18 @@ async function createProviderLink(
 
   const claimToken = randomUUID();
   const attemptId = rpcCheckout.result_payment_attempt_id;
-  const resultFor = (checkoutUrl: string, alreadyPaid = false): CheckoutResult => ({
+  const resultFor = (checkoutUrl: string, alreadyPaid = false, reusedLink = false): CheckoutResult => ({
       orderNumber: rpcCheckout.result_order_number,
       publicToken: rpcCheckout.result_public_token,
       checkoutUrl,
       confirmationUrl,
       totalCents: Number(rpcCheckout.result_total_cents),
-      alreadyPaid
+      alreadyPaid,
+      reusedLink
   });
   const reusedResult = (row: Awaited<ReturnType<typeof transitionCheckoutLink>>) => {
     if (row.result_code === "already_paid") return resultFor(confirmationUrl, true);
-    if (row.result_code === "reuse_link") return resultFor(row.result_checkout_url!);
+    if (row.result_code === "reuse_link") return resultFor(row.result_checkout_url!, false, true);
     return null;
   };
   const claim = await transitionCheckoutLink(attemptId, "claim", claimToken);
@@ -185,7 +187,7 @@ async function createProviderLink(
   const completedReuse = reusedResult(completed);
   if (completedReuse) return completedReuse;
   if (completed.result_code === "registered" || completed.result_code === "already_registered") {
-    return resultFor(completed.result_checkout_url!);
+    return resultFor(completed.result_checkout_url!, false, completed.result_code === "already_registered");
   }
   blockedCheckoutLink(completed);
 }
@@ -298,11 +300,7 @@ export async function createCheckout(request: CheckoutRequest, siteUrl: string) 
     });
   }
   logCheckoutRpcSuccess("ecommerce_create_checkout", rpcCheckout.result_order_nsu);
-  if (
-    Number(rpcCheckout.result_total_cents) !== totalCents &&
-    !rpcCheckout.result_checkout_url &&
-    rpcCheckout.result_attempt_status !== "paid"
-  ) {
+  if (Number(rpcCheckout.result_total_cents) !== totalCents) {
     throw new CheckoutValidationError(
       "O total salvo não corresponde ao total calculado.",
       "persisted_total_mismatch",

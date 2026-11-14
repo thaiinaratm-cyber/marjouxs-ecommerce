@@ -126,6 +126,19 @@ describe("durable local intentions and expiry (no network)", () => {
     expect(b.requestId).not.toBe(a.requestId);
     expect(await getOrCreateCheckoutIntent(local, purchase, cryptoImplementation)).toEqual(a);
   });
+  it("a two-unit checkout in either storage is not used for a corrected one-unit cart", async () => {
+    const local = storage();
+    const oldInput = { ...structuredClone(purchase), cartLineIds: ["same-line"], totalCents: 32000 };
+    oldInput.items[0].quantity = 2;
+    const old = await getOrCreateCheckoutIntent(local, oldInput, cryptoImplementation);
+    const legacy = storage(JSON.stringify({ ...old, checkoutUrl: "https://checkout.infinitepay.io/old-fixture" }));
+    const corrected = await getOrCreateCheckoutIntent(
+      local, { ...purchase, cartLineIds: ["same-line"] }, cryptoImplementation, Date.now(), legacy
+    );
+    expect(corrected.requestId).not.toBe(old.requestId);
+    expect(corrected.fingerprint).not.toBe(old.fingerprint);
+    expect(corrected).not.toHaveProperty("checkoutUrl");
+  });
   it.each(["paid", "requires_review", "failed", "legacy", "dispatch_unknown", "cancelled", "blocked"])("%s cannot open a checkout", async state => {
     const intent = await getOrCreateCheckoutIntent(storage(), purchase, cryptoImplementation);
     expect(() => assertCheckoutIntentUsable(intent, state)).toThrow();

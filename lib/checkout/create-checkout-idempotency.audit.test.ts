@@ -229,7 +229,7 @@ describe("distributed idempotency integration (mock-only, installed RPC contract
       const create = await instance();
       const result = await create({ ...structuredClone(request), requestId: intent.requestId }, "https://example.invalid");
       if (!first) first = result;
-      expect(result).toEqual(first);
+      expect(result).toEqual({ ...first, reusedLink: refresh > 0 });
     }
     expect(database.orders.size).toBe(1);
     expect(mocks.provider).toHaveBeenCalledTimes(1);
@@ -254,7 +254,7 @@ describe("distributed idempotency integration (mock-only, installed RPC contract
     shippingRequest.delivery.address.shippingQuoteId = "00000000-0000-4000-8000-000000000011";
     mocks.shipping.mockResolvedValue([{ ...quote, shippingQuoteId: shippingRequest.delivery.address.shippingQuoteId }]);
     const nextInstance = await instance();
-    expect(await nextInstance(shippingRequest, "https://example.invalid")).toEqual(first);
+    expect(await nextInstance(shippingRequest, "https://example.invalid")).toEqual({ ...first, reusedLink: true });
     expect(database.orders.size).toBe(1); expect(mocks.provider).toHaveBeenCalledTimes(1);
     mocks.shipping.mockResolvedValue([{ ...quote, priceCents: 1200 }]);
     await expect(nextInstance(shippingRequest, "https://example.invalid")).rejects.toMatchObject({ diagnostic: { error_code: "checkout_idempotency_conflict" } });
@@ -267,7 +267,7 @@ describe("distributed idempotency integration (mock-only, installed RPC contract
     const firstInstance = await instance();
     const first = await firstInstance(structuredClone(request), "https://example.invalid");
     const restartedInstance = await instance();
-    expect(await restartedInstance(structuredClone(request), "https://example.invalid")).toEqual(first);
+    expect(await restartedInstance(structuredClone(request), "https://example.invalid")).toEqual({ ...first, reusedLink: true });
     expect(database.orders.size).toBe(1);
     expect(mocks.provider).toHaveBeenCalledTimes(1);
   });
@@ -309,6 +309,52 @@ describe("distributed idempotency integration (mock-only, installed RPC contract
       .rejects.toMatchObject({ diagnostic: { error_code: "checkout_idempotency_conflict", postgres_code: "23505" } });
     expect(database.orders.size).toBe(1);
     expect(mocks.provider).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["product", "quantity", "personalization", "delivery", "freight"])(
+    "blocks a pending link for a changed %s under the old idempotency key, even at the same total", async change => {
+      const create = await instance();
+      const before = structuredClone(request);
+      const delivery = { method: "shipping" as const, address: { postalCode: "07400805",
+        street: "Rua QA", number: "1", complement: "", neighborhood: "QA", city: "Aruja", state: "SP",
+        serviceId: "2", shippingQuoteId: "00000000-0000-4000-8000-000000000010" } };
+      const quote = { serviceId: "2", priceCents: 0, shippingQuoteId: delivery.address.shippingQuoteId };
+      if (change === "freight") before.delivery = delivery;
+      mocks.shipping.mockResolvedValue([quote]);
+      await create(before, "https://example.invalid");
+
+      const after = structuredClone(before);
+      const changedCart = structuredClone(cart);
+      const item = changedCart.items[0];
+      if (change === "product") { item.productId = "other"; item.productSlug = "other"; }
+      if (change === "quantity") { item.quantity = 2; item.unitPriceCents = 8000; }
+      if (change === "personalization") item.customization = {
+        type: "ring_pair", ring1: { size: 18 }, ring2: { size: 21 }
+      };
+      if (change === "delivery") after.delivery = delivery;
+      if (change === "freight") {
+        mocks.shipping.mockResolvedValue([ { ...quote, priceCents: 994 } ]);
+        item.unitPriceCents -= 994; item.subtotalCents -= 994; changedCart.subtotalCents -= 994;
+      }
+      mocks.cart.mockResolvedValue(changedCart);
+      await expect(create(after, "https://example.invalid")).rejects.toMatchObject({
+        diagnostic: { error_code: "checkout_idempotency_conflict" }
+      });
+      expect(database.orders.size).toBe(1);
+      expect(mocks.provider).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  it("blocks an inconsistent saved total even when the RPC returns a pending link", async () => {
+    const create = await instance();
+    await create(structuredClone(request), "https://example.invalid");
+    const order = Array.from(database.orders.values())[0];
+    order.total = 32000;
+    await expect(create(structuredClone(request), "https://example.invalid")).rejects.toMatchObject({
+      code: "persisted_total_mismatch"
+    });
+    expect(mocks.provider).toHaveBeenCalledTimes(1);
+    expect(mocks.rpc.mock.calls.filter(([name]) => name === "ecommerce_checkout_link_transition")).toHaveLength(3);
   });
 
   it("paid attempts return confirmation without calling the provider again", async () => {

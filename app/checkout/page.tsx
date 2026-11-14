@@ -11,7 +11,7 @@ import {
   PackageCheck,
   Truck
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { ProductImage } from "@/components/product-image";
 import { useCart } from "@/context/cart-context";
 import {
@@ -45,6 +45,7 @@ import {
 import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
 import { normalizePostalCode, POSTAL_CODE_MESSAGES } from "@/lib/checkout/postal-code";
 import { prepareBrowserCheckoutIntent } from "@/lib/checkout/intent";
+import { checkoutRedirect, checkoutResumeRequired, type CheckoutIdentity } from "@/lib/checkout/checkout-redirect";
 import type { ShippingQuoteOption, ValidatedCart } from "@/types/checkout";
 
 type PostalCodeLookupStatus =
@@ -147,7 +148,8 @@ export default function CheckoutPage() {
   const [checkoutError, setCheckoutError] = useState("");
   const [priceReviewAccepted, setPriceReviewAccepted] = useState(false);
   const [validationRevision, setValidationRevision] = useState(0);
-  const checkoutAttempt = useRef<{ fingerprint: string; requestId: string } | null>(null);
+  const [pendingResume, setPendingResume] = useState<{ revision: object; identity: CheckoutIdentity } | null>(null);
+  const checkoutAttempt = useRef<object | null>(null);
   const submissionLocked = useRef(false);
   const trackedCheckout = useRef(false);
   const postalCodeController = useRef<AbortController | null>(null);
@@ -188,6 +190,13 @@ export default function CheckoutPage() {
   const shippingCents = deliveryMethod === "shipping" ? selectedShipping?.priceCents ?? 0 : 0;
   const totalCents = subtotalCents + shippingCents;
   const addressReviewLines = getCheckoutAddressLines(address);
+  const checkoutRevision = useMemo(
+    () => ({ apiItems, customer, address, deliveryMethod, selectedShipping, totalCents, validatedCart }),
+    [apiItems, customer, address, deliveryMethod, selectedShipping, totalCents, validatedCart]
+  );
+  const resume = pendingResume?.revision === checkoutRevision ? pendingResume.identity : null;
+
+  useLayoutEffect(() => () => { checkoutAttempt.current = null; }, [checkoutRevision]);
 
   useEffect(() => {
     if (!isReady || apiItems.length === 0) return;
@@ -498,6 +507,13 @@ export default function CheckoutPage() {
               shippingQuoteId: selectedShipping!.shippingQuoteId
             }
           };
+    const submission = {};
+    checkoutAttempt.current = submission;
+    const assertCurrent = () => {
+      if (checkoutAttempt.current !== submission) {
+        throw new Error("Os dados do pedido mudaram durante a solicitação. Confira a sacola antes de continuar.");
+      }
+    };
     submissionLocked.current = true;
     setCheckoutError("");
     setIsSubmitting(true);
@@ -511,10 +527,18 @@ export default function CheckoutPage() {
         items: paymentItems, customer: normalizedCustomer, delivery, shippingCents, totalCents,
         cartLineIds: lines.map((line) => line.lineId)
       });
-      checkoutAttempt.current = intent;
+      assertCurrent();
+      if (resume && resume.requestId !== intent.requestId) {
+        setPendingResume(null);
+        throw new Error("A tentativa anterior não corresponde a esta sacola. Confira o pedido antes de continuar.");
+      }
       const response = await fetch("/api/payments/infinitepay/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          ...(resume ? { "X-Checkout-Resume": resume.orderNumber } : {})
+        },
         body: JSON.stringify({
           requestId: intent.requestId,
           items: paymentItems,
@@ -524,6 +548,15 @@ export default function CheckoutPage() {
         })
       });
       const body = await response.json().catch(() => null);
+      assertCurrent();
+      const expected = { requestId: intent.requestId, totalCents };
+      const pending = checkoutResumeRequired(response.status, body, expected);
+      if (pending && !resume) {
+        setPendingResume({ revision: checkoutRevision, identity: pending });
+        submissionLocked.current = false;
+        setIsSubmitting(false);
+        return;
+      }
       if (!response.ok) {
         const code = responseCode(body);
         if (code === "postal_code_not_found" || code === "postal_code_service_unavailable") {
@@ -551,11 +584,14 @@ export default function CheckoutPage() {
           )
         );
       }
-      if (!body?.checkoutUrl || typeof body.checkoutUrl !== "string") {
+      const destination = checkoutRedirect(response, body, {
+        ...expected, origin: window.location.origin, resume
+      });
+      if (!destination) {
         throw new Error(getCheckoutRequestErrorMessage("infinitepay_link_error", 502));
       }
 
-      window.location.assign(body.checkoutUrl);
+      window.location.assign(destination);
     } catch (requestError) {
       setCheckoutError(
         requestError instanceof Error
@@ -1181,6 +1217,12 @@ export default function CheckoutPage() {
             </div>
           ) : null}
 
+          {resume ? (
+            <p className="mt-4 text-sm text-taupe" role="status">
+              Já existe um pagamento pendente para este pedido. Confira os dados antes de retomá-lo.
+            </p>
+          ) : null}
+
           <button
             type="submit"
             disabled={isSubmitting || isValidating || !validatedCart || (priceReviewRequired && !priceReviewAccepted)}
@@ -1192,7 +1234,7 @@ export default function CheckoutPage() {
             ) : (
               <Check size={18} />
             )}
-            {isSubmitting ? "Preparando pagamento..." : "Continuar para pagamento"}
+            {isSubmitting ? "Preparando pagamento..." : resume ? "Retomar pagamento" : "Continuar para pagamento"}
           </button>
           <p className="mt-3 text-center text-xs leading-5 text-taupe">
             O pagamento é concluído no ambiente seguro da InfinitePay.

@@ -17,10 +17,10 @@ const payload = {
   delivery: { method: "pickup" }
 };
 
-function request() {
+function request(resumeOrder?: string) {
   return new Request("https://marjouxsjoias.com.br/api/payments/infinitepay/create", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(resumeOrder ? { "X-Checkout-Resume": resumeOrder } : {}) },
     body: JSON.stringify(payload)
   });
 }
@@ -72,6 +72,7 @@ describe("checkout route production origin guard", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://marjouxsjoias.com.br/");
     const response = await POST(request());
     expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ requestId: payload.requestId });
     expect(mocks.createCheckout).toHaveBeenCalledTimes(1);
     expect(mocks.createCheckout).toHaveBeenCalledWith(payload, "https://marjouxsjoias.com.br");
     expect(fetch).not.toHaveBeenCalled();
@@ -84,6 +85,27 @@ describe("checkout route production origin guard", () => {
     expect(response.status).toBe(200);
     expect(mocks.createCheckout).toHaveBeenCalledTimes(1);
     expect(mocks.createCheckout).toHaveBeenCalledWith(payload, "http://localhost:3000");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("does not return a pending provider link until the current order is explicitly resumed", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://marjouxsjoias.com.br");
+    const result = { orderNumber: "MJ-000002", checkoutUrl: "https://checkout.infinitepay.io/fixture",
+      totalCents: 16000, reusedLink: true, alreadyPaid: false };
+    mocks.createCheckout.mockResolvedValue(result);
+    for (const header of [undefined, "MJ-000001"]) {
+      const response = await POST(request(header));
+      expect(response.status).toBe(409);
+      const body = await response.json();
+      expect(body).toMatchObject({ code: "checkout_resume_required", orderNumber: result.orderNumber,
+        requestId: payload.requestId, totalCents: 16000 });
+      expect(body).not.toHaveProperty("checkoutUrl");
+    }
+    const resumed = await POST(request(result.orderNumber));
+    expect(resumed.status).toBe(200);
+    expect(await resumed.json()).toEqual({ ...result, requestId: payload.requestId });
+    expect(mocks.createCheckout).toHaveBeenCalledTimes(3);
+    expect(mocks.createCheckout.mock.calls.every(([input]) => input.requestId === payload.requestId)).toBe(true);
     expect(fetch).not.toHaveBeenCalled();
   });
 });

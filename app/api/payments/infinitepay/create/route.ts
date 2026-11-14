@@ -35,7 +35,16 @@ export async function POST(request: Request) {
 
   try {
     const result = await createCheckout(parsed.data, getPublicSiteUrl(new URL(request.url).origin));
-    return checkoutJson(result);
+    if (result.reusedLink && request.headers.get("X-Checkout-Resume") !== result.orderNumber) {
+      return checkoutJson({
+        code: "checkout_resume_required",
+        error: "Já existe um pagamento pendente para este pedido.",
+        orderNumber: result.orderNumber,
+        requestId: parsed.data.requestId,
+        totalCents: result.totalCents
+      }, { status: 409 });
+    }
+    return checkoutJson({ ...result, requestId: parsed.data.requestId });
   } catch (error) {
     const failure = toCheckoutProcessError(error);
     logCheckoutFailure(failure);
