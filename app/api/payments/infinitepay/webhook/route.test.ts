@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
     id: "00000000-0000-4000-8000-000000000003",
     requested_amount_cents: 99000,
     provider_checkout_id: "fatura-1",
+    checkout_url: null as string | null,
     transaction_nsu: null as string | null,
     status: "pending"
   }
@@ -20,7 +21,12 @@ vi.mock("@/lib/checkout/supabase", () => ({
     from: () => ({
       select: () => ({
         eq: (_field: string, value: string) => ({
-          maybeSingle: async () => ({ data: value === "unknown-order" ? null : mocks.attempt, error: null })
+          eq: (providerField: string, provider: string) => ({
+            maybeSingle: async () => ({
+              data: value === "unknown-order" || providerField !== "provider" || provider !== "infinitepay" ? null : mocks.attempt,
+              error: null
+            })
+          })
         })
       })
     }),
@@ -48,12 +54,12 @@ vi.mock("@/lib/checkout/infinitepay", () => {
 
 import { POST } from "@/app/api/payments/infinitepay/webhook/route";
 
-function webhookRequest() {
+function webhookRequest(invoiceSlug = "fatura-1") {
   return new Request("https://marjouxsjoias.com.br/api/payments/infinitepay/webhook", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      invoice_slug: "fatura-1",
+      invoice_slug: invoiceSlug,
       transaction_nsu: "transacao-1",
       order_nsu: "MJ-000001",
       receipt_url: "https://example.com/recibo"
@@ -68,6 +74,7 @@ describe("InfinitePay webhook", () => {
     mocks.attempt.requested_amount_cents = 99000;
     mocks.attempt.status = "pending";
     mocks.attempt.provider_checkout_id = "fatura-1";
+    mocks.attempt.checkout_url = null;
     mocks.attempt.transaction_nsu = null;
     mocks.paymentCheck.mockResolvedValue({
       success: true,
@@ -120,6 +127,77 @@ describe("InfinitePay webhook", () => {
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({ received: true, code: "already_paid" });
+  });
+
+  describe("checkout link and invoice are distinct provider identifiers", () => {
+    beforeEach(() => {
+      mocks.attempt.provider_checkout_id = "link-fixture";
+      mocks.attempt.checkout_url = "https://checkout.infinitepay.io/marjouxsjoias?lenc=link-fixture";
+      mocks.attempt.requested_amount_cents = 16000;
+      mocks.paymentCheck.mockResolvedValue({
+        success: true, paid: true, amount: 16000, paid_amount: 14400, installments: 1, capture_method: "pix"
+      });
+    });
+
+    it("verifies the official invoice slug but keeps the stable link ID in the RPC", async () => {
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(mocks.paymentCheck).toHaveBeenCalledWith(expect.objectContaining({
+        orderNsu: "MJ-000001", transactionNsu: "transacao-1", invoiceSlug: "fatura-1"
+      }));
+      expect(mocks.rpc).toHaveBeenCalledWith("ecommerce_confirm_payment", expect.objectContaining({
+        p_order_nsu: "MJ-000001", p_transaction_nsu: "transacao-1", p_provider_checkout_id: "link-fixture",
+        p_amount_cents: 16000, p_paid_amount_cents: 14400, p_capture_method: "pix"
+      }));
+    });
+
+    it.each([{ success: false, paid: true }, { success: true, paid: false }])
+    ("does not confirm with provider flags %j even if amounts match", async (flags) => {
+      mocks.paymentCheck.mockResolvedValue({ amount: 16000, paid_amount: 14400, installments: 1, capture_method: "pix", ...flags });
+      const response = await POST(webhookRequest("wrong-invoice"));
+      expect(response.status).toBe(400);
+      expect(mocks.paymentCheck).toHaveBeenCalledWith(expect.objectContaining({ invoiceSlug: "wrong-invoice" }));
+      expect(mocks.rpc).not.toHaveBeenCalled();
+      expect(mocks.enqueue).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      "https://checkout.infinitepay.io/marjouxsjoias?lenc=wrong-link",
+      "https://example.invalid/marjouxsjoias?lenc=link-fixture",
+      "https://checkout.infinitepay.io/marjouxsjoias?lenc=link-fixture&lenc=other"
+    ])("rejects an unmatched or untrusted stored checkout reference", async checkoutUrl => {
+      mocks.attempt.checkout_url = checkoutUrl;
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(409);
+      expect(await response.json()).toMatchObject({ code: "provider_checkout_id_conflict" });
+      expect(mocks.paymentCheck).not.toHaveBeenCalled();
+      expect(mocks.rpc).not.toHaveBeenCalled();
+    });
+
+    it("uses the same attempt and event key for repeated official delivery, without trusting a forged slug", async () => {
+      const logicalEvents = new Set<string>();
+      mocks.enqueue.mockImplementation(async (orderId: string) => {
+        logicalEvents.add(orderId + ":order.paid");
+        return true;
+      });
+      expect((await POST(webhookRequest())).status).toBe(200);
+      mocks.attempt.status = "paid";
+      mocks.attempt.transaction_nsu = "transacao-1";
+      mocks.confirmationCode = "already_paid";
+      const repeated = await POST(webhookRequest());
+      expect(repeated.status).toBe(200);
+      expect(await repeated.json()).toMatchObject({ code: "already_paid" });
+      expect(mocks.rpc.mock.calls.map(([name, args]) => [name, args.p_provider_checkout_id, args.p_transaction_nsu]))
+        .toEqual(Array(2).fill(["ecommerce_confirm_payment", "link-fixture", "transacao-1"]));
+      expect(logicalEvents.size).toBe(1);
+
+      mocks.paymentCheck.mockResolvedValue({
+        success: false, paid: false, amount: 16000, paid_amount: 14400, installments: 1, capture_method: "pix"
+      });
+      expect((await POST(webhookRequest("wrong-invoice"))).status).toBe(400);
+      expect(mocks.rpc).toHaveBeenCalledTimes(2);
+      expect(mocks.enqueue).toHaveBeenCalledTimes(2);
+    });
   });
 
   it("não modifica pagamento quando a RPC identifica transaction_nsu divergente", async () => {

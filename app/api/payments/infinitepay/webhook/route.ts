@@ -13,8 +13,9 @@ export async function POST(request: Request) {
 
     const { data: attempt, error } = await getSupabaseAdmin()
       .from("ecommerce_payment_attempts")
-      .select("id, order_id, requested_amount_cents, provider_checkout_id, transaction_nsu, status")
+      .select("id, order_id, requested_amount_cents, provider_checkout_id, checkout_url, transaction_nsu, status")
       .eq("order_nsu", parsed.data.order_nsu)
+      .eq("provider", "infinitepay")
       .maybeSingle();
     if (error) throw new InfinitePayError("Não foi possível localizar a tentativa.", "payment_attempt_read_failed", 503);
     if (!attempt) {

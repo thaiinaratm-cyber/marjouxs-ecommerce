@@ -9,6 +9,7 @@ export type VerificationAttempt = {
   order_id?: string;
   requested_amount_cents: unknown;
   provider_checkout_id: string | null;
+  checkout_url?: string | null;
   transaction_nsu: string | null;
   status: string;
 };
@@ -48,18 +49,32 @@ async function markForReview(attemptId: string, code: string, detail: string) {
   throw new InfinitePayError("Não foi possível registrar a revisão do pagamento com segurança.", "payment_review_unavailable", 503);
 }
 
+function isStoredLinkReference(attempt: VerificationAttempt) {
+  if (!attempt.provider_checkout_id || !attempt.checkout_url) return false;
+  try {
+    const url = new URL(attempt.checkout_url);
+    const linkReferences = url.searchParams.getAll("lenc");
+    return url.origin === "https://checkout.infinitepay.io" && !url.username && !url.password &&
+      linkReferences.length === 1 && linkReferences[0] === attempt.provider_checkout_id;
+  } catch {
+    return false;
+  }
+}
+
 // Both entry points use the same financial decision and the installed atomic RPC.
 export async function verifyInfinitePayPayment(
   attempt: VerificationAttempt,
   references: PaymentReferences
 ): Promise<PaymentVerificationResult> {
-  if (attempt.provider_checkout_id && attempt.provider_checkout_id !== references.invoiceSlug) {
+  // The existing RPC binds the stored link identifier. InfinitePay verifies the invoice slug.
+  const usesLinkReference = isStoredLinkReference(attempt);
+  if (attempt.provider_checkout_id && !usesLinkReference && attempt.provider_checkout_id !== references.invoiceSlug) {
     return { status: 409, body: { received: false, code: "provider_checkout_id_conflict" } };
   }
   if (attempt.transaction_nsu && attempt.transaction_nsu !== references.transactionNsu) {
     return { status: 409, body: { received: false, code: "transaction_nsu_conflict" } };
   }
-  if (attempt.status === "paid") {
+  if (attempt.status === "paid" && !usesLinkReference) {
     if (attempt.order_id) await enqueuePaidEvent(attempt.order_id);
     return { status: 200, body: { received: true, code: "already_paid" } };
   }
@@ -85,7 +100,7 @@ export async function verifyInfinitePayPayment(
   try {
     rpcResult = await getSupabaseAdmin().rpc("ecommerce_confirm_payment", {
       p_order_nsu: references.orderNsu,
-      p_provider_checkout_id: references.invoiceSlug,
+      p_provider_checkout_id: attempt.provider_checkout_id ?? references.invoiceSlug,
       p_transaction_nsu: references.transactionNsu,
       p_amount_cents: paymentCheck.amount,
       p_paid_amount_cents: paymentCheck.paid_amount,
