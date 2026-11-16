@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { publicOrderStone } from "@/lib/stone-customization";
 import type { PublicOrder } from "@/types/checkout";
 
 const cents = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
@@ -6,8 +7,8 @@ const date = z.string().refine(value => Number.isFinite(Date.parse(value)));
 const item = z.object({
   productSlug: z.string().min(1), productName: z.string().min(1), productImage: z.string(),
   category: z.string(), material: z.string().nullable(), unitPriceCents: cents,
-  quantity: z.number().int().positive(), subtotalCents: cents
-}).transform(value => ({ ...value, customization: null }));
+  quantity: z.number().int().positive(), subtotalCents: cents, customization: z.unknown().optional()
+}).transform(value => ({ ...value, customization: publicOrderStone(value.customization) }));
 
 // Explicit projection: even unexpected private fields in a response never reach this view.
 const schema = z.object({

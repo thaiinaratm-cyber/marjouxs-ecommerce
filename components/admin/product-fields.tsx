@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { AdminTaxonomy } from "@/lib/admin/catalog";
 import { toProductSlug, type AdminProductInput } from "@/lib/admin/product-form";
+import { STONE_COLORS } from "@/lib/stone-customization";
 
 export type AdminProductFieldValues = Omit<Partial<AdminProductInput>, "price" | "oldPrice"> & {
   price?: string | number | null;
@@ -76,6 +77,8 @@ export function ProductFields({ taxonomy, values = {}, fieldErrors = {} }: Produ
   const [seoDescription, setSeoDescription] = useState(values.seoDescription ?? "");
   const [engravingAvailable, setEngravingAvailable] = useState(Boolean(values.engravingAvailable));
   const [engravingIncluded, setEngravingIncluded] = useState(Boolean(values.engravingAvailable && values.engravingIncluded));
+  const [stoneEnabled, setStoneEnabled] = useState(Boolean(values.stoneCustomizationEnabled));
+  const [stoneOptions, setStoneOptions] = useState(values.stoneOptions ?? []);
   const category = taxonomy.categories.find((item) => item.id === categoryId);
   const isAlliance = category?.name === "Alianças";
   const availableSubcategories = useMemo(
@@ -118,6 +121,31 @@ export function ProductFields({ taxonomy, values = {}, fieldErrors = {} }: Produ
             <FieldError name="slug" />
           </label>
         </div>
+      </Section>
+
+      <Section title="Personalização da pedra">
+        <label className="inline-flex min-h-11 items-center gap-2 text-sm text-ink">
+          <input type="checkbox" name="stoneCustomizationEnabled" checked={stoneEnabled}
+            onChange={event => setStoneEnabled(event.target.checked)} className="size-4 accent-gold" />
+          Permitir escolha da pedra
+        </label>
+        {stoneEnabled ? (
+          <fieldset className="grid gap-2" aria-describedby={fieldErrors.stoneOptions ? "error-stoneOptions" : undefined}>
+            <legend className="mb-2 text-sm font-semibold text-ink">Pedras disponíveis</legend>
+            <div className="grid gap-x-4 sm:grid-cols-2">
+              {STONE_COLORS.map(stone => (
+                <label key={stone.id} className="flex min-h-11 items-center gap-2 text-sm text-ink">
+                  <input type="checkbox" name="stoneOptions" value={stone.id} className="size-4 accent-gold"
+                    checked={stoneOptions.includes(stone.id)}
+                    onChange={event => setStoneOptions(event.target.checked
+                      ? [...stoneOptions, stone.id] : stoneOptions.filter(option => option !== stone.id))} />
+                  {stone.name}
+                </label>
+              ))}
+            </div>
+            <FieldError name="stoneOptions" />
+          </fieldset>
+        ) : null}
       </Section>
 
       <Section title="Classificação">

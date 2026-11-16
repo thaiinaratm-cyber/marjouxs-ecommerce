@@ -28,7 +28,7 @@ async function readDatabaseProducts(): Promise<Product[]> {
 }
 
 const readCachedDatabaseProducts = unstable_cache(readDatabaseProducts,
-  ["marjouxs-public-catalog-v3"], { revalidate: 300, tags: ["marjouxs-public-catalog"] });
+  ["marjouxs-public-catalog-v4"], { revalidate: 300, tags: ["marjouxs-public-catalog"] });
 
 const getPublicCatalog = cache(async (): Promise<Product[]> => {
   unstable_noStore();

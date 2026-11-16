@@ -43,6 +43,8 @@ function productPayload(input: AdminProductInput) {
     finish: input.finish,
     stone_type: input.stoneType,
     stone_color: input.stoneColor,
+    stone_customization_enabled: input.stoneCustomizationEnabled,
+    stone_options: input.stoneOptions,
     stone_quantity: input.stoneQuantity,
     material_details: input.materialDetails,
     gender_style: input.genderStyle,

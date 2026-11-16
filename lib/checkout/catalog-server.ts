@@ -9,12 +9,14 @@ import {
 } from "@/lib/checkout/catalog";
 import { getCheckoutCatalogSource } from "@/lib/checkout/config";
 import { getSupabaseAdmin } from "@/lib/checkout/supabase";
+import { readStoneConfiguration } from "@/lib/stone-customization";
 import type { CartLineInput, ShippingLineInput } from "@/types/checkout";
 import type { CategoryName, Product, StockStatus } from "@/types/product";
 
 type CheckoutProductRow = Pick<DatabaseProduct,
   "id" | "legacy_id" | "name" | "slug" | "category_id" | "subcategory_id" | "material_id" |
-  "price" | "stock_status" | "sale_unit" | "is_active" | "engraving_available" | "size_min" | "size_max"
+  "price" | "stock_status" | "sale_unit" | "is_active" | "engraving_available" | "size_min" | "size_max" |
+  "stone_customization_enabled" | "stone_options"
 >;
 type TaxonomyRow = { id: string; name: string; is_active: boolean };
 type SubcategoryRow = TaxonomyRow & { category_id: string };
@@ -37,7 +39,8 @@ export class CheckoutCatalogReadError extends Error {
 
 const PRODUCT_COLUMNS = [
   "id", "legacy_id", "name", "slug", "category_id", "subcategory_id", "material_id",
-  "price", "stock_status", "sale_unit", "is_active", "engraving_available", "size_min", "size_max"
+  "price", "stock_status", "sale_unit", "is_active", "engraving_available", "size_min", "size_max",
+  "stone_customization_enabled", "stone_options"
 ].join(",");
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -197,6 +200,7 @@ function databaseResolver(snapshot: CheckoutCatalogSnapshot): CheckoutProductRes
       stockStatus,
       saleUnit: row.sale_unit as "pair" | "unit",
       engravingAvailable: row.engraving_available,
+      stoneCustomization: readStoneConfiguration(row.stone_customization_enabled, row.stone_options),
       sizeMin: row.size_min,
       sizeMax: row.size_max
     };

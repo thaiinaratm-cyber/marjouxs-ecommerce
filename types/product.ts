@@ -59,10 +59,12 @@ export type Product = {
   sizeMin?: number | null;
   sizeMax?: number | null;
   technicalDetails?: ProductTechnicalDetails;
+  stoneCustomization?: { options: string[] };
 };
 
 export type RingPairCustomization = {
   type: "ring_pair";
+  stone_color?: string;
   ring1: {
     size: number;
     engraving?: string | null;
@@ -73,7 +75,7 @@ export type RingPairCustomization = {
   };
 };
 
-export type CartCustomization = RingPairCustomization | null;
+export type CartCustomization = RingPairCustomization | { type: "stone"; stone_color: string } | null;
 
 export type CartLine = {
   lineId: string;

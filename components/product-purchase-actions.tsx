@@ -10,7 +10,8 @@ import { isAlliance } from "@/lib/checkout/catalog";
 import { MAX_ENGRAVING_LENGTH } from "@/lib/checkout/limits";
 import { formatCurrency } from "@/lib/format";
 import { hasValidPrice } from "@/lib/product-pricing";
-import type { Product, RingPairCustomization } from "@/types/product";
+import { getStoneOptions, STONE_REQUIRED } from "@/lib/stone-customization";
+import type { CartCustomization, Product } from "@/types/product";
 
 const RING_SIZES = Array.from({ length: 28 }, (_, index) => index + 8);
 
@@ -29,6 +30,8 @@ export function ProductPurchaseActions({
   const [ring2Size, setRing2Size] = useState("");
   const [ring1Engraving, setRing1Engraving] = useState("");
   const [ring2Engraving, setRing2Engraving] = useState("");
+  const [stone, setStone] = useState("");
+  const stoneOptions = getStoneOptions(product);
   const [message, setMessage] = useState("");
   const [showMobileCta, setShowMobileCta] = useState(false);
   const primaryCtaRef = useRef<HTMLButtonElement>(null);
@@ -70,7 +73,13 @@ export function ProductPurchaseActions({
     event.preventDefault();
     setMessage("");
 
-    let customization: RingPairCustomization | null = null;
+    const selectedStone = stoneOptions.some(option => option.id === stone) ? stone : "";
+    if (product.stoneCustomization && !selectedStone) {
+      setMessage(STONE_REQUIRED);
+      document.getElementById("product-stone-options")?.focus();
+      return;
+    }
+    let customization: CartCustomization = selectedStone ? { type: "stone", stone_color: selectedStone } : null;
     if (alliance) {
       if (!ring1Size || !ring2Size) {
         setMessage("Selecione os dois aros para continuar.");
@@ -80,7 +89,8 @@ export function ProductPurchaseActions({
       customization = {
         type: "ring_pair",
         ring1: { size: Number(ring1Size), engraving: ring1Engraving.trim() || null },
-        ring2: { size: Number(ring2Size), engraving: ring2Engraving.trim() || null }
+        ring2: { size: Number(ring2Size), engraving: ring2Engraving.trim() || null },
+        ...(selectedStone ? { stone_color: selectedStone } : {})
       };
     }
 
@@ -175,6 +185,26 @@ export function ProductPurchaseActions({
             ))}
           </div>
         </section>
+      ) : null}
+
+      {canCheckout ? (
+        product.stoneCustomization ? (
+          <fieldset id="product-stone-options" tabIndex={-1} className="grid gap-2 scroll-mt-40">
+            <legend className="mb-2 text-sm font-semibold text-ink">Escolha a cor da pedra</legend>
+            <div className="flex flex-wrap gap-2">
+              {stoneOptions.map(option => (
+                <label key={option.id}
+                  className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-black/15 px-3 text-sm text-ink has-[:checked]:border-gold has-[:checked]:bg-pearl has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-gold">
+                  <input className="sr-only" type="radio" name="stoneColor" value={option.id} checked={stone === option.id}
+                    onChange={() => { setStone(option.id); setMessage(""); }} />
+                  <span className="size-4 shrink-0 rounded-full border border-black/25" aria-hidden="true" style={{ backgroundColor: option.color }} />
+                  {option.name}
+                </label>
+              ))}
+            </div>
+            {!stoneOptions.length ? <p className="text-sm text-taupe">Nenhuma cor disponível no momento.</p> : null}
+          </fieldset>
+        ) : null
       ) : null}
 
       {canCheckout ? (

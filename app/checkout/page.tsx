@@ -1,5 +1,7 @@
 "use client";
 
+import { OrderItemStone } from "@/components/order-item-stone";
+
 import Link from "next/link";
 import {
   Check,
@@ -1100,6 +1102,7 @@ export default function CheckoutPage() {
                         ))}
                       </dl>
                     ) : null}
+                    <OrderItemStone customization={customization} />
                   </div>
                 </article>
               );

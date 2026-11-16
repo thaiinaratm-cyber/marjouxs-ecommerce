@@ -46,6 +46,8 @@ export type DatabaseProduct = {
   gender_style?: string | null;
   comfort_profile?: string | null;
   structure_type?: string | null;
+  stone_customization_enabled?: boolean;
+  stone_options?: string[];
   updated_by?: string | null;
 };
 
@@ -80,7 +82,7 @@ const PRODUCT_COLUMNS = [
 const PUBLIC_PRODUCT_COLUMNS = [
   PRODUCT_COLUMNS, "approximate_weight_grams", "width_mm", "thickness_mm", "height_mm",
   "length_cm", "diameter_mm", "finish", "material_details", "stone_type", "stone_color",
-  "stone_quantity", "gender_style", "comfort_profile", "structure_type"
+  "stone_quantity", "gender_style", "comfort_profile", "structure_type", "stone_customization_enabled", "stone_options"
 ].join(",");
 
 async function readAllRows<T>(client: SupabaseClient, table: string, columns: string): Promise<T[]> {

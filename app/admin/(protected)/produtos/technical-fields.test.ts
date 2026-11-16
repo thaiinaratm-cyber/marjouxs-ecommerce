@@ -48,6 +48,33 @@ describe("validação e persistência do formulário", () => {
     await expect(updateProductAction(form())).resolves.toEqual({ redirectTo: `/admin/produtos/${id}?saved=1` });
   });
 
+  it("persists the optional stone settings for both create and edit", async () => {
+    const data = form();
+    data.set("stoneCustomizationEnabled", "on");
+    data.append("stoneOptions", "azul-safira");
+    data.append("stoneOptions", "esmeralda");
+    await createDraftProductAction(data);
+    await updateProductAction(data);
+    const expected = expect.objectContaining({ stone_customization_enabled: true, stone_options: ["azul-safira", "esmeralda"] });
+    expect(mocks.insert).toHaveBeenCalledWith(expected);
+    expect(mocks.update).toHaveBeenCalledWith(expected);
+    data.delete("stoneCustomizationEnabled");
+    await updateProductAction(data);
+    expect(mocks.update).toHaveBeenLastCalledWith(expect.objectContaining({
+      stone_customization_enabled: false, stone_options: []
+    }));
+  });
+
+  it("rejects an enabled product with inconsistent stone settings before writing", async () => {
+    const data = form();
+    data.set("stoneCustomizationEnabled", "on");
+    data.append("stoneOptions", "invalid-color");
+    await expect(updateProductAction(data)).resolves.toMatchObject({
+      fieldErrors: { stoneOptions: expect.any(String) }
+    });
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+
   it("retorna erro específico sem redirecionar nem gravar e preserva o formulário", async () => {
     const data = form(); data.set("name", ""); data.set("description", "Texto preservado");
     expect(await createDraftProductAction(data)).toMatchObject({ fieldErrors: { name: "Nome do produto é obrigatório." } });

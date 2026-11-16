@@ -1,12 +1,14 @@
 import { z } from "zod";
 import { normalizePostalCode, POSTAL_CODE_MESSAGES } from "@/lib/checkout/postal-code";
 import { MAX_CHECKOUT_UNITS, MAX_ENGRAVING_LENGTH } from "@/lib/checkout/limits";
+import { stoneColorSchema } from "@/lib/stone-customization";
 
 const engravingSchema = z.string().max(MAX_ENGRAVING_LENGTH).nullable().optional();
 
 export const ringPairCustomizationSchema = z
   .object({
     type: z.literal("ring_pair"),
+    stone_color: stoneColorSchema.optional(),
     ring1: z
       .object({
         size: z.number().int().min(8).max(35),
@@ -22,12 +24,20 @@ export const ringPairCustomizationSchema = z
   })
   .strict();
 
+export const standaloneStoneCustomizationSchema = z.object({
+  type: z.literal("stone"), stone_color: stoneColorSchema
+}).strict();
+
+export const cartCustomizationSchema = z.discriminatedUnion("type", [
+  ringPairCustomizationSchema, standaloneStoneCustomizationSchema
+]).nullable();
+
 export const cartLineSchema = z
   .object({
     productId: z.string().trim().min(1).max(200),
     productSlug: z.string().trim().min(1).max(200),
     quantity: z.number().int().positive().max(MAX_CHECKOUT_UNITS),
-    customization: ringPairCustomizationSchema.nullable(),
+    customization: cartCustomizationSchema,
     displayedUnitPriceCents: z.number().int().nonnegative().safe().optional()
   })
   .strict();

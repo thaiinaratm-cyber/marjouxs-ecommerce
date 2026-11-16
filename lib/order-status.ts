@@ -140,13 +140,15 @@ export function getShippingAddressLines(address: NonNullable<PublicOrder["shippi
 }
 
 function customizationKey(customization: CartLine["customization"]) {
+  if (customization?.type === "stone") return "stone:" + customization.stone_color;
   if (customization?.type !== "ring_pair") return "standard";
 
   return [
     customization.ring1.size,
     customization.ring1.engraving?.trim() || "",
     customization.ring2.size,
-    customization.ring2.engraving?.trim() || ""
+    customization.ring2.engraving?.trim() || "",
+    customization.stone_color ?? ""
   ].join("|");
 }
 

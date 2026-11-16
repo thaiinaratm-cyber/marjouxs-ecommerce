@@ -1,5 +1,7 @@
 "use client";
 
+import { OrderItemStone } from "@/components/order-item-stone";
+
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -137,6 +139,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 {item.customization?.type === "ring_pair" ? (
                   <AllianceCustomization customization={item.customization} />
                 ) : null}
+                <OrderItemStone customization={item.customization} />
 
                 <div className="mt-3 flex items-center justify-between gap-3 border-t border-black/10 pt-3">
                   <div className="flex items-center gap-1">

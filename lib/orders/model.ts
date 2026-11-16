@@ -1,4 +1,5 @@
 import { ringPairCustomizationSchema } from "@/lib/checkout/schemas";
+import { publicOrderStone, stoneColorLabel } from "@/lib/stone-customization";
 import { formatCurrency } from "@/lib/format";
 import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
 
@@ -66,15 +67,17 @@ export function customerWhatsapp(order: Pick<OrderSummary, "customer_phone" | "c
 }
 export function customizationLines(item: Pick<OrderItemSnapshot, "category" | "customization">): string[] {
   const parsed = ringPairCustomizationSchema.safeParse(item.customization);
+  const label = stoneColorLabel(publicOrderStone(item.customization)?.stone_color);
+  const stoneLine = label ? ["Pedra: " + label] : [];
   if (item.category === "Alianças" && parsed.success) {
     return ["Venda por par", `Aliança 1 — Aro: ${parsed.data.ring1.size}`,
       ...(parsed.data.ring1.engraving ? [`Gravação 1: ${parsed.data.ring1.engraving}`] : []),
       `Aliança 2 — Aro: ${parsed.data.ring2.size}`,
-      ...(parsed.data.ring2.engraving ? [`Gravação 2: ${parsed.data.ring2.engraving}`] : [])];
+      ...(parsed.data.ring2.engraving ? [`Gravação 2: ${parsed.data.ring2.engraving}`] : []), ...stoneLine];
   }
   if (parsed.success || !item.customization || typeof item.customization !== "object") return [];
-  return Object.entries(item.customization).flatMap(([key, value]) =>
-    ["string", "number", "boolean"].includes(typeof value) && key !== "type" ? [`${key}: ${String(value)}`] : []);
+  return [...stoneLine, ...Object.entries(item.customization).flatMap(([key, value]) =>
+    ["string", "number", "boolean"].includes(typeof value) && key !== "type" && key !== "stone_color" ? [`${key}: ${String(value)}`] : [])];
 }
 export function deliveryLines(order: OrderSnapshot) {
   if (order.delivery_method === "pickup") return ["Retirada na loja"];

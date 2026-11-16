@@ -2,6 +2,7 @@ import { formatCurrency } from "@/lib/format";
 import type { DatabaseCatalog, DatabaseProduct } from "@/lib/catalog/database-products";
 import { catalogImageUrl } from "@/lib/catalog/image-url";
 import { CatalogDataError } from "@/lib/catalog/resolve";
+import { readStoneConfiguration } from "@/lib/stone-customization";
 import type { CategoryName, Product, ProductTechnicalDetails, StockStatus } from "@/types/product";
 
 function money(value: number | string | null, field: string): number | null {
@@ -119,6 +120,7 @@ export function normalizePublicDatabaseCatalog(
     }
 
     const specifications = technicalDetails(row);
+    const stoneCustomization = readStoneConfiguration(row.stone_customization_enabled, row.stone_options);
     products.push({
       id: publicId,
       name: row.name,
@@ -153,7 +155,8 @@ export function normalizePublicDatabaseCatalog(
       jewelryBoxIncluded: row.jewelry_box_included,
       sizeMin: row.size_min,
       sizeMax: row.size_max,
-      ...(specifications ? { technicalDetails: specifications } : {})
+      ...(specifications ? { technicalDetails: specifications } : {}),
+      ...(stoneCustomization ? { stoneCustomization } : {})
     });
     seenIds.add(publicId);
     seenSlugs.add(row.slug);

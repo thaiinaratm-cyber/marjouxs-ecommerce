@@ -2,8 +2,9 @@ import { products } from "@/data/products";
 import { hasValidPrice } from "@/lib/product-pricing";
 import type { CartLineInput, ShippingLineInput, ValidatedCart, ValidatedCartItem } from "@/types/checkout";
 import type { CartCustomization, Product } from "@/types/product";
-import { ringPairCustomizationSchema } from "@/lib/checkout/schemas";
+import { ringPairCustomizationSchema, standaloneStoneCustomizationSchema } from "@/lib/checkout/schemas";
 import { MAX_CHECKOUT_UNITS } from "@/lib/checkout/limits";
+import { acceptsStone, STONE_REQUIRED } from "@/lib/stone-customization";
 
 const CHECKOUT_STOCK_STATUSES = new Set(["Disponível", "Sob encomenda"]);
 
@@ -94,6 +95,12 @@ function getPriceCents({ product, unitPriceCents }: CheckoutProductRecord) {
 }
 
 function validateCustomization(product: Product, quantity: number, customization: CartCustomization) {
+  if (!acceptsStone(product, customization)) {
+    throw new CheckoutValidationError(
+      product.stoneCustomization && !customization?.stone_color ? STONE_REQUIRED : "Esta cor de pedra não está disponível para este produto.",
+      "invalid_stone_customization"
+    );
+  }
   if (isAlliance(product)) {
     if (product.saleUnit && product.saleUnit !== "pair") {
       throw new CheckoutValidationError("Este produto não está disponível para checkout.", "product_unavailable", 409);
@@ -131,6 +138,8 @@ function validateCustomization(product: Product, quantity: number, customization
   }
 
   if (customization !== null) {
+    const stone = standaloneStoneCustomizationSchema.safeParse(customization);
+    if (stone.success && product.stoneCustomization) return stone.data;
     throw new CheckoutValidationError(
       "Este produto não aceita essa personalização.",
       "unsupported_customization"

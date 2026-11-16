@@ -4,12 +4,13 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { ProductImage } from "@/components/product-image";
+import { CartStoneField } from "@/components/order-item-stone";
 import { useCart } from "@/context/cart-context";
 import { formatCurrency } from "@/lib/format";
 import { trackViewCart } from "@/lib/analytics";
 
 export default function CartPage() {
-  const { items, subtotal, totalItems, isReady, removeItem, updateQuantity } = useCart();
+  const { items, subtotal, totalItems, isReady, removeItem, updateQuantity, updateStoneColor } = useCart();
   const trackedView = useRef(false);
 
   useEffect(() => {
@@ -66,6 +67,7 @@ export default function CartPage() {
                       <p>Aliança 2: aro {item.customization.ring2.size}{item.customization.ring2.engraving ? `, gravação “${item.customization.ring2.engraving}”` : ""}</p>
                     </div>
                   ) : null}
+                  <CartStoneField item={item} onChange={stone => updateStoneColor(item.lineId, stone)} />
                 </div>
                 <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div className="flex items-center gap-2">

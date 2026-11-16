@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/checkout/supabase";
 import { getOrderPresentationStage } from "@/lib/order-status";
+import { publicOrderStone } from "@/lib/stone-customization";
 import type { PublicOrder, PublicOrderItem } from "@/types/checkout";
 
 type OrderRow = {
@@ -28,11 +29,12 @@ type OrderRow = {
     unit_price_cents: number;
     quantity: number;
     subtotal_cents: number;
+    customization?: unknown;
   }>;
 };
 
 const PUBLIC_ORDER_SELECT =
-  "id, order_number, created_at, payment_status, order_status, delivery_method, shipping_carrier, shipping_service, shipping_deadline_days, subtotal_cents, shipping_cents, discount_cents, total_cents, paid_at, ecommerce_order_items(line_number, product_slug, product_name, product_image, category, material, unit_price_cents, quantity, subtotal_cents)";
+  "id, order_number, created_at, payment_status, order_status, delivery_method, shipping_carrier, shipping_service, shipping_deadline_days, subtotal_cents, shipping_cents, discount_cents, total_cents, paid_at, ecommerce_order_items(line_number, product_slug, product_name, product_image, category, material, unit_price_cents, quantity, subtotal_cents, customization)";
 
 function emailDigest(value: string) {
   return createHash("sha256").update(value.trim().toLowerCase(), "utf8").digest();
@@ -67,7 +69,7 @@ async function hydratePublicOrder(order: OrderRow): Promise<PublicOrder> {
       unitPriceCents: Number(item.unit_price_cents),
       quantity: item.quantity,
       subtotalCents: Number(item.subtotal_cents),
-      customization: null
+      customization: publicOrderStone(item.customization)
     }));
 
   const captureMethod = paymentAttempt?.capture_method;

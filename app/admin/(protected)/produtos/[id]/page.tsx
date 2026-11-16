@@ -113,6 +113,8 @@ export default async function AdminProductDetailPage({ params: pendingParams, se
               finish: product.finish,
               stoneType: product.stone_type,
               stoneColor: product.stone_color,
+              stoneCustomizationEnabled: product.stone_customization_enabled,
+              stoneOptions: product.stone_options,
               stoneQuantity: product.stone_quantity,
               materialDetails: product.material_details,
               genderStyle: product.gender_style,

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Clock3, ExternalLink, MapPin, PackageCheck, Truck } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
+import { OrderItemStone } from "@/components/order-item-stone";
 import { STORE_ADDRESS, STORE_NAME } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
 import { getShippingAddressLines } from "@/lib/order-status";
@@ -56,6 +57,7 @@ export function OrderItemsList({ items }: { items: PublicOrderItem[] }) {
               </strong>
             </div>
             <RingCustomization item={item} />
+            <OrderItemStone customization={item.customization} />
           </div>
         </article>
       ))}

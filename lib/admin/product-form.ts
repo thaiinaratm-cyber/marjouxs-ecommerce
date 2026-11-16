@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { findStoneColor } from "@/lib/stone-customization";
 
 export const ADMIN_PRODUCT_IMAGE_BUCKET = "ecommerce-product-images";
 export const MAX_PRODUCT_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -72,6 +73,8 @@ export type AdminProductInput = {
   finish: string | null;
   stoneType: string | null;
   stoneColor: string | null;
+  stoneCustomizationEnabled: boolean;
+  stoneOptions: string[];
   stoneQuantity: number | null;
   materialDetails: string | null;
   genderStyle: string | null;
@@ -221,6 +224,14 @@ export function parseAdminProductForm(formData: FormData): ProductFormResult {
   };
   const installmentsCount = parseInteger(parsed.data.installmentsCount, 1, 24);
   const stoneQuantity = parseInteger(parsed.data.stoneQuantity, 0, 9999);
+  const stoneCustomizationEnabled = formData.get("stoneCustomizationEnabled") === "on";
+  const stoneOptions = stoneCustomizationEnabled ? formData.getAll("stoneOptions").map(String) : [];
+  if (stoneCustomizationEnabled && (!stoneOptions.length || stoneOptions.length > 24 ||
+    new Set(stoneOptions).size !== stoneOptions.length || stoneOptions.some(option => !findStoneColor(option)))) {
+    return { success: false, error: "invalid_fields", fieldErrors: {
+      stoneOptions: "Selecione pelo menos uma cor de pedra válida."
+    } };
+  }
   const sizeMin = parseInteger(parsed.data.sizeMin, 8, 35);
   const sizeMax = parseInteger(parsed.data.sizeMax, 8, 35);
   const version = parseInteger(parsed.data.version, 1, 2147483647);
@@ -262,6 +273,8 @@ export function parseAdminProductForm(formData: FormData): ProductFormResult {
       finish: parsed.data.finish || null,
       stoneType: parsed.data.stoneType || null,
       stoneColor: parsed.data.stoneColor || null,
+      stoneCustomizationEnabled,
+      stoneOptions,
       stoneQuantity: stoneQuantity ?? null,
       materialDetails: parsed.data.materialDetails || null,
       genderStyle: parsed.data.genderStyle || null,

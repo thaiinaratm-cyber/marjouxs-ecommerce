@@ -4,7 +4,8 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { getProductById, isAlliance } from "@/lib/checkout/catalog";
 import { hasValidPrice } from "@/lib/product-pricing";
 import { newCartLine, parseStoredCart, serializeCart, CART_STORAGE_KEY } from "@/lib/cart-storage";
-import { ringPairCustomizationSchema } from "@/lib/checkout/schemas";
+import { cartCustomizationSchema } from "@/lib/checkout/schemas";
+import { acceptsStone, getStoneOptions } from "@/lib/stone-customization";
 import { trackAddToCart, trackRemoveFromCart } from "@/lib/analytics";
 import type { CartCustomization, CartItem, CartLine, Product } from "@/types/product";
 
@@ -17,6 +18,7 @@ type CartContextValue = {
   addItem: (product: Product, customization?: CartCustomization) => boolean;
   removeItem: (lineId: string) => void;
   updateQuantity: (lineId: string, quantity: number) => void;
+  updateStoneColor: (lineId: string, stone: string) => void;
   clearCart: () => void;
 };
 
@@ -56,15 +58,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
           return false;
         }
 
-        if (isAlliance(product) && !ringPairCustomizationSchema.safeParse(customization).success) {
+        const parsed = cartCustomizationSchema.safeParse(customization);
+        if (!parsed.success || (parsed.data?.type === "ring_pair") !== isAlliance(product) ||
+            !acceptsStone(product, parsed.data)) {
           return false;
         }
 
-        const normalizedCustomization = isAlliance(product) ? customization : null;
+        const normalizedCustomization = parsed.data;
         setLines((current) => {
           if (!isAlliance(product)) {
             const existing = current.find(
-              (item) => item.productId === product.id && item.customization === null
+              (item) => item.productId === product.id &&
+                item.customization?.stone_color === normalizedCustomization?.stone_color
             );
 
             if (existing) {
@@ -88,6 +93,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
           trackRemoveFromCart(item.product, item.quantity);
         }
         setLines((current) => current.filter((item) => item.lineId !== lineId));
+      },
+      updateStoneColor(lineId, stone) {
+        const item = items.find(candidate => candidate.lineId === lineId);
+        if (!item || !getStoneOptions(item.product).some(option => option.id === stone) ||
+            (isAlliance(item.product) && item.customization?.type !== "ring_pair")) return;
+        const customization: CartCustomization = item.customization?.type === "ring_pair"
+          ? { ...item.customization, stone_color: stone }
+          : { type: "stone", stone_color: stone };
+        setLines(current => current.map(line => line.lineId === lineId ? { ...line, customization } : line));
       },
       updateQuantity(lineId, quantity) {
         const item = items.find((candidate) => candidate.lineId === lineId);

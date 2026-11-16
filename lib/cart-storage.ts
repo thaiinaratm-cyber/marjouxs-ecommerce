@@ -1,7 +1,7 @@
 import { hasValidPrice } from "@/lib/product-pricing";
 import { getProductById, isAlliance } from "@/lib/checkout/catalog";
 import type { CartLine, Product } from "@/types/product";
-import { ringPairCustomizationSchema } from "@/lib/checkout/schemas";
+import { cartCustomizationSchema } from "@/lib/checkout/schemas";
 
 export const CART_STORAGE_KEY = "marjouxs-cart";
 export const CART_STORAGE_VERSION = 2;
@@ -51,7 +51,7 @@ function normalizeLine(value: unknown): CartLine | null {
 
   const rawQuantity = Number(candidate.quantity);
   const quantity = isAlliance(product) ? 1 : Math.max(1, Math.floor(Number.isFinite(rawQuantity) ? rawQuantity : 1));
-  const parsedCustomization = ringPairCustomizationSchema.safeParse(candidate.customization);
+  const parsedCustomization = cartCustomizationSchema.safeParse(candidate.customization);
   const customization = parsedCustomization.success ? parsedCustomization.data : null;
 
   return {
@@ -59,7 +59,9 @@ function normalizeLine(value: unknown): CartLine | null {
     productId: product.id,
     productSlug: product.slug,
     quantity,
-    customization: isAlliance(product) ? customization : null,
+    customization: isAlliance(product)
+      ? customization?.type === "ring_pair" ? customization : null
+      : customization?.type === "stone" ? customization : null,
     ...(snapshot ? { productSnapshot: snapshot } : {})
   };
 }
