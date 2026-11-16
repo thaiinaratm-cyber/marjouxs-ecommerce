@@ -4,10 +4,11 @@ import OrderProgressPage, { dynamic, metadata } from "@/app/pedido/acompanhament
 import { metadata as confirmationMetadata } from "@/app/pedido/confirmacao/page";
 import { confirmationFixture } from "@/lib/checkout/confirmation.fixture";
 
-const mocks = vi.hoisted(() => ({ cookie: vi.fn(), read: vi.fn() }));
+const mocks = vi.hoisted(() => ({ cookie: vi.fn(), read: vi.fn(), shipment: vi.fn() }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: mocks.cookie }) }));
 vi.mock("next/navigation", () => ({ redirect: (url: string) => { throw Error(url); } }));
 vi.mock("@/lib/checkout/orders", () => ({ getPublicOrder: mocks.read }));
+vi.mock("@/lib/orders/private-shipment", () => ({ getPrivateShipment: mocks.shipment }));
 vi.mock("@/components/order-confirmation", () => ({ OrderConfirmationView: () => null }));
 const token = "00000000-0000-4000-8000-000000000099";
 
@@ -23,6 +24,7 @@ describe("private tracking page", () => {
     mocks.cookie.mockReturnValue(value ? { value } : undefined);
     await expect(OrderProgressPage()).rejects.toThrow("/acompanhar-pedido");
     expect(mocks.read).not.toHaveBeenCalled();
+    expect(mocks.shipment).not.toHaveBeenCalled();
   });
   it("uses the scoped cookie and passes only the allowlisted fields to the UI", async () => {
     mocks.cookie.mockReturnValue({ value: token });

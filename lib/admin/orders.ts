@@ -4,6 +4,7 @@ import { requireActiveAdmin } from "@/lib/admin/auth";
 import { getSupabaseAdmin } from "@/lib/checkout/supabase";
 import { canSetOrderStatus, ORDERS_PAGE_SIZE, parseOrderQuery, type OrderSnapshot, type OrderStatus, type OrderSummary } from "@/lib/orders/model";
 import { ORDER_SNAPSHOT_SELECT, ORDER_SUMMARY_SELECT } from "@/lib/orders/selects";
+import { canUseOperationalStatus } from "@/lib/orders/shipment";
 
 function orderReadFailure(stage: "list" | "summary" | "detail", error: { code?: string; message?: string }) {
   const code = /^(?:[A-Z0-9]{5}|PGRST\d+)$/.test(error.code ?? "") ? error.code! : "unknown";
@@ -56,7 +57,7 @@ export async function changeAdminOrderStatus(id: string, status: OrderStatus, ex
     .eq("id", id).maybeSingle();
   if (current.error || !current.data) return "failed";
   if (current.data.order_status !== expectedStatus) return "conflict";
-  if (!canSetOrderStatus(current.data, status)) return "invalid";
+  if (!canSetOrderStatus(current.data, status) || !canUseOperationalStatus(current.data, status)) return "invalid";
   const result = await client.from("ecommerce_orders").update({ order_status: status })
     .eq("id", id).eq("order_status", expectedStatus).eq("payment_status", current.data.payment_status).select("id").maybeSingle();
   if (result.error) return "failed";

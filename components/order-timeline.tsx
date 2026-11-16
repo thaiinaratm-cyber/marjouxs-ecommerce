@@ -1,9 +1,10 @@
 import { Check, Circle, Minus } from "lucide-react";
-import { getOrderTimeline } from "@/lib/order-status";
+import { getOrderTimeline, getPrivateOrderTimeline } from "@/lib/order-status";
+import type { ShipmentStatus } from "@/lib/orders/shipment";
 import type { PublicOrder } from "@/types/checkout";
 
-export function OrderTimeline({ order }: { order: PublicOrder }) {
-  const steps = getOrderTimeline(order);
+export function OrderTimeline({ order, privateShipmentStatus }: { order: PublicOrder; privateShipmentStatus?: ShipmentStatus | null }) {
+  const steps = privateShipmentStatus === undefined ? getOrderTimeline(order) : getPrivateOrderTimeline(order, privateShipmentStatus);
 
   return (
     <ol

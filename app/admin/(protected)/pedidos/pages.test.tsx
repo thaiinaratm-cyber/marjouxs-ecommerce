@@ -3,9 +3,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { fixtureOrder } from "@/lib/orders/fixture";
 import { parseOrderQuery } from "@/lib/orders/model";
-const mocks = vi.hoisted(() => ({ list: vi.fn(), detail: vi.fn() }));
+import { shipmentDetails } from "@/lib/orders/shipment";
+const mocks = vi.hoisted(() => ({ list: vi.fn(), detail: vi.fn(), shipment: vi.fn() }));
 vi.mock("@/lib/admin/orders", () => ({ listAdminOrders: mocks.list, getAdminOrder: mocks.detail }));
-vi.mock("@/app/admin/(protected)/pedidos/actions", () => ({ updateOrderStatusAction: "/synthetic-status-action", reconcilePaymentAction: "/synthetic-reconcile-action" }));
+vi.mock("@/lib/admin/order-shipment", () => ({ getAdminShipment: mocks.shipment }));
+vi.mock("@/app/admin/(protected)/pedidos/actions", () => ({ updateOrderStatusAction: "/synthetic-status-action", reconcilePaymentAction: "/synthetic-reconcile-action", updateOrderShipmentAction: "/synthetic-shipment-action" }));
 vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("not_found"); } }));
 import OrdersPage from "@/app/admin/(protected)/pedidos/page";
 import OrderPage from "@/app/admin/(protected)/pedidos/[id]/page";
@@ -67,6 +69,15 @@ describe("páginas de pedidos renderizadas com snapshots sintéticos", () => {
   });
   it("retirada não mostra postagem, transportadora ou prazo de transporte", async () => {
     const html = renderToStaticMarkup(await OrderPage({ params: Promise.resolve({ id: fixtureOrder().id }) }));
-    for (const text of ["Postagem manual", "SEDEX", "Transporte estimado:"]) expect(html).not.toContain(text);
+    for (const text of ["Postagem manual", "SEDEX", "Transporte estimado:", "Envio e rastreamento"]) expect(html).not.toContain(text);
+  });
+  it("mostra a confirmação da entrega sem oferecer retrocesso no status logístico", async () => {
+    mocks.detail.mockResolvedValue(fixtureOrder({ delivery_method: "shipping", order_status: "shipped" }));
+    mocks.shipment.mockResolvedValue(shipmentDetails({ shipping_status: "in_transit", tracking_code: "AB123456789BR" }));
+    const html = renderToStaticMarkup(await OrderPage({ params: Promise.resolve({ id: fixtureOrder().id }) }));
+    expect(html).toContain("AB123456789BR");
+    expect(html).toContain("Confirmo que o pedido foi entregue");
+    expect(html).toContain('<option value="delivered"');
+    expect(html).not.toContain('<option value="shipped"');
   });
 });

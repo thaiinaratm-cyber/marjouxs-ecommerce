@@ -4,6 +4,7 @@ import type {
   PublicOrderStatusStage
 } from "@/types/checkout";
 import type { CartLine } from "@/types/product";
+import type { ShipmentStatus } from "@/lib/orders/shipment";
 
 export type OrderTimelineState = "complete" | "current" | "upcoming" | "untracked";
 
@@ -112,6 +113,29 @@ export function getOrderTimeline(order: Pick<PublicOrder, "deliveryMethod" | "st
       state: untracked ? "untracked"
         : index < currentIndex || (id === "payment_approved" && paid) ? "complete"
         : current ? "current" : "upcoming"
+    };
+  });
+}
+
+export function getPrivateOrderTimeline(order: Pick<PublicOrder, "deliveryMethod" | "statusStage" | "paymentStatus">, status: ShipmentStatus | null) {
+  const steps = getOrderTimeline(order);
+  if (order.deliveryMethod !== "shipping" || order.paymentStatus !== "paid") return steps;
+
+  const milestones = ["shipped", "in_transit", "delivered"];
+  const stage = status ?? order.statusStage;
+  const reached = milestones.indexOf(stage);
+  return steps.map(step => {
+    const index = milestones.indexOf(step.id);
+    if (index < 0) {
+      if (step.id === "quality") return { ...step, current: false, state: "untracked" as const };
+      return reached >= 0 ? { ...step, current: false, state: "complete" as const } : step;
+    }
+    // Historical completed orders do not confirm a separate in-transit update.
+    if (!status && stage === "delivered" && step.id === "in_transit") return step;
+    return {
+      ...step,
+      current: index === reached,
+      state: index <= reached ? "complete" as const : "upcoming" as const
     };
   });
 }

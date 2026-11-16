@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CheckCircle2, Clock3, LoaderCircle, MessageCircle, PackageCheck, RefreshCw, TriangleAlert } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { trackGoogleAdsPurchaseWhenReady } from "@/lib/google-ads";
 import { OrderDeliveryDetails, OrderItemsList, OrderPurchaseSummary } from "@/components/order-summary";
 import { OrderTimeline } from "@/components/order-timeline";
@@ -11,6 +11,7 @@ import { confirmationSupportUrl, getConfirmationCopy } from "@/lib/checkout/conf
 import { initialConfirmationState, startConfirmationPolling, type ConfirmationState } from "@/lib/checkout/confirmation-polling";
 import { formatOrderDate, shouldClearCartAfterPayment } from "@/lib/order-status";
 import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
+import type { ShipmentStatus } from "@/lib/orders/shipment";
 import type { PublicOrder } from "@/types/checkout";
 
 export { getConfirmationCopy } from "@/lib/checkout/confirmation";
@@ -43,8 +44,9 @@ function SupportLink({ order }: { order: PublicOrder | null }) {
   </a>;
 }
 
-export function OrderConfirmationView({ state, onRetry, focusOnResult = false, tracking = false }: {
+export function OrderConfirmationView({ state, onRetry, focusOnResult = false, tracking = false, shipment, shipmentStatus }: {
   state: ConfirmationState; onRetry?: () => void; focusOnResult?: boolean; tracking?: boolean;
+  shipment?: ReactNode; shipmentStatus?: ShipmentStatus | null;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -89,6 +91,7 @@ export function OrderConfirmationView({ state, onRetry, focusOnResult = false, t
   const copy = getConfirmationCopy(order);
   const date = formatOrderDate(order.createdAt);
   const support = retryAvailable || order.paymentStatus === "requires_review" || order.paymentStatus === "failed";
+  const shippingStage = tracking && order.deliveryMethod === "shipping" ? shipmentStatus ?? order.statusStage : null;
   return <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8" aria-busy={state.refreshing}>
     <div className="rounded-lg border border-black/10 bg-white p-5 shadow-sm sm:p-8">
       <header className="flex flex-col gap-5 border-b border-black/10 pb-6 sm:flex-row sm:items-start sm:justify-between">
@@ -96,7 +99,9 @@ export function OrderConfirmationView({ state, onRetry, focusOnResult = false, t
           <p className="break-words text-xs font-semibold uppercase tracking-[0.2em] text-gold">Pedido {order.orderNumber}</p>
           <h1 ref={heading} tabIndex={-1} className="mt-2 break-words font-serif text-3xl font-semibold text-ink outline-none sm:text-4xl">{copy.title}</h1>
           <p className="mt-3 max-w-2xl leading-7 text-[#6f665c]">{phase === "pending_timeout"
-            ? "Estamos aguardando a confirmação. Você não precisa pagar novamente. Fale com a Marjouxs se precisar de ajuda." : copy.text}</p>
+            ? "Estamos aguardando a confirmação. Você não precisa pagar novamente. Fale com a Marjouxs se precisar de ajuda."
+            : paid && (shippingStage === "shipped" || shippingStage === "in_transit" || shippingStage === "delivered")
+              ? "Recebemos seu pagamento." : copy.text}</p>
           {date ? <p className="mt-2 text-sm text-taupe">Pedido realizado em {date}.</p> : null}
         </div>
         {paid ? <CheckCircle2 className="shrink-0 text-green-600" size={46} aria-hidden="true" />
@@ -106,7 +111,8 @@ export function OrderConfirmationView({ state, onRetry, focusOnResult = false, t
       {phase === "temporary_error" ? <p className="mt-5 rounded-md border border-gold/25 bg-gold/5 p-4 text-sm leading-6 text-ink" role="status">
         Não conseguimos atualizar a consulta agora. O status exibido é o da última consulta. Você não precisa pagar novamente.
       </p> : null}
-      <OrderTimeline order={order} />
+      <OrderTimeline order={order} privateShipmentStatus={tracking ? shipmentStatus ?? null : undefined} />
+      {tracking ? shipment : null}
       <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0"><h2 className="font-serif text-2xl font-semibold text-ink">Itens do pedido</h2>
           <div className="mt-4"><OrderItemsList items={order.items} /></div>
@@ -123,7 +129,10 @@ export function OrderConfirmationView({ state, onRetry, focusOnResult = false, t
                   : order.statusStage === "picked_up"
                     ? "A retirada do seu pedido foi concluída."
                     : `A confecção leva ${JEWELRY_PRODUCTION_DEADLINE}. Confira nesta página quando o pedido estiver disponível para retirada.`
-                : `A confecção leva ${JEWELRY_PRODUCTION_DEADLINE}. Depois, o envio seguirá pela transportadora e pelo serviço escolhidos.`
+                : shippingStage === "delivered" ? "A entrega do seu pedido foi concluída."
+                  : shippingStage === "in_transit" ? "Seu pedido está em trânsito. Acompanhe as atualizações nesta página."
+                    : shippingStage === "shipped" ? "Seu pedido foi enviado. Confira as informações de rastreamento quando estiverem disponíveis."
+                      : `A confecção leva ${JEWELRY_PRODUCTION_DEADLINE}. Depois, o envio seguirá pela transportadora e pelo serviço escolhidos.`
               : "A preparação começa após a confirmação real do pagamento."}</p>
           </div>
         </div>

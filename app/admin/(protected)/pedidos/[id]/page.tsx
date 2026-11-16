@@ -3,6 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MessageCircle, RefreshCw, Save } from "lucide-react";
 import { getAdminOrder } from "@/lib/admin/orders";
+import { getAdminShipment } from "@/lib/admin/order-shipment";
+import { OrderShipmentForm } from "@/components/admin/order-shipment-form";
+import { canUseOperationalStatus, editableShipment } from "@/lib/orders/shipment";
 import { canSetOrderStatus, customerWhatsapp, customizationLines, deliveryLines, money, operationalStatuses, orderDate, orderStatusLabels, paymentStatusLabels } from "@/lib/orders/model";
 import { reconcilePaymentAction, updateOrderStatusAction } from "@/app/admin/(protected)/pedidos/actions";
 import { canReconcileAttempt, paymentReviewReason, pendingAge } from "@/lib/checkout/payment-state";
@@ -10,6 +13,10 @@ import { canReconcileAttempt, paymentReviewReason, pendingAge } from "@/lib/chec
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pedido | Admin Marjouxs", robots: { index: false, follow: false } };
 const messages: Record<string, string> = {
+  shipment_saved: "Informações de envio salvas.",
+  shipment_invalid: "Confira o código, a URL HTTPS e o status de envio. Para marcar como entregue, confirme a entrega.",
+  shipment_conflict: "O pedido foi alterado em outra sessão. Confira os dados antes de salvar novamente.",
+  shipment_failed: "Não foi possível salvar as informações de envio.",
   saved: "Status atualizado.", invalid: "Alteração não permitida para este pedido.",
   conflict: "O pedido foi alterado em outra sessão. Confira o status atual.", failed: "Não foi possível atualizar o status.",
   reconcile_paid: "Pagamento confirmado pela InfinitePay.", reconcile_already_paid: "O pedido já está pago.",
@@ -25,7 +32,8 @@ export default async function AdminOrderPage({ params: pendingParams, searchPara
   const order = await getAdminOrder(params.id);
   if (!order) notFound();
   const whatsapp = customerWhatsapp(order);
-  const statusOptions = operationalStatuses.filter((status) => canSetOrderStatus(order, status));
+  const statusOptions = operationalStatuses.filter((status) => canSetOrderStatus(order, status) && canUseOperationalStatus(order, status));
+  const shipment = editableShipment(order) ? await getAdminShipment(order) : null;
   const latestAttempt = [...(order.ecommerce_payment_attempts ?? [])].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
   return <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <Link href="/admin/pedidos" className="inline-flex items-center gap-2 text-sm font-semibold text-taupe hover:text-gold"><ArrowLeft size={16} />Pedidos</Link>
@@ -52,10 +60,11 @@ export default async function AdminOrderPage({ params: pendingParams, searchPara
       </div>
       <aside className="min-w-0 space-y-6">
         <section className="rounded-md border border-black/10 bg-white p-5"><h2 className="font-serif text-xl font-semibold">Status</h2><p className="mt-2 text-sm font-semibold">{orderStatusLabels[order.order_status]}</p><p className="mt-1 text-sm text-taupe">Pagamento: {paymentStatusLabels[order.payment_status] ?? order.payment_status}</p>
-          <form action={updateOrderStatusAction} className="mt-4 grid gap-3"><input type="hidden" name="id" value={order.id} /><input type="hidden" name="expectedStatus" value={order.order_status} /><label className="grid gap-2 text-sm font-semibold">Status operacional<select name="status" defaultValue={statusOptions.includes(order.order_status) ? order.order_status : ""} className="h-11 w-full rounded border border-black/15 bg-white px-2 font-normal"><option disabled value="">Selecionar</option>{statusOptions.map((status) => <option key={status} value={status}>{orderStatusLabels[status]}</option>)}</select></label><button type="submit" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white hover:bg-gold"><Save size={16} />Salvar status</button></form><p className="mt-3 text-xs leading-5 text-taupe">O status operacional não confirma pagamentos nem solicita estornos.</p>
+          {statusOptions.length ? <><form action={updateOrderStatusAction} className="mt-4 grid gap-3"><input type="hidden" name="id" value={order.id} /><input type="hidden" name="expectedStatus" value={order.order_status} /><label className="grid gap-2 text-sm font-semibold">Status operacional<select name="status" defaultValue={statusOptions.includes(order.order_status) ? order.order_status : ""} className="h-11 w-full rounded border border-black/15 bg-white px-2 font-normal"><option disabled value="">Selecionar</option>{statusOptions.map((status) => <option key={status} value={status}>{orderStatusLabels[status]}</option>)}</select></label><button type="submit" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white hover:bg-gold"><Save size={16} />Salvar status</button></form><p className="mt-3 text-xs leading-5 text-taupe">O status operacional não confirma pagamentos nem solicita estornos.</p></> : null}
         </section>
         <section className="break-words border-t border-black/10 pt-5"><h2 className="font-serif text-xl font-semibold">Cliente</h2><p className="mt-3 text-sm">{order.customer_name}</p><p className="mt-1 text-sm text-taupe">{order.customer_email}</p><p className="mt-1 text-sm text-taupe">{order.customer_phone}</p>{order.customer_cpf ? <p className="mt-1 text-sm text-taupe">CPF: {order.customer_cpf}</p> : null}{whatsapp ? <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-[#187849] px-3 py-2 text-center text-sm font-semibold text-white hover:bg-[#11613a]"><MessageCircle size={17} className="shrink-0" />Falar com cliente no WhatsApp</a> : null}</section>
         <section className="break-words border-t border-black/10 pt-5"><h2 className="font-serif text-xl font-semibold">Entrega</h2>{deliveryLines(order).map((line, index) => <p className="mt-2 text-sm text-taupe" key={index}>{line}</p>)}{order.delivery_method === "shipping" && order.shipping_provider ? <p className="mt-2 text-xs text-taupe">{order.shipping_provider}</p> : null}</section>
+        {shipment ? <OrderShipmentForm order={order} shipment={shipment} /> : editableShipment(order) ? <p className="text-sm text-taupe">Informações de envio temporariamente indisponíveis.</p> : null}
       </aside>
     </div>
   </div>;

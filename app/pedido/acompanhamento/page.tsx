@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { OrderConfirmationView } from "@/components/order-confirmation";
+import { OrderShipmentTracking } from "@/components/order-shipment-tracking";
 import { getPublicOrder } from "@/lib/checkout/orders";
 import { parseConfirmationOrder } from "@/lib/checkout/confirmation";
 import { ORDER_TRACKING_COOKIE, orderAccessTokenSchema } from "@/lib/orders/tracking";
+import { getPrivateShipment } from "@/lib/orders/private-shipment";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -26,6 +28,8 @@ export default async function OrderProgressPage() {
   if (!raw) redirect("/acompanhar-pedido");
 
   const order = parseConfirmationOrder(raw);
-  return <OrderConfirmationView tracking
+  const shipment = order ? await getPrivateShipment(token.data, order) : null;
+  return <OrderConfirmationView tracking shipmentStatus={shipment?.status}
+    shipment={shipment ? <OrderShipmentTracking shipment={shipment} /> : null}
     state={{ order, phase: order ? "ready" : "temporary_error", refreshing: false }} />;
 }

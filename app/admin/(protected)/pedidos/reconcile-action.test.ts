@@ -3,6 +3,7 @@ const mocks = vi.hoisted(() => ({ auth: vi.fn(), reconcile: vi.fn(), revalidate:
 vi.mock("@/lib/admin/auth", () => ({ requireActiveAdmin: mocks.auth }));
 vi.mock("@/lib/admin/reconcile-payment", () => ({ reconcileAdminOrderPayment: mocks.reconcile }));
 vi.mock("@/lib/admin/orders", () => ({ changeAdminOrderStatus: vi.fn() }));
+vi.mock("@/lib/admin/order-shipment", () => ({ saveAdminShipment: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidate }));
 vi.mock("next/navigation", () => ({ redirect: (url: string) => { throw new Error(`redirect:${url}`); } }));
 import { reconcilePaymentAction } from "@/app/admin/(protected)/pedidos/actions";
