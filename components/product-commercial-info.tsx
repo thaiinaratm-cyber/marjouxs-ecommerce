@@ -41,7 +41,9 @@ const trustIcons: Record<ProductTrustBenefitKind, LucideIcon> = {
 };
 
 export function ProductCommercialInfo({ product }: { product: Product }) {
-  const details = getProductCommercialDetails(product);
+  const details = getProductCommercialDetails(product)
+    .filter(detail => detail.kind === "sizing" || detail.kind === "pair" || detail.kind === "included" ||
+      (detail.kind === "availability" && product.stockStatus === "Indisponível"));
 
   if (details.length === 0) {
     return null;

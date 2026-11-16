@@ -4,7 +4,9 @@ import { Award, MessageCircle, Ruler, Sparkles } from "lucide-react";
 import { AnalyticsAnchor, AnalyticsLink } from "@/components/analytics-link";
 import { ProductViewTracker } from "@/components/analytics-trackers";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ProductCharacteristics } from "@/components/product-characteristics";
 import { ProductCommercialInfo, ProductTrustBlock } from "@/components/product-commercial-info";
+import { ProductDescription } from "@/components/product-description";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductPrice } from "@/components/product-price";
 import { ProductPurchaseActions } from "@/components/product-purchase-actions";
@@ -152,14 +154,8 @@ export default async function ProductPage({ params: pendingParams }: { params: P
         </section>
       ) : null}
 
-      <section className="mt-12 rounded-lg border border-black/10 bg-white p-5 shadow-sm sm:p-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Descrição</p>
-        <div className="mt-4 max-w-4xl space-y-4 leading-7 text-taupe">
-          {product.description.split("\n").filter(Boolean).map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      </section>
+      <ProductCharacteristics product={product} />
+      <ProductDescription description={product.description} />
 
       {showSizeGuideLink && !isAlliance ? (
         <section className="mt-5 rounded-lg border border-black/10 bg-pearl p-5 shadow-sm sm:p-6">

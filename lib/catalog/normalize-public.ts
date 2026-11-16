@@ -2,7 +2,7 @@ import { formatCurrency } from "@/lib/format";
 import type { DatabaseCatalog, DatabaseProduct } from "@/lib/catalog/database-products";
 import { catalogImageUrl } from "@/lib/catalog/image-url";
 import { CatalogDataError } from "@/lib/catalog/resolve";
-import type { CategoryName, Product, StockStatus } from "@/types/product";
+import type { CategoryName, Product, ProductTechnicalDetails, StockStatus } from "@/types/product";
 
 function money(value: number | string | null, field: string): number | null {
   if (value === null) return null;
@@ -27,6 +27,34 @@ function stockStatus(row: DatabaseProduct, legacy?: Product): StockStatus {
         : "Sob encomenda";
     default: throw new CatalogDataError("invalid_stock_status");
   }
+}
+
+function technicalNumber(value: number | string | null | undefined) {
+  if (typeof value !== "number" && (typeof value !== "string" || !/^\d+(?:\.\d+)?$/.test(value.trim()))) {
+    return undefined;
+  }
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : undefined;
+}
+
+function technicalDetails(row: DatabaseProduct): ProductTechnicalDetails | undefined {
+  const details: ProductTechnicalDetails = {
+    weightGrams: technicalNumber(row.approximate_weight_grams),
+    widthMm: technicalNumber(row.width_mm),
+    thicknessMm: technicalNumber(row.thickness_mm),
+    heightMm: technicalNumber(row.height_mm),
+    lengthCm: technicalNumber(row.length_cm),
+    diameterMm: technicalNumber(row.diameter_mm),
+    finish: row.finish?.trim() || undefined,
+    materialDetails: row.material_details?.trim() || undefined,
+    stoneType: row.stone_type?.trim() || undefined,
+    stoneColor: row.stone_color?.trim() || undefined,
+    stoneQuantity: Number.isInteger(row.stone_quantity) ? technicalNumber(row.stone_quantity) : undefined,
+    genderStyle: row.gender_style?.trim() || undefined,
+    comfortProfile: row.comfort_profile === "anatomica" || row.comfort_profile === "reta" ? row.comfort_profile : undefined,
+    structureType: row.structure_type === "solid" || row.structure_type === "hollow" ? row.structure_type : undefined
+  };
+  return Object.values(details).some(value => value !== undefined) ? details : undefined;
 }
 
 export function normalizePublicDatabaseCatalog(
@@ -90,6 +118,7 @@ export function normalizePublicDatabaseCatalog(
       throw new CatalogDataError("invalid_public_commercial_fields");
     }
 
+    const specifications = technicalDetails(row);
     products.push({
       id: publicId,
       name: row.name,
@@ -123,7 +152,8 @@ export function normalizePublicDatabaseCatalog(
       engravingIncluded: row.engraving_included,
       jewelryBoxIncluded: row.jewelry_box_included,
       sizeMin: row.size_min,
-      sizeMax: row.size_max
+      sizeMax: row.size_max,
+      ...(specifications ? { technicalDetails: specifications } : {})
     });
     seenIds.add(publicId);
     seenSlugs.add(row.slug);

@@ -83,6 +83,22 @@ describe("catálogo público controlado", () => {
     expect(getProductSchema(rows[0])).toBeTruthy();
   });
 
+  it("publishes only known technical fields while preserving empty legacy values", () => {
+    const catalog = fixture();
+    expect(normalizePublicDatabaseCatalog(catalog, [product])[0]).not.toHaveProperty("technicalDetails");
+    Object.assign(catalog.products[0], {
+      approximate_weight_grams: "4.125", width_mm: "4.00", length_cm: null,
+      thickness_mm: "", finish: " Polido ", stone_type: "Zircônia", stone_quantity: 1,
+      technical_notes: "not public", shipping_weight_kg: 0.3
+    });
+    const [result] = normalizePublicDatabaseCatalog(catalog, [product]);
+    expect(result.technicalDetails).toMatchObject({ weightGrams: 4.125, widthMm: 4, finish: "Polido",
+      stoneType: "Zircônia", stoneQuantity: 1 });
+    expect(result.technicalDetails?.thicknessMm).toBeUndefined();
+    expect(result.technicalDetails?.lengthCm).toBeUndefined();
+    expect(JSON.stringify(result)).not.toMatch(/not public|shipping_weight/);
+  });
+
   it("preserva produto sem preço e regras das alianças", () => {
     const noPrice = { ...product, price: null, priceLabel: "Sob orçamento" };
     const catalog = fixture();

@@ -32,6 +32,20 @@ export type DatabaseProduct = {
   jewelry_box_included: boolean;
   size_min: number | null;
   size_max: number | null;
+  approximate_weight_grams?: number | string | null;
+  width_mm?: number | string | null;
+  thickness_mm?: number | string | null;
+  height_mm?: number | string | null;
+  length_cm?: number | string | null;
+  diameter_mm?: number | string | null;
+  finish?: string | null;
+  material_details?: string | null;
+  stone_type?: string | null;
+  stone_color?: string | null;
+  stone_quantity?: number | null;
+  gender_style?: string | null;
+  comfort_profile?: string | null;
+  structure_type?: string | null;
   updated_by?: string | null;
 };
 
@@ -61,6 +75,12 @@ const PRODUCT_COLUMNS = [
   "price_label_override", "installments_text_override", "description", "seo_title", "seo_description", "tags", "stock_status",
   "sale_unit", "is_custom_order", "is_active", "is_featured", "allow_whatsapp_quote",
   "engraving_available", "engraving_included", "jewelry_box_included", "size_min", "size_max", "updated_by"
+].join(",");
+
+const PUBLIC_PRODUCT_COLUMNS = [
+  PRODUCT_COLUMNS, "approximate_weight_grams", "width_mm", "thickness_mm", "height_mm",
+  "length_cm", "diameter_mm", "finish", "material_details", "stone_type", "stone_color",
+  "stone_quantity", "gender_style", "comfort_profile", "structure_type"
 ].join(",");
 
 async function readAllRows<T>(client: SupabaseClient, table: string, columns: string): Promise<T[]> {
@@ -98,7 +118,7 @@ export async function readPublicDatabaseCatalog(client: SupabaseClient): Promise
   for (let offset = 0; ; offset += PAGE_SIZE) {
     const { data, error } = await client
       .from("ecommerce_products")
-      .select(PRODUCT_COLUMNS)
+      .select(PUBLIC_PRODUCT_COLUMNS)
       .eq("is_active", true)
       .order("id")
       .range(offset, offset + PAGE_SIZE - 1);

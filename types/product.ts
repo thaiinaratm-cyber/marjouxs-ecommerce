@@ -11,6 +11,23 @@ export type CategoryName =
 
 export type StockStatus = "Disponível" | "Sob encomenda" | "Serviço" | "Indisponível";
 
+export type ProductTechnicalDetails = {
+  weightGrams?: number;
+  widthMm?: number;
+  thicknessMm?: number;
+  heightMm?: number;
+  lengthCm?: number;
+  diameterMm?: number;
+  finish?: string;
+  materialDetails?: string;
+  stoneType?: string;
+  stoneColor?: string;
+  stoneQuantity?: number;
+  genderStyle?: string;
+  comfortProfile?: "anatomica" | "reta";
+  structureType?: "solid" | "hollow";
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -41,6 +58,7 @@ export type Product = {
   jewelryBoxIncluded?: boolean;
   sizeMin?: number | null;
   sizeMax?: number | null;
+  technicalDetails?: ProductTechnicalDetails;
 };
 
 export type RingPairCustomization = {
