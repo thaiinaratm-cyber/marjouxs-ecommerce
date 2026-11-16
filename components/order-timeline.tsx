@@ -1,4 +1,4 @@
-import { Check, Circle } from "lucide-react";
+import { Check, Circle, Minus } from "lucide-react";
 import { getOrderTimeline } from "@/lib/order-status";
 import type { PublicOrder } from "@/types/checkout";
 
@@ -7,13 +7,17 @@ export function OrderTimeline({ order }: { order: PublicOrder }) {
 
   return (
     <ol
+      id="andamento-do-pedido"
       aria-label="Andamento do pedido"
-      className="mt-6 flex flex-col lg:flex-row"
+      tabIndex={-1}
+      className="mt-6 flex scroll-mt-36 flex-col lg:flex-row"
     >
       {steps.map((step, index) => {
         const complete = step.state === "complete";
-        const current = step.state === "current";
-        const stateLabel = complete ? "Concluído" : current ? "Etapa atual" : "Próxima etapa";
+        const current = step.current;
+        const untracked = step.state === "untracked";
+        const stateLabel = untracked ? "Sem atualização própria"
+          : complete ? "Concluído" : current ? "Etapa atual" : "Próxima etapa";
 
         return (
           <li
@@ -39,7 +43,9 @@ export function OrderTimeline({ order }: { order: PublicOrder }) {
               }`}
               aria-hidden="true"
             >
-              {complete ? <Check size={15} strokeWidth={2} /> : <Circle size={9} fill="currentColor" />}
+              {complete ? <Check size={15} strokeWidth={2} />
+                : untracked ? <Minus size={13} />
+                : <Circle size={9} fill={current ? "currentColor" : "none"} />}
             </span>
             <span className="min-w-0 pt-0.5 lg:px-1 lg:pt-0">
               <span

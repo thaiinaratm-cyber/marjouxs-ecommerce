@@ -43,8 +43,8 @@ function SupportLink({ order }: { order: PublicOrder | null }) {
   </a>;
 }
 
-export function OrderConfirmationView({ state, onRetry, focusOnResult = false }: {
-  state: ConfirmationState; onRetry: () => void; focusOnResult?: boolean;
+export function OrderConfirmationView({ state, onRetry, focusOnResult = false, tracking = false }: {
+  state: ConfirmationState; onRetry?: () => void; focusOnResult?: boolean; tracking?: boolean;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -52,10 +52,13 @@ export function OrderConfirmationView({ state, onRetry, focusOnResult = false }:
   }, [focusOnResult, state.phase, state.refreshing]);
   const { order, phase } = state;
   const retryAvailable = phase === "temporary_error" || phase === "pending_timeout";
-  const retryButton = <button type="button" onClick={onRetry} disabled={state.refreshing}
+  const retryButton = onRetry ? <button type="button" onClick={onRetry} disabled={state.refreshing}
     className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-black/15 bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:border-gold hover:text-gold disabled:opacity-60 sm:w-auto">
     <RefreshCw size={17} aria-hidden="true" />Consultar novamente
-  </button>;
+  </button> : tracking ? <Link href="/acompanhar-pedido"
+    className="inline-flex min-h-12 items-center justify-center px-4 text-sm font-semibold text-ink hover:text-gold">
+    Voltar à consulta
+  </Link> : null;
 
   if (!order) {
     const loading = phase === "loading";
@@ -115,15 +118,21 @@ export function OrderConfirmationView({ state, onRetry, focusOnResult = false }:
           <div className="min-w-0"><h2 id="next-steps-title" className="font-serif text-xl font-semibold text-ink">Próximos passos</h2>
             <p className="mt-2 text-sm leading-6 text-[#6f665c]">{paid
               ? order.deliveryMethod === "pickup"
-                ? `A confecção leva ${JEWELRY_PRODUCTION_DEADLINE}. Você será avisado quando o pedido estiver pronto para retirada.`
+                ? order.statusStage === "ready"
+                  ? "Seu pedido está disponível para retirada. Confira os dados da loja acima."
+                  : order.statusStage === "picked_up"
+                    ? "A retirada do seu pedido foi concluída."
+                    : `A confecção leva ${JEWELRY_PRODUCTION_DEADLINE}. Confira nesta página quando o pedido estiver disponível para retirada.`
                 : `A confecção leva ${JEWELRY_PRODUCTION_DEADLINE}. Depois, o envio seguirá pela transportadora e pelo serviço escolhidos.`
               : "A preparação começa após a confirmação real do pagamento."}</p>
           </div>
         </div>
       </section>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Link href={`/acompanhar-pedido?pedido=${encodeURIComponent(order.orderNumber)}`}
-          className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-gold sm:w-auto">Acompanhar pedido</Link>
+        {paid && !tracking ? <a href="#andamento-do-pedido"
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-gold sm:w-auto">Acompanhar meu pedido</a> : null}
+        {tracking && !retryAvailable ? <Link href="/acompanhar-pedido"
+          className="inline-flex min-h-12 items-center justify-center px-4 text-sm font-semibold text-ink hover:text-gold">Consultar outro pedido</Link> : null}
         {retryAvailable ? retryButton : null}{support ? <SupportLink order={order} /> : null}
         <Link href="/" className="inline-flex min-h-12 items-center justify-center px-6 py-3 text-sm font-semibold text-ink hover:text-gold">Voltar à loja</Link>
       </div>

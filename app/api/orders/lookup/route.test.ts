@@ -1,112 +1,98 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({
-  getPublicOrderByCustomer: vi.fn()
-}));
-
-vi.mock("@/lib/checkout/orders", () => ({
-  getPublicOrderByCustomer: mocks.getPublicOrderByCustomer
-}));
-
+const mocks = vi.hoisted(() => ({ verify: vi.fn(), limit: vi.fn() }));
+vi.mock("@/lib/orders/tracking-reader", () => ({ getVerifiedOrderAccessToken: mocks.verify }));
+vi.mock("@/lib/orders/tracking-limit", () => ({ consumeOrderLookup: mocks.limit }));
 import { POST } from "@/app/api/orders/lookup/route";
 
-function lookupRequest(body: unknown) {
+const token = "00000000-0000-4000-8000-000000000099";
+const valid = { orderNumber: "MJ-000123", phone: "11999999999" };
+
+function lookupRequest(body: unknown, headers: HeadersInit = { "Content-Type": "application/json" }) {
   return new Request("https://marjouxsjoias.com.br/api/orders/lookup", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+    method: "POST", headers, body: JSON.stringify(body)
   });
 }
 
-const publicOrder = {
-  orderNumber: "MJ-000123",
-  createdAt: "2026-09-14T12:00:00.000Z",
-  paymentStatus: "paid",
-  statusStage: "payment_approved",
-  deliveryMethod: "pickup",
-  shippingAddress: null,
-  shippingCarrier: null,
-  shippingService: null,
-  shippingDeadlineDays: null,
-  trackingCode: null,
-  subtotalCents: 10000,
-  shippingCents: 0,
-  discountCents: 0,
-  totalCents: 10000,
-  paidAt: "2026-09-14T12:05:00.000Z",
-  paymentMethod: "pix",
-  installments: 1,
-  receiptUrl: null,
-  items: []
-};
-
-describe("consulta pública de pedido", () => {
+describe("consulta de pedido por telefone", () => {
   beforeEach(() => {
-    mocks.getPublicOrderByCustomer.mockReset();
+    mocks.verify.mockReset();
+    mocks.limit.mockReset().mockReturnValue(0);
   });
 
-  it("normaliza número e e-mail antes da consulta", async () => {
-    mocks.getPublicOrderByCustomer.mockResolvedValue(publicOrder);
+  it.each(["(11) 99999-9999", "11999999999", "+55 11 99999-9999"])(
+    "normaliza %s e concede acesso somente via cookie restrito",
+    async phone => {
+      mocks.verify.mockResolvedValue(token);
+      const result = await POST(lookupRequest({ orderNumber: " mj000123 ", phone }));
+      expect(result.status).toBe(204);
+      expect(mocks.verify).toHaveBeenCalledWith("MJ-000123", valid.phone);
+      expect(result.headers.get("set-cookie")).toMatch(/Path=\/pedido\/acompanhamento;.*HttpOnly;.*SameSite=strict/i);
+      expect(result.headers.get("set-cookie")).toContain("Max-Age=1800");
+      expect(result.headers.get("cache-control")).toContain("no-store");
+      expect(result.headers.get("referrer-policy")).toBe("no-referrer");
+      expect(await result.text()).toBe("");
+      expect(result.headers.get("location")).toBeNull();
+    }
+  );
 
-    const response = await POST(
-      lookupRequest({ orderNumber: " mj000123 ", email: " Cliente@Example.com " })
-    );
-
-    expect(response.status).toBe(200);
-    expect(mocks.getPublicOrderByCustomer).toHaveBeenCalledWith(
-      "MJ-000123",
-      "cliente@example.com"
-    );
-    expect(response.headers.get("Cache-Control")).toContain("no-store");
+  it("sets Secure on production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      mocks.verify.mockResolvedValue(token);
+      expect((await POST(lookupRequest(valid))).headers.get("set-cookie")).toMatch(/;\s*Secure/);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
-  it("usa a mesma resposta para pedido inexistente e e-mail diferente", async () => {
-    mocks.getPublicOrderByCustomer.mockResolvedValue(null);
-
-    const first = await POST(
-      lookupRequest({ orderNumber: "MJ-000123", email: "incorreto@example.com" })
-    );
-    const second = await POST(
-      lookupRequest({ orderNumber: "MJ-999999", email: "cliente@example.com" })
-    );
-
-    expect(first.status).toBe(404);
-    expect(second.status).toBe(404);
-    await expect(first.json()).resolves.toEqual(await second.json());
+  it("does not distinguish a missing order from the wrong phone", async () => {
+    mocks.verify.mockResolvedValue(null);
+    const wrong = await POST(lookupRequest(valid));
+    const missing = await POST(lookupRequest({ ...valid, orderNumber: "MJ-999999" }));
+    expect(wrong.status).toBe(404);
+    expect(missing.status).toBe(404);
+    expect(wrong.headers.get("set-cookie")).toBeNull();
+    expect(await wrong.json()).toEqual(await missing.json());
   });
 
-  it("não devolve detalhes internos quando a consulta falha", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    mocks.getPublicOrderByCustomer.mockRejectedValue(
-      new Error("relation ecommerce_orders violated customer_email")
-    );
-
-    const response = await POST(
-      lookupRequest({ orderNumber: "MJ-000123", email: "cliente@example.com" })
-    );
-    const serialized = JSON.stringify(await response.json());
-
-    expect(response.status).toBe(503);
-    expect(serialized).not.toContain("ecommerce_orders");
-    expect(serialized).not.toContain("customer_email");
-    expect(serialized).not.toContain("cliente@example.com");
-    consoleError.mockRestore();
+  it.each([
+    { orderNumber: valid.orderNumber },
+    { orderNumber: valid.orderNumber, email: "qa@example.invalid" },
+    { ...valid, phone: "119999999991" },
+    { ...valid, phone: "+1 11 99999-9999" },
+    { ...valid, extra: "x".repeat(1024) }
+  ])("does not read the database on invalid credentials", async input => {
+    const result = await POST(lookupRequest(input));
+    expect(result.status).toBe(404);
+    expect(mocks.verify).not.toHaveBeenCalled();
   });
 
-  it("não consulta o banco quando a combinação está malformada", async () => {
-    const response = await POST(lookupRequest({ orderNumber: "123", email: "invalido" }));
-
-    expect(response.status).toBe(404);
-    expect(mocks.getPublicOrderByCustomer).not.toHaveBeenCalled();
-    await expect(response.json()).resolves.toMatchObject({ code: "order_not_found" });
+  it("rejects cross-site submissions before database access", async () => {
+    const result = await POST(lookupRequest(valid, { "Content-Type": "application/json", "Sec-Fetch-Site": "cross-site" }));
+    expect(result.status).toBe(404);
+    expect(mocks.verify).not.toHaveBeenCalled();
   });
-  it("projects out private fields even if a future reader accidentally returns them", async () => {
-    mocks.getPublicOrderByCustomer.mockResolvedValue({ ...publicOrder, customer_email: "private@example.invalid",
-      shippingAddress: { street: "private-address" }, receiptUrl: "https://example.invalid/private-receipt",
-      items: [{ productSlug: "qa", productName: "QA", productImage: "/qa.webp", category: "Alianças", material: "Ouro 18k",
-        quantity: 1, unitPriceCents: 10000, subtotalCents: 10000, customization: { ring1: { engraving: "private-engraving" } } }] });
-    const response = await POST(lookupRequest({ orderNumber: "MJ-000123", email: "qa@example.invalid" }));
-    expect(response.status).toBe(200);
-    expect(JSON.stringify(await response.json())).not.toMatch(/private-|private@|customer_email/);
+
+  it.each([false, true])("throttles before accessing the database (per order: %s)", async perOrder => {
+    mocks.limit.mockReturnValueOnce(perOrder ? 0 : 17).mockReturnValue(17);
+    const result = await POST(lookupRequest(valid));
+    expect(result.status).toBe(429);
+    expect(result.headers.get("retry-after")).toBe("17");
+    expect(mocks.verify).not.toHaveBeenCalled();
+  });
+
+  it("does not leak internal errors or customer data", async () => {
+    const logger = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      mocks.verify.mockRejectedValue(Error("checkout_url, customer_phone, provider ID"));
+      const result = await POST(lookupRequest(valid));
+      expect(result.status).toBe(503);
+      expect(result.headers.get("set-cookie")).toBeNull();
+      expect(await result.text()).not.toMatch(/checkout_url|customer_phone|provider ID/);
+      expect(logger.mock.lastCall).toEqual(["Public order lookup is temporarily unavailable"]);
+    } finally {
+      logger.mockRestore();
+    }
   });
 });

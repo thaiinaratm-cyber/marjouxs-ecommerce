@@ -5,12 +5,13 @@ import type {
 } from "@/types/checkout";
 import type { CartLine } from "@/types/product";
 
-export type OrderTimelineState = "complete" | "current" | "upcoming";
+export type OrderTimelineState = "complete" | "current" | "upcoming" | "untracked";
 
 export type OrderTimelineStep = {
   id: string;
   label: string;
   state: OrderTimelineState;
+  current: boolean;
 };
 
 const shippingSteps = [
@@ -18,8 +19,8 @@ const shippingSteps = [
   ["payment_approved", "Pagamento aprovado"],
   ["production", "Em produção"],
   ["quality", "Controle de qualidade"],
-  ["ready", "Pronto para envio"],
   ["shipped", "Enviado"],
+  ["in_transit", "Em trânsito"],
   ["delivered", "Entregue"]
 ] as const;
 
@@ -28,7 +29,7 @@ const pickupSteps = [
   ["payment_approved", "Pagamento aprovado"],
   ["production", "Em produção"],
   ["quality", "Controle de qualidade"],
-  ["ready", "Pronto para retirada"],
+  ["ready", "Disponível para retirada"],
   ["picked_up", "Retirado"]
 ] as const;
 
@@ -90,18 +91,29 @@ export function getOrderPresentationStage({
     : "payment_approved";
 }
 
-export function getOrderTimeline(order: Pick<PublicOrder, "deliveryMethod" | "statusStage">) {
+export function getOrderTimeline(order: Pick<PublicOrder, "deliveryMethod" | "statusStage" | "paymentStatus">) {
   const steps = order.deliveryMethod === "pickup" ? pickupSteps : shippingSteps;
-  const currentIndex = Math.max(
-    0,
-    steps.findIndex(([id]) => id === order.statusStage)
-  );
+  const paid = order.paymentStatus === "paid";
+  const currentIndex = paid ? Math.max(1, steps.findIndex(([id]) => id === order.statusStage)) : 1;
+  const paymentLabel = {
+    paid: "Pagamento aprovado",
+    pending: "Pagamento aguardando",
+    failed: "Pagamento não confirmado",
+    requires_review: "Pagamento em análise"
+  }[order.paymentStatus];
 
-  return steps.map(([id, label], index): OrderTimelineStep => ({
-    id,
-    label,
-    state: index < currentIndex ? "complete" : index === currentIndex ? "current" : "upcoming"
-  }));
+  return steps.map(([id, label], index): OrderTimelineStep => {
+    const current = index === currentIndex;
+    const untracked = id === "in_transit" || (id === "quality" && !current);
+    return {
+      id,
+      current,
+      label: id === "payment_approved" ? paymentLabel : label,
+      state: untracked ? "untracked"
+        : index < currentIndex || (id === "payment_approved" && paid) ? "complete"
+        : current ? "current" : "upcoming"
+    };
+  });
 }
 
 export function formatOrderDate(value: string) {

@@ -40,6 +40,7 @@ describe("getOrderTimeline", () => {
   it("não avança além de pedido recebido enquanto o pagamento está pendente", () => {
     const timeline = getOrderTimeline({
       deliveryMethod: "shipping",
+      paymentStatus: "pending",
       statusStage: getOrderPresentationStage({
         deliveryMethod: "shipping",
         paymentStatus: "pending",
@@ -47,13 +48,15 @@ describe("getOrderTimeline", () => {
       })
     });
 
-    expect(timeline[0].state).toBe("current");
-    expect(timeline.slice(1).every((step) => step.state === "upcoming")).toBe(true);
+    expect(timeline[0].state).toBe("complete");
+    expect(timeline[1]).toMatchObject({ label: "Pagamento aguardando", current: true, state: "current" });
+    expect(timeline.slice(2).every((step) => !step.current && step.state !== "complete")).toBe(true);
   });
 
   it("usa o pagamento confirmado como sinal real para aprovar a segunda etapa", () => {
     const timeline = getOrderTimeline({
       deliveryMethod: "pickup",
+      paymentStatus: "paid",
       statusStage: getOrderPresentationStage({
         deliveryMethod: "pickup",
         paymentStatus: "paid",
@@ -61,14 +64,17 @@ describe("getOrderTimeline", () => {
       })
     });
 
-    expect(timeline.map((step) => step.label)).toContain("Pronto para retirada");
+    expect(timeline.map((step) => step.label)).toEqual([
+      "Pedido recebido", "Pagamento aprovado", "Em produção", "Controle de qualidade", "Disponível para retirada", "Retirado"
+    ]);
     expect(timeline[0].state).toBe("complete");
-    expect(timeline[1].state).toBe("current");
+    expect(timeline[1]).toMatchObject({ state: "complete", current: true });
   });
 
   it("só apresenta produção quando o status operacional e o pagamento permitem", () => {
     const timeline = getOrderTimeline({
       deliveryMethod: "shipping",
+      paymentStatus: "paid",
       statusStage: getOrderPresentationStage({
         deliveryMethod: "shipping",
         paymentStatus: "paid",
@@ -92,11 +98,20 @@ describe("getOrderTimeline", () => {
     });
 
     expect(
-      getOrderTimeline({ deliveryMethod: "shipping", statusStage: deliveredStage }).at(-1)
+      getOrderTimeline({ deliveryMethod: "shipping", statusStage: deliveredStage, paymentStatus: "paid" }).at(-1)
     ).toMatchObject({ label: "Entregue", state: "current" });
     expect(
-      getOrderTimeline({ deliveryMethod: "pickup", statusStage: pickupStage })[4]
-    ).toMatchObject({ label: "Pronto para retirada", state: "current" });
+      getOrderTimeline({ deliveryMethod: "pickup", statusStage: pickupStage, paymentStatus: "paid" })[4]
+    ).toMatchObject({ label: "Disponível para retirada", state: "current" });
+  });
+
+  it("shows dispatch without inventing independent quality or transit updates", () => {
+    const timeline = getOrderTimeline({ deliveryMethod: "shipping", statusStage: "shipped", paymentStatus: "paid" });
+    expect(timeline.map(step => step.label)).toEqual([
+      "Pedido recebido", "Pagamento aprovado", "Em produção", "Controle de qualidade", "Enviado", "Em trânsito", "Entregue"
+    ]);
+    expect(timeline.filter(step => step.current).map(step => step.id)).toEqual(["shipped"]);
+    expect(timeline.filter(step => step.state === "untracked").map(step => step.id)).toEqual(["quality", "in_transit"]);
   });
 
   it("não inventa avanço quando recebe um status operacional desconhecido", () => {

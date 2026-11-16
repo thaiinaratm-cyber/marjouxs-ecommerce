@@ -38,7 +38,8 @@ describe("post-payment confirmation HTML", () => {
   });
   it("paid explains next steps and production time without a new payment CTA", () => {
     const html = render({ phase: "ready", order: confirmationFixture({ paymentStatus: "paid", paidAt: "2026-11-04T12:01:00Z" }), refreshing: false });
-    expect(html).toContain("3 a 5 dias úteis"); expect(html).toContain("Acompanhar pedido");
+    expect(html).toContain("3 a 5 dias úteis"); expect(html).toContain("Acompanhar meu pedido");
+    expect(html).toContain('href="#andamento-do-pedido"');
     expect(html).not.toContain("Consultar novamente"); expect(html).not.toContain("Falar com a Marjouxs");
   });
   it.each(["requires_review", "failed"] as const)("%s offers support and return, without new checkout", paymentStatus => {

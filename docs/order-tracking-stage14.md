@@ -1,0 +1,8 @@
+# Acompanhamento de pedidos
+
+- O formulario de /acompanhar-pedido envia numero e telefone via POST. Formatos nacionais e com +55 sao equivalentes, sem gravar no pedido e sem aceitar digitos excedentes. Dados incorretos e pedido inexistente tem a mesma resposta.
+- A API nao devolve dados do pedido. A sessao de 30 minutos usa o token ja existente em cookie HttpOnly, SameSite=Strict, Secure em producao e restrito a /pedido/acompanhamento. A pagina privada e a confirmacao original usam a mesma projecao de dados publicos e permanecem noindex. A area de acompanhamento nao limpa a sacola e nao dispara conversao de compra.
+- Netlify limita o POST do lookup a 8 requisicoes por minuto por IP e dominio. A rota limita tambem a 6 consultas por pedido e 120 requisicoes por minuto por processo, sem depender de cabecalhos de IP vindos do cliente. Os limites locais complementam o limite de borda; nao sao contadores globais entre processos. Conferir a regra no post-processing do deploy.
+- O pagamento pendente fica no passo de pagamento. O status pago confirma o passo; preparing avanca para producao. Em retirada, ready_for_pickup indica disponibilidade na loja e completed indica retirado. Em envio, shipped indica despacho e completed indica entregue.
+- Controle de qualidade e Em transito nao tem status operacional independente. Aparecem sem atualizacao propria, sem avanco por tempo. Nao ha tracking_code ou tracking_url no schema auditado; a transportadora existente e exibida, sem link de rastreio ou simulacao de atualizacoes automaticas.
+- Nao ha mudanca de schema, pagamento, checkout, postagem ou envio de e-mail.

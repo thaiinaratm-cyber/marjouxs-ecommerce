@@ -59,8 +59,11 @@ describe("Next 15 asynchronous request props", () => {
     const token = "00000000-0000-4000-8000-000000000099";
     expect((await ConfirmationPage({ searchParams: Promise.resolve({ token }) })).props).toEqual({ token });
   });
-  it("preserves the resolved tracking order number", async () => {
-    expect((await TrackingPage({ searchParams: Promise.resolve({ pedido: "MJ-000123" }) })).props)
-      .toEqual({ initialOrderNumber: "MJ-000123" });
+  it("renders the tracking lookup without identifiers in the URL", () => {
+    const page = TrackingPage();
+    expect(page.props).toEqual({});
+    const html = renderToStaticMarkup(page);
+    expect(html).toContain('method="post"');
+    expect(html).toContain("Telefone usado na compra");
   });
 });

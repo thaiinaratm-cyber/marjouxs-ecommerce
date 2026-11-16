@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Clock3, ExternalLink, MapPin, PackageCheck, Truck } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
-import { STORE_ADDRESS } from "@/lib/constants";
+import { STORE_ADDRESS, STORE_NAME } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
 import { getShippingAddressLines } from "@/lib/order-status";
 import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
@@ -141,6 +141,7 @@ export function OrderDeliveryDetails({ order, hidePrivateDetails = false }: { or
           </h2>
           {order.deliveryMethod === "pickup" ? (
             <address className="mt-2 not-italic text-sm leading-6 text-taupe">
+              <span className="block">{STORE_NAME} · {STORE_ADDRESS.unit}</span>
               <span className="block">{STORE_ADDRESS.street}</span>
               <span className="block">{STORE_ADDRESS.complement}</span>
               <span className="block">{STORE_ADDRESS.city} - {STORE_ADDRESS.state}</span>

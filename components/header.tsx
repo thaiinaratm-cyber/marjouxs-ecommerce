@@ -11,6 +11,7 @@ import {
   Infinity,
   Link2,
   Menu,
+  PackageSearch,
   Search,
   ShoppingBag,
   Sparkles,
@@ -410,7 +411,7 @@ export function Header({ catalogSource = "static" }: { catalogSource?: CatalogSo
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-pearl/95 backdrop-blur">
       <div className="mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 md:grid-cols-[auto_minmax(0,1fr)_auto]">
           <Link href="/" className="leading-tight" onClick={closeMenus}>
             <span className="block font-serif text-2xl font-semibold tracking-normal text-ink md:text-[1.875rem]">Marjouxs</span>
             <span className="block text-[11px] uppercase tracking-[0.24em] text-taupe md:text-[13px]">JOIAS E ALIANÇAS</span>
@@ -421,6 +422,12 @@ export function Header({ catalogSource = "static" }: { catalogSource?: CatalogSo
           </div>
 
           <div className="flex items-center gap-2 justify-self-end">
+            <Link href="/acompanhar-pedido" onClick={closeMenus} aria-label="Acompanhar pedido"
+              title="Acompanhar pedido"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center gap-2 rounded-full text-sm font-medium text-ink/80 hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold lg:w-auto lg:px-2">
+              <PackageSearch size={20} aria-hidden="true" />
+              <span className="hidden lg:inline">Acompanhar pedido</span>
+            </Link>
             <button
               type="button"
               onClick={() => {
@@ -554,6 +561,11 @@ export function Header({ catalogSource = "static" }: { catalogSource?: CatalogSo
       {isOpen && (
         <nav className="marjouxs-scrollbar max-h-[calc(100svh-8.5rem)] overflow-y-auto overscroll-contain border-t border-black/10 bg-pearl px-4 py-3 pb-28 lg:hidden">
           <div className="mx-auto grid max-w-7xl gap-2">
+            <Link href="/acompanhar-pedido" onClick={closeMenus}
+              className="inline-flex min-h-11 items-center gap-2 rounded-md px-3 py-3 text-sm font-medium text-ink hover:bg-champagne">
+              <PackageSearch size={18} className="text-gold" aria-hidden="true" />
+              Acompanhar pedido
+            </Link>
             {navItems.map((item) => (
               <Link
                 key={item.href}

@@ -3,6 +3,7 @@ export const STORE_NAME = "Marjouxs";
 export const STORE_ADDRESS = {
   street: "Avenida João Manoel, 600",
   complement: "Prédio JM 600 - Térreo",
+  unit: "Loja 05",
   city: "Arujá",
   state: "SP",
   postalCode: "07400610"
