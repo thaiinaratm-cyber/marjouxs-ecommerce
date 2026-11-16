@@ -9,7 +9,7 @@ import type { ConfirmationState } from "@/lib/checkout/confirmation-polling";
 import type { PublicOrder } from "@/types/checkout";
 describe("customer confirmation copy", () => {
   it.each([
-    ["paid", "Pagamento confirmado"], ["pending", "Aguardando confirmação"],
+    ["paid", "Pagamento aprovado"], ["pending", "Aguardando confirmação"],
     ["requires_review", "Seu pagamento está em verificação"], ["failed", "Não foi possível confirmar este pagamento"]
   ] as const)("%s is described without inventing a refusal or expiry", (paymentStatus, title) => {
     const copy = getConfirmationCopy({ paymentStatus } as PublicOrder);
@@ -26,7 +26,7 @@ describe("post-payment confirmation HTML", () => {
   it("loading is visible and never pretends payment was confirmed", () => {
     const html = renderToStaticMarkup(<OrderConfirmation token="invalid" />);
     expect(html).toContain("Consultando seu pedido"); expect(html).toContain('aria-busy="true"');
-    expect(html).not.toContain("Pagamento confirmado"); expect(html).not.toContain("Ir para o pagamento");
+    expect(html).not.toContain("Pagamento aprovado"); expect(html).not.toContain("Ir para o pagamento");
   });
   it.each(["paid", "pending", "requires_review", "failed"] as const)("%s has clear status, order reference and total", paymentStatus => {
     const order = confirmationFixture({ paymentStatus, paidAt: paymentStatus === "paid" ? "2026-11-04T12:01:00Z" : null });
@@ -51,12 +51,12 @@ describe("post-payment confirmation HTML", () => {
   it("long pending offers support and a read-only retry, without declaring expiry or failed", () => {
     const html = render({ phase: "pending_timeout", order: confirmationFixture(), refreshing: false });
     expect(html).toContain("Você não precisa pagar novamente"); expect(html).toContain("Consultar novamente");
-    expect(html).toContain("wa.me/5511919964393"); expect(html).not.toMatch(/pagamento recusado|pagamento expirado|Pagamento confirmado/);
+    expect(html).toContain("wa.me/5511919964393"); expect(html).not.toMatch(/pagamento recusado|pagamento expirado|Pagamento aprovado/);
   });
   it.each(["invalid", "temporary_error"] as const)("%s is generic and never reveals a customer or a paid claim", phase => {
     const html = render({ phase, order: null, refreshing: false });
     expect(html).toContain("Falar com a Marjouxs"); expect(html).not.toContain("MJ-000123");
-    expect(html).not.toContain("Pagamento confirmado");
+    expect(html).not.toContain("Pagamento aprovado");
     expect(html.includes("Consultar novamente")).toBe(phase === "temporary_error");
   });
   it("a temporary read error preserves the last pending state and explains stale information", () => {

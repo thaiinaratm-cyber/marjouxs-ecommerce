@@ -623,8 +623,8 @@ export default function CheckoutPage() {
     return (
       <section className="mx-auto grid min-h-[55svh] max-w-3xl place-items-center px-4 py-12 text-center sm:px-6 lg:px-8">
         <div>
-          <h1 className="font-serif text-4xl font-semibold text-ink">Nenhum item no checkout</h1>
-          <p className="mt-3 text-taupe">Adicione produtos à sacola antes de finalizar.</p>
+          <h1 className="font-serif text-4xl font-semibold text-ink">Sua sacola está vazia</h1>
+          <p className="mt-3 text-taupe">Adicione produtos à sacola para continuar.</p>
           <Link
             href="/produtos"
             className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-gold"
@@ -639,13 +639,13 @@ export default function CheckoutPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8 max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Checkout seguro</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Compra segura</p>
         <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          Finalize seu pedido
+          Finalizar compra
         </h1>
         <p className="mt-4 leading-7 text-taupe">
-          Escolha entrega ou retirada, confira os dados e siga para o ambiente seguro da
-          InfinitePay.
+          Escolha entre entrega e retirada na loja. Confira seus dados antes de seguir para o
+          pagamento na InfinitePay.
         </p>
       </div>
 
@@ -725,7 +725,7 @@ export default function CheckoutPage() {
                   {deliveryMethod === "pickup" ? "Prazo de confecção" : "Confecção"}: {JEWELRY_PRODUCTION_DEADLINE}
                 </strong>
                 {deliveryMethod === "pickup"
-                  ? "Você será avisado quando o pedido estiver pronto para retirada."
+                  ? "Você será avisado quando o pedido estiver disponível para retirada."
                   : "O prazo de transporte é informado separadamente e começa após a confecção."}
               </p>
             </div>
@@ -1146,7 +1146,7 @@ export default function CheckoutPage() {
                 </dt>
                 <dd className="text-right font-medium text-ink">
                   {deliveryMethod === "pickup"
-                    ? "Após confirmação de pedido pronto"
+                    ? "Quando o pedido estiver disponível para retirada"
                     : selectedShipping
                       ? `Até ${selectedShipping.deliveryTimeDays} dias úteis`
                       : "Selecione uma modalidade"}

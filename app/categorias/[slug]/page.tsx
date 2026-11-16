@@ -375,7 +375,7 @@ export default async function CategoryPage({
         initialOrder={sortOrder}
         products={filteredProducts}
         showCategoryFilter={false}
-        emptyMessage="Nenhum produto com imagem cadastrado nesta categoria."
+        emptyMessage="Nenhum produto disponível nesta categoria no momento."
         itemListName={category.name}
         source="category_page"
       />

@@ -44,7 +44,7 @@ export function AddToCartButton({
       className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-gold ${className}`}
     >
       <ShoppingBag size={18} />
-      {wasAdded ? "Adicionado" : compact ? "Comprar" : "Adicionar ao carrinho"}
+      {wasAdded ? "Adicionado" : compact ? "Comprar" : "Adicionar à sacola"}
     </button>
   );
 }

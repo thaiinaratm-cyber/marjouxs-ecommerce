@@ -15,7 +15,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-polida-3200.png"
     ],
@@ -38,7 +38,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "Sob orçamento",
     "installments": "Consulte condições de parcelamento",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. Modelo anatômico.",
     "images": [
       "/produtos/placeholder-joia.svg"
     ],
@@ -61,7 +61,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 249,90",
     "installments": "Até 3x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 925. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/placeholder-joia.svg"
     ],
@@ -383,7 +383,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-namoro-380.png"
     ],
@@ -406,7 +406,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-ancora-590.png"
     ],
@@ -429,7 +429,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 320,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. O chanfro destaca as bordas do par.",
     "images": [
       "/produtos/alianca-prata-950-chanfrado-320.png"
     ],
@@ -452,7 +452,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 580,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-coracao-580.png"
     ],
@@ -475,7 +475,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-coracao-590.png"
     ],
@@ -498,7 +498,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 1.400,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-coroa-1400.png"
     ],
@@ -521,7 +521,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-380 (2).png"
     ],
@@ -544,7 +544,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-380.png"
     ],
@@ -567,7 +567,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 410,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-410.png"
     ],
@@ -590,7 +590,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 580,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-580.png"
     ],
@@ -613,7 +613,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 160,00",
     "installments": "Até 6x sem juros",
-    "description": "Anel em Prata 950 solitário, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel solitario prata. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel solitário em Prata 950, para usar sozinho ou acompanhar uma aliança.",
     "images": [
       "/produtos/anel-solitario-prata-950-160.png"
     ],
@@ -636,7 +636,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-fosca-3600.jpeg.png"
     ],
@@ -659,7 +659,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-fosca-3600.png"
     ],
@@ -682,7 +682,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-fosca-polida-2900.png"
     ],
@@ -705,7 +705,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-frezo-5900.png"
     ],
@@ -728,7 +728,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-lisa-3600.png"
     ],
@@ -751,7 +751,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-pedra-7200.png"
     ],
@@ -774,7 +774,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-pedra-8600.png"
     ],
@@ -797,7 +797,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.800,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-personalizado-7800.png"
     ],
@@ -820,7 +820,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.500,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-3500.png"
     ],
@@ -843,7 +843,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.800,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k meia ailanca pedra. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Meia-aliança em Ouro 18k com detalhe em pedra. Pode ser usada sozinha ou junto a outros anéis.",
     "images": [
       "/produtos/anel-ouro-18k-meia-ailanca-pedra-4800.png"
     ],
@@ -866,7 +866,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-batimento-cardiaco-590.png"
     ],
@@ -889,7 +889,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 420,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-coracao-420.png"
     ],
@@ -912,7 +912,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 480,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-coracao-pedra-480.png"
     ],
@@ -935,7 +935,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 320,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-320.png"
     ],
@@ -958,7 +958,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 390,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-390.png"
     ],
@@ -981,7 +981,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-notas-musicais-490.png"
     ],
@@ -1004,7 +1004,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 460,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-patas-460.png"
     ],
@@ -1027,7 +1027,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 780,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-pedras-780.png"
     ],
@@ -1050,7 +1050,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 520,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-pedras-azul-520.png"
     ],
@@ -1073,7 +1073,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 580,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-pedras-coloridas-580.png"
     ],
@@ -1096,7 +1096,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 610,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-persolaziada-610.png"
     ],
@@ -1119,7 +1119,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 440,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-personalizado-440.png"
     ],
@@ -1142,7 +1142,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/combo-alianca-prata-950-solitario-380.png"
     ],
@@ -1165,7 +1165,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 390,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/combo-alianca-prata-950-solitario-390.png"
     ],
@@ -1188,7 +1188,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/combo-alianca-prata-950-solitario-490.png"
     ],
@@ -1211,7 +1211,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/combo-alianca-prata-950-solitario-590 (2).png"
     ],
@@ -1234,7 +1234,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/combo-alianca-prata-950-solitario-590.png"
     ],
@@ -1257,7 +1257,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 340,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-coracao-vazado-340.jpg"
     ],
@@ -1280,7 +1280,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-fosca-380.jpg"
     ],
@@ -1303,7 +1303,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 410,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-fosca-410.jpg"
     ],
@@ -1326,7 +1326,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-fosca-590.jpg"
     ],
@@ -1349,7 +1349,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 280,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. O perfil arredondado dá suavidade ao desenho.",
     "images": [
       "/produtos/alianca-prata-950-lisa-redonda-280.jpg"
     ],
@@ -1372,7 +1372,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 320,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-320.jpg"
     ],
@@ -1395,7 +1395,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-380 (2).jpg"
     ],
@@ -1418,7 +1418,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-380 (3).jpg"
     ],
@@ -1441,7 +1441,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-380.jpg"
     ],
@@ -1464,7 +1464,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 440,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-440.jpg"
     ],
@@ -1487,7 +1487,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 470,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-470.jpg"
     ],
@@ -1510,7 +1510,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 560,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-560.jpg"
     ],
@@ -1533,7 +1533,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 620,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-620.jpg"
     ],
@@ -1556,7 +1556,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 430,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhada-estrela-430.jpg"
     ],
@@ -1579,7 +1579,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-590.jpg"
     ],
@@ -1602,7 +1602,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Combo completo com par de alianças em ouro 18k e anel solitário, feito sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Ouro 18k e um anel solitário, feito sob encomenda.",
     "images": [
       "/produtos/combo-alianca-ouro-18k-solitario-5200.png"
     ],
@@ -1625,7 +1625,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 299,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/combo-alianca-prata-950-solitario-299.jpg"
     ],
@@ -1648,7 +1648,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 349,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/combo-alianca-prata-950-solitario-349.png"
     ],
@@ -1671,7 +1671,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 299,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/combo-alianca-prata-950-solitario-quadrado-liso-299.jpg"
     ],
@@ -1694,7 +1694,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 360,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-360.png"
     ],
@@ -1717,7 +1717,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 760,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-com-pedras-760.png"
     ],
@@ -1740,7 +1740,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-fosco-590.png"
     ],
@@ -1763,7 +1763,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-com-coracao-6900-6100.png"
     ],
@@ -1786,7 +1786,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-com-diamantes-9600.png"
     ],
@@ -1809,7 +1809,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.400,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-concava-fosca-6400.png"
     ],
@@ -1832,7 +1832,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-coracao-5900.png"
     ],
@@ -1855,7 +1855,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.300,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-diamantes-8300.png"
     ],
@@ -1878,7 +1878,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.300,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-fosca-4900-4300.png"
     ],
@@ -1901,7 +1901,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-fosca-6200.png"
     ],
@@ -1924,7 +1924,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.300,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-fosca-6300.png"
     ],
@@ -1947,7 +1947,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.790,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-fosca-6790.png"
     ],
@@ -1970,7 +1970,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.700,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-Lisa-6700.png"
     ],
@@ -1993,7 +1993,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-pedras-6100.png"
     ],
@@ -2016,7 +2016,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-pedras-8900.png"
     ],
@@ -2039,7 +2039,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.800,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-pedras-9800.png"
     ],
@@ -2062,7 +2062,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-persolizado-inicial-diamantes-8900-7900.png"
     ],
@@ -2085,7 +2085,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-polida-3200.png"
     ],
@@ -2108,7 +2108,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.800,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-polida-4800.png"
     ],
@@ -2131,7 +2131,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.700,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-trabalhado-3200-2700.jpeg"
     ],
@@ -2154,7 +2154,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.800,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-trabalhado-3300-2800.png"
     ],
@@ -2177,7 +2177,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.700,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-trabalhado-3700.png"
     ],
@@ -2200,7 +2200,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.800,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-trabalhado-4800.png"
     ],
@@ -2223,7 +2223,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-trabalhado-9200.png"
     ],
@@ -2246,7 +2246,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.980,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-trabalhado-folha-7350-6980.png"
     ],
@@ -2269,7 +2269,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.400,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/aliancas-ouro-18k-750-trabalhado-pedras-7400.png"
     ],
@@ -2292,7 +2292,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-batimentos-cardiacos-490.png"
     ],
@@ -2315,7 +2315,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "Sob orçamento",
     "installments": "Consulte condições de parcelamento",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. O chanfro destaca as bordas do par.",
     "images": [
       "/produtos/alianca-prata-950-chanfrado-.png"
     ],
@@ -2338,7 +2338,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 460,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. O chanfro destaca as bordas do par.",
     "images": [
       "/produtos/alianca-prata-950-chanfrado-sol-e-lua-460.png"
     ],
@@ -2361,7 +2361,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 420,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-com-frezo-dourado-fosco-420.png"
     ],
@@ -2384,7 +2384,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 390,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-com-frezo-fosco-390.png"
     ],
@@ -2407,7 +2407,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 560,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-com-frezo-fosco-560.png"
     ],
@@ -2430,7 +2430,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-com-pedras-490.png"
     ],
@@ -2453,7 +2453,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 990,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-com-pedras-990.png"
     ],
@@ -2476,7 +2476,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-com-resina-590.png"
     ],
@@ -2499,7 +2499,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 460,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-com-resina-colorida-460.png"
     ],
@@ -2522,7 +2522,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 460,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-com-simbolo-infinito-460.png"
     ],
@@ -2545,7 +2545,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 890,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-coracao-com-frezo-dourado-890.png"
     ],
@@ -2568,7 +2568,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 520,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-data-personalizada-polida-520.png"
     ],
@@ -2591,7 +2591,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 320,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-fina-320.png"
     ],
@@ -2614,7 +2614,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-personalizado-nome-490.png"
     ],
@@ -2637,7 +2637,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-polida-490.png"
     ],
@@ -2660,7 +2660,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 390,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-polida-com-frezo-390.png"
     ],
@@ -2683,7 +2683,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 360,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. O perfil arredondado dá suavidade ao desenho.",
     "images": [
       "/produtos/alianca-prata-950-redonda-360.png"
     ],
@@ -2706,7 +2706,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 390,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. O perfil arredondado dá suavidade ao desenho.",
     "images": [
       "/produtos/alianca-prata-950-redonda-com-frezo-polida-390.png"
     ],
@@ -2729,7 +2729,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 340,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. O perfil arredondado dá suavidade ao desenho.",
     "images": [
       "/produtos/alianca-prata-950-redonda-com-pedra-340.png"
     ],
@@ -2752,7 +2752,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-590.png"
     ],
@@ -2775,7 +2775,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 760,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-760.png"
     ],
@@ -2798,7 +2798,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 520,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-com-pedras-520.png"
     ],
@@ -2821,7 +2821,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 460,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-fosco-460.png"
     ],
@@ -2844,7 +2844,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950.",
     "images": [
       "/produtos/alianca-prata-950-trabalhado-fosco-490.png"
     ],
@@ -3189,7 +3189,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.060,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel de formatura em Ouro 18k, personalizado de acordo com a área de formação do cliente.\n\nA cor da pedra central será definida conforme o curso escolhido, e o símbolo aplicado nas laterais do anel também será personalizado de acordo com a profissão ou área de formação.\n\nA imagem representa o modelo e o acabamento do anel. A cor da pedra e os símbolos laterais podem variar conforme a personalização solicitada.\n\nApós a compra, nossa equipe entrará em contato para confirmar:\n\n• Curso ou área de formação\n• Cor da pedra\n• Símbolo das laterais\n• Numeração do aro\n\nProduto personalizado e confeccionado sob encomenda.",
+    "description": "Anel de formatura em Ouro 18k, feito sob encomenda. A cor da pedra central e os símbolos nas laterais seguem a área de formação.\n\nApós a compra, a equipe confirma o curso, a cor da pedra, os símbolos e a numeração do aro. A foto ilustra o modelo; esses detalhes podem variar.",
     "images": [
       "/produtos/anel-formatura-ouro-18k-4060.jpeg.webp"
     ],
@@ -4224,7 +4224,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.300,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel de formatura em Ouro 18k, personalizado de acordo com a área de formação do cliente.\n\nA cor da pedra central será definida conforme o curso escolhido, e o símbolo aplicado nas laterais do anel também será personalizado de acordo com a profissão ou área de formação.\n\nA imagem representa o modelo e o acabamento do anel. A cor da pedra e os símbolos laterais podem variar conforme a personalização solicitada.\n\nApós a compra, nossa equipe entrará em contato para confirmar:\n\n• Curso ou área de formação\n• Cor da pedra\n• Símbolo das laterais\n• Numeração do aro\n\nProduto personalizado e confeccionado sob encomenda.",
+    "description": "Anel de formatura em Ouro 18k, feito sob encomenda. A cor da pedra central e os símbolos nas laterais seguem a área de formação.\n\nApós a compra, a equipe confirma o curso, a cor da pedra, os símbolos e a numeração do aro. A foto ilustra o modelo; esses detalhes podem variar.",
     "images": [
       "/produtos/anel-formatura-ouro-18k-6300.jpeg.webp"
     ],
@@ -4523,7 +4523,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 11.340,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-11340.jpeg"
     ],
@@ -4546,7 +4546,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 1.540,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-1540.jpeg"
     ],
@@ -4569,7 +4569,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-2100 (2).jpeg"
     ],
@@ -4592,7 +4592,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-2100.jpeg"
     ],
@@ -4615,7 +4615,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-2600 (2).jpeg"
     ],
@@ -4638,7 +4638,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-2600.jpeg"
     ],
@@ -4661,7 +4661,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.660,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-2660 (2).jpeg"
     ],
@@ -4684,7 +4684,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.660,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-2660.jpeg"
     ],
@@ -4707,7 +4707,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.080,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3080 (2).jpeg"
     ],
@@ -4730,7 +4730,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.080,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3080 (3).jpeg"
     ],
@@ -4753,7 +4753,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.080,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3080 (4).jpeg"
     ],
@@ -4776,7 +4776,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.080,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3080.jpeg"
     ],
@@ -4799,7 +4799,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.360,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3360 (2).jpeg"
     ],
@@ -4822,7 +4822,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.360,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3360 (3).jpeg"
     ],
@@ -4845,7 +4845,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.360,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3360 (4).jpeg"
     ],
@@ -4868,7 +4868,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.360,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3360 (5).jpeg"
     ],
@@ -4891,7 +4891,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.360,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3360 (6).jpeg"
     ],
@@ -4914,7 +4914,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.360,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3360.jpeg"
     ],
@@ -4937,7 +4937,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.640,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3640 (2).jpeg"
     ],
@@ -4960,7 +4960,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.640,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3640.jpeg"
     ],
@@ -4983,7 +4983,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.780,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3780 (2).jpeg"
     ],
@@ -5006,7 +5006,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.780,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3780.jpeg"
     ],
@@ -5029,7 +5029,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.920,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-3920.jpeg"
     ],
@@ -5052,7 +5052,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.060,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-4060 (2).jpeg"
     ],
@@ -5075,7 +5075,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.060,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-4060 (3).jpeg"
     ],
@@ -5098,7 +5098,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.060,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-4060.jpeg"
     ],
@@ -5121,7 +5121,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-4200.jpeg"
     ],
@@ -5144,7 +5144,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.760,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-4760 (2).jpeg"
     ],
@@ -5167,7 +5167,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.760,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-4760.jpeg"
     ],
@@ -5190,7 +5190,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-5040 (2).jpeg"
     ],
@@ -5213,7 +5213,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-5040 (3).jpeg"
     ],
@@ -5236,7 +5236,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-5040 (4).jpeg"
     ],
@@ -5259,7 +5259,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-5040.jpeg"
     ],
@@ -5282,7 +5282,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-5600.jpeg"
     ],
@@ -5305,7 +5305,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.140,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-7140.jpeg"
     ],
@@ -5328,7 +5328,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.700,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-7700.jpeg"
     ],
@@ -5351,7 +5351,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.400,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k com detalhe em pérola, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel perola natural ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A pérola natural é o destaque deste anel em Ouro 18k, que pode ser usado sozinho ou combinado com outras joias.",
     "images": [
       "/produtos/anel-perola-natural-ouro-18k-8400.jpeg"
     ],
@@ -6225,7 +6225,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 360,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-chanfrado-pedras-verdes-360.png"
     ],
@@ -6248,7 +6248,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-com-coracao-frezo-dourado-490.png"
     ],
@@ -6271,7 +6271,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-com-frez-dourado-metade-fosco-metade-liso-490.png"
     ],
@@ -6294,7 +6294,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 460,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-com-pedras-460.png"
     ],
@@ -6317,7 +6317,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 590,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-concava-com-pedras-verdes-590.png"
     ],
@@ -6340,7 +6340,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 490,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-pedras-vermelhas-490.png"
     ],
@@ -6363,7 +6363,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 620,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-quadrado-com-pedras-620.jpeg"
     ],
@@ -6386,7 +6386,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 360,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-redondo-fosco-360.png"
     ],
@@ -6409,7 +6409,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 460,00",
     "installments": "Até 6x sem juros",
-    "description": "Combo completo com par de alianças em prata 950 e anel solitário, ideal para pedidos de namoro e momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Prata 950 e um anel solitário.",
     "images": [
       "/produtos/kit-aliancas-anel-solitario-prata-950-trabalhado-460.png"
     ],
@@ -6432,7 +6432,7 @@ export const products: Product[] = [
     "installmentsCount": 6,
     "priceLabel": "R$ 380,00",
     "installments": "Até 6x sem juros",
-    "description": "Aliança em prata 950 com visual delicado e ótimo acabamento, ideal para simbolizar momentos especiais. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 6x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Prata 950. Um modelo para marcar o compromisso de namoro.",
     "images": [
       "/produtos/alianca-prata-950-namoro-380-2.png"
     ],
@@ -6455,7 +6455,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 11.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k para usar sozinho ou combinar com outras joias.",
     "images": [
       "/produtos/anel-ouro-18k-11200.png"
     ],
@@ -6478,7 +6478,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.780,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k para usar sozinho ou combinar com outras joias.",
     "images": [
       "/produtos/anel-ouro-18k-3780.png"
     ],
@@ -6501,7 +6501,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 29.960,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k cabeca dragao. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A cabeça de dragão é o destaque do desenho deste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-cabeca-dragao-29960.png"
     ],
@@ -6524,7 +6524,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 11.620,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k cavalo. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O motivo de cavalo dá personalidade a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-cavalo-11620.png"
     ],
@@ -6547,7 +6547,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 13.020,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k cavalo. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O motivo de cavalo dá personalidade a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-cavalo-13020.png"
     ],
@@ -6570,7 +6570,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.980,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k cavalo. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O motivo de cavalo dá personalidade a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-cavalo-7980.png"
     ],
@@ -6593,7 +6593,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k cavalo com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com motivo de cavalo e diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-cavalo-com-diamantes-10900.png"
     ],
@@ -6616,7 +6616,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 12.460,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k cavalo com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com motivo de cavalo e diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-cavalo-com-diamantes-12460.png"
     ],
@@ -6639,7 +6639,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 15.540,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k cavalo com safira. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k que combina o motivo de cavalo com uma safira.",
     "images": [
       "/produtos/anel-ouro-18k-cavalo-com-safira-15540.png"
     ],
@@ -6662,7 +6662,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.860,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k caveira. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O motivo de caveira é o destaque deste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-caveira-6860.png"
     ],
@@ -6685,7 +6685,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.240,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k caveira. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O motivo de caveira é o destaque deste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-caveira-9240.png"
     ],
@@ -6708,7 +6708,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.580,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel de chapa em Ouro 18k com diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-com-diamantes-6580.png"
     ],
@@ -6731,7 +6731,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.980,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel de chapa em Ouro 18k com diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-com-diamantes-7980.png"
     ],
@@ -6754,7 +6754,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa liso. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com chapa lisa, de desenho discreto.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-liso-4900.png"
     ],
@@ -6777,7 +6777,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.860,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa liso. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com chapa lisa, de desenho discreto.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-liso-6860.png"
     ],
@@ -6800,7 +6800,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.420,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa liso. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com chapa lisa, de desenho discreto.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-liso-7420.png"
     ],
@@ -6823,7 +6823,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.820,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa liso. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com chapa lisa, de desenho discreto.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-liso-8820.png"
     ],
@@ -6846,7 +6846,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 16.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa redondo trabalhado. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com chapa redonda e trabalhada.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-redondo-trabalhado-16100.png"
     ],
@@ -6869,7 +6869,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 12.740,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa trabalhado. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com chapa trabalhada, para usar como destaque.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-trabalhado-12740.png"
     ],
@@ -6892,7 +6892,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 12.880,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa trabalhado. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com chapa trabalhada, para usar como destaque.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-trabalhado-12880.png"
     ],
@@ -6915,7 +6915,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.780,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa trabalhado. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com chapa trabalhada, para usar como destaque.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-trabalhado-3780.png"
     ],
@@ -6938,7 +6938,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.440,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa trabalhado com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A chapa trabalhada e os diamantes se destacam neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-trabalhado-com-diamantes-6440.png"
     ],
@@ -6961,7 +6961,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 11.760,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k chapa trabalhado lateral. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel de chapa em Ouro 18k com desenho trabalhado nas laterais.",
     "images": [
       "/produtos/anel-ouro-18k-chapa-trabalhado-lateral-11760.png"
     ],
@@ -7007,7 +7007,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 11.800,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k cifrao. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com desenho de cifrão.",
     "images": [
       "/produtos/anel-ouro-18k-cifrao-11800.png"
     ],
@@ -7030,7 +7030,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamante. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com diamante, para usar sozinho ou combinar com outras joias.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamante-10900.png"
     ],
@@ -7053,7 +7053,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 14.720,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamante. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com diamante, para usar sozinho ou combinar com outras joias.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamante-14720.png"
     ],
@@ -7076,7 +7076,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 16.660,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamante trabalhado. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel trabalhado em Ouro 18k com diamante.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamante-trabalhado-16660.png"
     ],
@@ -7099,7 +7099,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 12.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Os diamantes são o destaque deste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamantes-12040.png"
     ],
@@ -7122,7 +7122,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 12.720,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Os diamantes são o destaque deste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamantes-12720.png"
     ],
@@ -7145,7 +7145,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 14.560,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Os diamantes são o destaque deste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamantes-14560.png"
     ],
@@ -7168,7 +7168,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.120,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamantes e esmeralda. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Diamantes e esmeralda se destacam neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamantes-e-esmeralda-8120.png"
     ],
@@ -7191,7 +7191,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 17.640,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamantes e rubi. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k que combina o brilho dos diamantes com a cor do rubi.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamantes-e-rubi-17640.png"
     ],
@@ -7214,7 +7214,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.260,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamantes e rubi. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k que combina o brilho dos diamantes com a cor do rubi.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamantes-e-rubi-8260.png"
     ],
@@ -7237,7 +7237,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.380,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamantes e rubi. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k que combina o brilho dos diamantes com a cor do rubi.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamantes-e-rubi-9380.png"
     ],
@@ -7260,7 +7260,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 18.480,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com diamantes e safira azul. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com diamantes e safira azul.",
     "images": [
       "/produtos/anel-ouro-18k-com-diamantes-e-safira-azul-18480.png"
     ],
@@ -7283,7 +7283,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 11.340,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com esmeralda. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A esmeralda é o ponto de cor deste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-esmeralda-11340.png"
     ],
@@ -7306,7 +7306,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 12.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com esmeralda. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A esmeralda é o ponto de cor deste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-esmeralda-12040.png"
     ],
@@ -7329,7 +7329,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 13.440,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com esmeralda e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com esmeralda e diamantes. O desenho reúne cor e brilho na mesma peça.",
     "images": [
       "/produtos/anel-ouro-18k-com-esmeralda-e-diamantes-13440.png"
     ],
@@ -7352,7 +7352,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 17.640,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com esmeralda e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com esmeralda e diamantes. O desenho reúne cor e brilho na mesma peça.",
     "images": [
       "/produtos/anel-ouro-18k-com-esmeralda-e-diamantes-17640.png"
     ],
@@ -7375,7 +7375,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 17.940,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com esmeralda e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com esmeralda e diamantes. O desenho reúne cor e brilho na mesma peça.",
     "images": [
       "/produtos/anel-ouro-18k-com-esmeralda-e-diamantes-17940.png"
     ],
@@ -7398,7 +7398,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.920,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com pedra onix. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O ônix contrasta com o Ouro 18k neste anel.",
     "images": [
       "/produtos/anel-ouro-18k-com-pedra-onix-10920.png"
     ],
@@ -7421,7 +7421,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.360,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com pedra onix. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O ônix contrasta com o Ouro 18k neste anel.",
     "images": [
       "/produtos/anel-ouro-18k-com-pedra-onix-3360.png"
     ],
@@ -7444,7 +7444,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.620,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com pedra onix. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O ônix contrasta com o Ouro 18k neste anel.",
     "images": [
       "/produtos/anel-ouro-18k-com-pedra-onix-4620.png"
     ],
@@ -7467,7 +7467,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.180,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com pedra onix. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O ônix contrasta com o Ouro 18k neste anel.",
     "images": [
       "/produtos/anel-ouro-18k-com-pedra-onix-5180.png"
     ],
@@ -7490,7 +7490,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.740,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com pedra onix. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O ônix contrasta com o Ouro 18k neste anel.",
     "images": [
       "/produtos/anel-ouro-18k-com-pedra-onix-5740.png"
     ],
@@ -7513,7 +7513,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.160,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com pedra onix. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O ônix contrasta com o Ouro 18k neste anel.",
     "images": [
       "/produtos/anel-ouro-18k-com-pedra-onix-6160.png"
     ],
@@ -7536,7 +7536,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 13.720,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com pedra onix trabalhado lateral. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com ônix e laterais trabalhadas.",
     "images": [
       "/produtos/anel-ouro-18k-com-pedra-onix-trabalhado-lateral-13720.png"
     ],
@@ -7559,7 +7559,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.780,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com rubi. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O rubi dá cor a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-rubi-10780.png"
     ],
@@ -7582,7 +7582,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 13.440,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com rubi. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O rubi dá cor a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-rubi-13440.png"
     ],
@@ -7605,7 +7605,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.520,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com rubi. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O rubi dá cor a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-rubi-9520.png"
     ],
@@ -7628,7 +7628,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.940,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com rubi. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O rubi dá cor a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-rubi-9940.png"
     ],
@@ -7651,7 +7651,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 13.690,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com rubi e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Rubi e diamantes combinam cor e brilho neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-rubi-e-diamantes-13690.png"
     ],
@@ -7674,7 +7674,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 13.860,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com rubi e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Rubi e diamantes combinam cor e brilho neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-rubi-e-diamantes-13860.png"
     ],
@@ -7697,7 +7697,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 14.000,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com rubi e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Rubi e diamantes combinam cor e brilho neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-rubi-e-diamantes-14000.png"
     ],
@@ -7720,7 +7720,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 17.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com rubi e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Rubi e diamantes combinam cor e brilho neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-rubi-e-diamantes-17100.png"
     ],
@@ -7743,7 +7743,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.820,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com safira. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com safira como destaque.",
     "images": [
       "/produtos/anel-ouro-18k-com-safira-8820.png"
     ],
@@ -7766,7 +7766,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 14.280,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com safira azul. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A safira azul dá cor a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-safira-azul-14280.png"
     ],
@@ -7789,7 +7789,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 13.440,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com safira azul e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Safira azul e diamantes contrastam neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-safira-azul-e-diamantes-13440.png"
     ],
@@ -7812,7 +7812,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.940,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com safira azul e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Safira azul e diamantes contrastam neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-safira-azul-e-diamantes-9940.png"
     ],
@@ -7835,7 +7835,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconia. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O destaque deste anel em Ouro 18k é a zircônia.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconia-3900.png"
     ],
@@ -7858,7 +7858,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconia. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O destaque deste anel em Ouro 18k é a zircônia.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconia-5040 (2).png"
     ],
@@ -7881,7 +7881,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconia. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O destaque deste anel em Ouro 18k é a zircônia.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconia-5040.png"
     ],
@@ -7904,7 +7904,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.460,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconia. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O destaque deste anel em Ouro 18k é a zircônia.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconia-5460.png"
     ],
@@ -7927,7 +7927,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.400,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconia. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "O destaque deste anel em Ouro 18k é a zircônia.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconia-6400.png"
     ],
@@ -7950,7 +7950,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconia verde e diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "A zircônia verde e os diamantes combinam cor e brilho neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconia-verde-e-diamantes-9100.png"
     ],
@@ -7973,7 +7973,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.080,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-10080.png"
     ],
@@ -7996,7 +7996,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.220,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-10220.png"
     ],
@@ -8019,7 +8019,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.500,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-10500.png"
     ],
@@ -8042,7 +8042,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 11.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-11900.png"
     ],
@@ -8065,7 +8065,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 12.040,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-12040.png"
     ],
@@ -8088,7 +8088,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-7200.png"
     ],
@@ -8111,7 +8111,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.700,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-7700.png"
     ],
@@ -8134,7 +8134,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.260,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-8260.png"
     ],
@@ -8157,7 +8157,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k com zirconias. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "As zircônias dão brilho a este anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-com-zirconias-9900.png"
     ],
@@ -8180,7 +8180,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 14.720,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k crucifixo de diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com crucifixo de diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-crucifixo-de-diamantes-14720.png"
     ],
@@ -8203,7 +8203,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 13.580,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k dragao. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com motivo de dragão.",
     "images": [
       "/produtos/anel-ouro-18k-dragao-13580.png"
     ],
@@ -8226,7 +8226,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 19.740,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k dragao. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com motivo de dragão.",
     "images": [
       "/produtos/anel-ouro-18k-dragao-19740.png"
     ],
@@ -8249,7 +8249,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 19.460,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k escorpiao. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com motivo de escorpião.",
     "images": [
       "/produtos/anel-ouro-18k-escorpiao-19460.png"
     ],
@@ -8272,7 +8272,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 15.820,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k falcao. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com motivo de falcão.",
     "images": [
       "/produtos/anel-ouro-18k-falcao-15820.png"
     ],
@@ -8295,7 +8295,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.640,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k maconaria. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k de temática maçônica.",
     "images": [
       "/produtos/anel-ouro-18k-maconaria-10640.png"
     ],
@@ -8318,7 +8318,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 19.560,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k onca com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k com motivo de onça e diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-onca-com-diamantes-19560.png"
     ],
@@ -8341,7 +8341,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 10.780,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k trabalhado. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Os detalhes do desenho trabalhado se destacam neste anel em Ouro 18k.",
     "images": [
       "/produtos/anel-ouro-18k-trabalhado-10780.png"
     ],
@@ -8364,7 +8364,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 11.980,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k trabalhado com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k que combina desenho trabalhado e diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-trabalhado-com-diamantes-11980.png"
     ],
@@ -8387,7 +8387,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 20.720,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k trabalhado com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k que combina desenho trabalhado e diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-trabalhado-com-diamantes-20720.png"
     ],
@@ -8410,7 +8410,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.700,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k trabalhado com diamantes. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel em Ouro 18k que combina desenho trabalhado e diamantes.",
     "images": [
       "/produtos/anel-ouro-18k-trabalhado-com-diamantes-7700.png"
     ],
@@ -8433,7 +8433,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.840,00",
     "installments": "Até 12x sem juros",
-    "description": "Anel em Ouro 18k, ideal para compor produções elegantes e presentear em momentos especiais. Peça com visual sofisticado inspirada em anel ouro 18k trabalhado dragao. Consulte disponibilidade, aro e condições pelo WhatsApp.",
+    "description": "Anel trabalhado em Ouro 18k com motivo de dragão.",
     "images": [
       "/produtos/anel-ouro-18k-trabalhado-dragao-7840.png"
     ],
@@ -8456,7 +8456,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 1.490,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com detalhe de bolinha.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-bolinha-1490.jpg"
     ],
@@ -8479,7 +8479,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 1.150,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com bolinhas coloridas e zircônias.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-bolinhas-coloridas-zirconias-3mm-1150.jpg"
     ],
@@ -8502,7 +8502,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 1.490,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com chapinha.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-chapinha-1490.jpg"
     ],
@@ -8525,7 +8525,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 1.100,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com chapinha e figa.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-chapinha-com-figa-1100.jpg"
     ],
@@ -8548,7 +8548,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 2.100,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com chapinha e zircônias coloridas.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-chapinha-com-zirconias-coloridas-2100.jpg"
     ],
@@ -8571,7 +8571,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 999,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com chapinha e detalhe de estrela.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-chapinha-estrelinha-999.jpg"
     ],
@@ -8594,7 +8594,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 799,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com chapinha lisa.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-chapinha-lisa-799.jpg"
     ],
@@ -8617,7 +8617,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 1.999,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com estrelas coloridas e zircônias.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-estrelas-coloridas-zirconias-1999.jpg"
     ],
@@ -8640,7 +8640,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 1.090,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com zircônias coloridas.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-zirconias-coloridas-1090.jpg"
     ],
@@ -8663,7 +8663,7 @@ export const products: Product[] = [
     "installmentsCount": null,
     "priceLabel": "R$ 1.590,00",
     "installments": "Até 6x sem juros",
-    "description": "Pulseira em Ouro 18k, com acabamento delicado e visual elegante para uso próprio ou presente. Consulte disponibilidade, medidas e condições pelo WhatsApp.",
+    "description": "Pulseira infantil em Ouro 18k com zircônias em formato de coração.",
     "images": [
       "/produtos/pulseira-infantil-ouro-18k-zirconias-em-coracao-1590.jpg"
     ],
@@ -8686,7 +8686,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O chanfro destaca as bordas do par.",
     "images": [
       "/produtos/alianca-ouro-18k-chanfrado-e-concava-7mm-9600.jpg"
     ],
@@ -8709,7 +8709,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.800,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O chanfro destaca as bordas do par.",
     "images": [
       "/produtos/alianca-ouro-18k-chanfrado-trabalhado-9800.jpg"
     ],
@@ -8732,7 +8732,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 5.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-com-diamante-5900.jpg"
     ],
@@ -8755,7 +8755,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.300,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-concava-com-coracao-fosca-6300.jpg"
     ],
@@ -8778,7 +8778,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-diamante-com-esmeralda-9600.jpg"
     ],
@@ -8801,7 +8801,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 15.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-15200.jpg"
     ],
@@ -8824,7 +8824,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-com-batimentos-cardiacos-4100.png"
     ],
@@ -8847,7 +8847,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 6.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-com-diamante-6100.jpg"
     ],
@@ -8870,7 +8870,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.600,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-com-frezo-2mm-2600.jpg"
     ],
@@ -8893,7 +8893,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 7.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-fosca-7900.jpg"
     ],
@@ -8916,7 +8916,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.400,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-trabalhado-3mm-2400.jpg"
     ],
@@ -8939,7 +8939,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.200,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-trabalhado-8mm-9200.jpg"
     ],
@@ -8962,7 +8962,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.300,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-trabalhado-9300.jpg"
     ],
@@ -8985,7 +8985,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.100,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil quadrado dá ao par um desenho mais definido.",
     "images": [
       "/produtos/alianca-ouro-18k-quadrado-trabalhado-com-diamante-8100.jpg"
     ],
@@ -9008,7 +9008,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 9.700,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil arredondado dá suavidade ao desenho.",
     "images": [
       "/produtos/alianca-ouro-18k-redonda-com-frezo-transversal-9700.jpg"
     ],
@@ -9031,7 +9031,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 18.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil arredondado dá suavidade ao desenho.",
     "images": [
       "/produtos/alianca-ouro-18k-redonda-com-trancas-18900.jpg"
     ],
@@ -9054,7 +9054,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 3.700,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil arredondado dá suavidade ao desenho.",
     "images": [
       "/produtos/alianca-ouro-18k-redonda-fosca-3700.jpg"
     ],
@@ -9077,7 +9077,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda. O perfil arredondado dá suavidade ao desenho.",
     "images": [
       "/produtos/alianca-ouro-18k-redonda-trabalhado-4900.jpg"
     ],
@@ -9100,7 +9100,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 2.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/alianca-ouro-18k-trabalhado-2.5mm-2900.jpg"
     ],
@@ -9123,7 +9123,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.500,00",
     "installments": "Até 12x sem juros",
-    "description": "Combo completo com par de alianças em ouro 18k e anel solitário, feito sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Conjunto com um par de alianças em Ouro 18k e um anel solitário, feito sob encomenda.",
     "images": [
       "/produtos/conjunto-alianca-anel-solitario-ouro-18k-4mm-4500.jpg"
     ],
@@ -9146,7 +9146,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 8.250,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/conjunto-alianca-e-anel-ouro-18k-8250.jpg"
     ],
@@ -9169,7 +9169,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/conjunto-alianca-e-meia-alianca-ouro-18k-pedra-4900.jpg"
     ],
@@ -9192,7 +9192,7 @@ export const products: Product[] = [
     "installmentsCount": 12,
     "priceLabel": "R$ 4.900,00",
     "installments": "Até 12x sem juros",
-    "description": "Aliança em ouro 18k/750 com acabamento elegante, feita sob encomenda para momentos especiais. Confeccionamos diversos modelos em até 3 dias. Gravação dos nomes e caixinha inclusas como cortesia. Consulte numeração, prazo e parcelamento em até 12x sem juros pelo WhatsApp.",
+    "description": "Par de alianças em Ouro 18k, feito sob encomenda.",
     "images": [
       "/produtos/conjunto-alianca-ouro-18k-4900.jpg"
     ],

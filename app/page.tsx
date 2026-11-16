@@ -289,7 +289,7 @@ export default async function HomePage() {
       <ProductSection
         eyebrow="Destaques"
         title="Destaques da Marjouxs"
-        text="Peças selecionadas do catálogo para presentear, celebrar e escolher com atendimento personalizado."
+        text="Uma seleção de joias para presentear ou escolher para você."
         href="/produtos?ordem=destaques"
         linkLabel="Ver destaques"
         products={featuredProducts}
@@ -297,8 +297,8 @@ export default async function HomePage() {
 
       <ProductSection
         eyebrow="Alianças"
-        title="Alianças para momentos inesquecíveis"
-        text="Modelos em ouro, prata e sob medida para marcar histórias importantes."
+        title="Escolha suas alianças"
+        text="Compare modelos em ouro e prata para namoro, noivado ou casamento."
         href="/categorias/aliancas"
         linkLabel="Ver todas as alianças"
         products={allianceProducts}
@@ -321,7 +321,7 @@ export default async function HomePage() {
       <ProductSection
         eyebrow="Ouro 18k"
         title="Ouro 18k"
-        text="Joias para acompanhar momentos especiais com brilho, presença e acabamento elegante."
+        text="Explore anéis, alianças e outras joias em Ouro 18k."
         href="/produtos?busca=Ouro%2018k"
         linkLabel="Ver todas"
         products={goldProducts}
@@ -330,7 +330,7 @@ export default async function HomePage() {
       <ProductSection
         eyebrow="Prata"
         title="Prata"
-        text="Peças em prata para uso diário, presentes especiais e combinações delicadas."
+        text="Joias em prata para usar no dia a dia ou presentear."
         href="/produtos?busca=Prata"
         linkLabel="Ver todas"
         products={silverProducts}

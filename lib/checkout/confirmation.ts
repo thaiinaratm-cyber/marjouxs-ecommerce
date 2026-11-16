@@ -30,7 +30,7 @@ export function parseConfirmationOrder(value: unknown): PublicOrder | null {
 
 export function getConfirmationCopy(order: Pick<PublicOrder, "paymentStatus">) {
   switch (order.paymentStatus) {
-    case "paid": return { title: "Pagamento confirmado", text: "Recebemos seu pagamento. A equipe da Marjouxs seguirá com a preparação do pedido." };
+    case "paid": return { title: "Pagamento aprovado", text: "Recebemos seu pagamento. A Marjouxs vai preparar seu pedido." };
     case "pending": return { title: "Aguardando confirmação", text: "Seu pagamento ainda está sendo confirmado. Você não precisa pagar novamente." };
     case "requires_review": return { title: "Seu pagamento está em verificação", text: "Seu pedido foi recebido. Nenhuma nova cobrança será iniciada automaticamente. Nossa equipe está disponível para orientar você." };
     case "failed": return { title: "Não foi possível confirmar este pagamento", text: "Fale com a Marjouxs para receber orientação. Nenhuma nova cobrança será iniciada automaticamente." };
@@ -40,7 +40,7 @@ export function getConfirmationCopy(order: Pick<PublicOrder, "paymentStatus">) {
 // Scoped to post-payment support as explicitly requested; other store contacts are unchanged.
 export const CONFIRMATION_SUPPORT_WHATSAPP = "5511919964393";
 export function confirmationSupportUrl(order: Pick<PublicOrder, "orderNumber" | "paymentStatus"> | null) {
-  const labels = { paid: "pagamento confirmado", pending: "aguardando confirmação", requires_review: "pagamento em verificação", failed: "pagamento não confirmado" };
+  const labels = { paid: "pagamento aprovado", pending: "aguardando confirmação", requires_review: "pagamento em verificação", failed: "pagamento não confirmado" };
   const reference = order && /^MJ-\d{6,}$/.test(order.orderNumber) ? `Pedido: ${order.orderNumber}.\n` : "";
   const message = `${reference}Status: ${order ? labels[order.paymentStatus] : "consulta de pedido indisponível"}.`;
   return `https://wa.me/${CONFIRMATION_SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}`;

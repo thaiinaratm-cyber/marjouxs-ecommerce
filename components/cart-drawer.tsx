@@ -61,7 +61,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
               <span className="text-sm text-taupe">Subtotal</span>
               <strong className="font-serif text-2xl text-ink">{formatCurrency(subtotal)}</strong>
             </div>
-            <p className="mt-1 text-xs leading-5 text-taupe">Frete calculado no checkout.</p>
+            <p className="mt-1 text-xs leading-5 text-taupe">Confira o frete ao finalizar a compra.</p>
             <Link
               href="/checkout"
               onClick={onClose}

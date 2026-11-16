@@ -45,7 +45,7 @@ export default function CartPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Carrinho</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">Sacola</p>
         <h1 className="mt-2 font-serif text-4xl font-semibold text-ink sm:text-5xl">Revise seu pedido</h1>
       </div>
 
@@ -127,7 +127,7 @@ export default function CartPage() {
             href="/checkout"
             className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-gold"
           >
-            Ir para checkout
+            Finalizar compra
           </Link>
           <Link
             href="/produtos"
