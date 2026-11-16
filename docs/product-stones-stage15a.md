@@ -8,12 +8,12 @@
 
 ## Migration
 
-- supabase/migrations/202611160001_product_stone_customization.sql afeta ecommerce_products e a validação do item em ecommerce_create_checkout. Não adiciona coluna em ecommerce_order_items e não escreve dados operacionais.
+- supabase/migrations/202611160001_product_stone_customization.sql afeta ecommerce_products, a validação do item em ecommerce_create_checkout e a CHECK de customization em ecommerce_order_items. A compatibilização da CHECK e seu rollback estão descritos em [Etapa 16A](./product-stone-constraint-stage16a.md). Não adiciona coluna em ecommerce_order_items e não escreve dados operacionais.
 - stone_customization_enabled é boolean NOT NULL DEFAULT false. stone_options é text[] NOT NULL DEFAULT '{}'. A CHECK exige array vazio quando desligado, e, quando ligado, entre 1 e 24 IDs com formato limitado e sem nulos. O formulário também impede duplicatas e opções fora do registro de cores. Sem backfill.
 - Guardas da migration conferem a definição antiga, o owner e os acessos. Os blocos $legacy$ e $stone$ contêm a substituição exata. O teste local verifica igualdade de todo o restante da definição, inclusive linhas de subtotal, persistência, reutilização e dispatch.
 - Assinatura preservada: public.ecommerce_create_checkout(p_order jsonb, p_items jsonb, p_checkout_idempotency_key text, p_request_hash text). Retorno: TABLE(result_order_id uuid, result_order_number text, result_public_token uuid, result_payment_attempt_id uuid, result_order_nsu text, result_total_cents bigint, result_attempt_status text, result_checkout_url text).
 - Metadata preservado: SECURITY DEFINER, owner postgres, search_path vazio e EXECUTE para postgres/service_role. Nenhum GRANT/REVOKE na migration. Definition MD5 no baseline auditado: 4db53180b64a8234b0fe02aba7c814dc. Esperado com as quebras de linha do baseline: 034cbcc8da9804d49024d9aaf8aee935. Com LF normalizado: 11f5e1e6523eedfa6cf4dc6a4414269b.
-- Teste isolado: node scripts/test-stone-rpc.mjs <caminho-do-pglite> <definição-sql-antes>. A fixture usa o corpo completo auditado da RPC e tabelas sintéticas, sem credenciais ou rede. O SQL novo nunca foi executado em produção.
+- Teste isolado: node scripts/test-stone-rpc.mjs <caminho-do-pglite> <definição-sql-antes>. A fixture usa o corpo completo auditado da RPC, a CHECK e o validador legado de alianças reais, com dados sintéticos, sem credenciais ou rede. O SQL novo nunca foi executado em produção.
 
 ## Release consolidado e rollback
 

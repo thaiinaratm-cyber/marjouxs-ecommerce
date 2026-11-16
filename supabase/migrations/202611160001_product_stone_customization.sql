@@ -148,4 +148,45 @@ BEGIN
 END;
 $migration$;
 
+DO $item_constraint_baseline$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_catalog.pg_constraint c
+    WHERE c.conrelid = 'public.ecommerce_order_items'::regclass
+      AND c.conname = 'ecommerce_order_items_customization_ck'
+      AND c.contype = 'c'
+      AND c.convalidated
+      AND pg_catalog.replace(pg_catalog.pg_get_constraintdef(c.oid),
+        'public.ecommerce_valid_ring_pair(', 'ecommerce_valid_ring_pair(') =
+        $legacy_check$CHECK ((((category = 'Alianças'::text) AND (quantity = 1) AND (ecommerce_valid_ring_pair(customization) IS TRUE)) OR ((category <> 'Alianças'::text) AND (customization IS NULL))))$legacy_check$
+  ) THEN
+    RAISE EXCEPTION 'Unexpected ecommerce_order_items_customization_ck baseline';
+  END IF;
+END;
+$item_constraint_baseline$;
+
+ALTER TABLE public.ecommerce_order_items
+  ADD CONSTRAINT ecommerce_order_items_customization_stone_ck CHECK (
+    (category = 'Alianças' AND quantity = 1 AND public.ecommerce_valid_ring_pair(customization) IS TRUE)
+    OR (category <> 'Alianças' AND customization IS NULL)
+    OR CASE
+      WHEN pg_catalog.jsonb_typeof(customization) = 'object'
+        AND pg_catalog.jsonb_typeof(customization -> 'stone_color') = 'string'
+        AND (customization ->> 'stone_color') COLLATE pg_catalog."C" ~ '^[a-z0-9][a-z0-9-]{0,39}$'
+      THEN (category = 'Alianças' AND quantity = 1
+          AND customization -> 'type' = '"ring_pair"'::jsonb
+          AND public.ecommerce_valid_ring_pair(customization - 'stone_color') IS TRUE)
+        OR (category <> 'Alianças' AND customization -> 'type' = '"stone"'::jsonb AND customization - ARRAY['type', 'stone_color'] = '{}'::jsonb)
+      ELSE false
+    END IS TRUE
+  ) NOT VALID;
+
+ALTER TABLE public.ecommerce_order_items
+  VALIDATE CONSTRAINT ecommerce_order_items_customization_stone_ck;
+ALTER TABLE public.ecommerce_order_items
+  DROP CONSTRAINT ecommerce_order_items_customization_ck;
+ALTER TABLE public.ecommerce_order_items
+  RENAME CONSTRAINT ecommerce_order_items_customization_stone_ck TO ecommerce_order_items_customization_ck;
+
 COMMIT;
