@@ -2,6 +2,70 @@
 BEGIN;
 SET LOCAL lock_timeout = '5s';
 
+-- Run inside the approved migration transaction, before its ALTER TABLE.
+-- This gate changes no rows and creates no objects. Do not run DDL in 17B.
+DO $shipment_precheck$
+DECLARE
+  orders regclass := to_regclass('public.ecommerce_orders');
+  mismatch text;
+BEGIN
+  IF current_user <> 'postgres' THEN
+    RAISE EXCEPTION 'Stage 17 precheck: run as postgres, the expected RPC owner';
+  END IF;
+  IF orders IS NULL THEN
+    RAISE EXCEPTION 'Stage 17 precheck: public.ecommerce_orders does not exist';
+  END IF;
+
+  LOCK TABLE public.ecommerce_orders IN ACCESS EXCLUSIVE MODE;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_class
+    WHERE oid = orders AND relkind = 'r' AND relrowsecurity
+      AND pg_catalog.pg_get_userbyid(relowner) = 'postgres')
+    OR EXISTS (SELECT 1 FROM pg_catalog.pg_policy WHERE polrelid = orders) THEN
+    RAISE EXCEPTION 'Stage 17 precheck: expected orders owned by postgres, with RLS enabled and no policies';
+  END IF;
+
+  SELECT string_agg(e.name, ', ' ORDER BY e.name) INTO mismatch
+    FROM (VALUES
+      ('id', 'uuid'::regtype, true), ('public_token', 'uuid'::regtype, true),
+      ('order_number', 'text'::regtype, true), ('delivery_method', 'text'::regtype, true),
+      ('payment_status', 'text'::regtype, true), ('order_status', 'text'::regtype, true),
+      ('updated_at', 'timestamptz'::regtype, true), ('shipping_carrier', 'text'::regtype, false)
+    ) AS e(name, data_type, require_not_null)
+    LEFT JOIN pg_catalog.pg_attribute a ON a.attrelid = orders AND a.attname = e.name AND NOT a.attisdropped
+    WHERE a.atttypid IS DISTINCT FROM e.data_type::oid OR (e.require_not_null AND NOT a.attnotnull);
+  IF mismatch IS NOT NULL THEN
+    RAISE EXCEPTION 'Stage 17 precheck: missing/incompatible orders columns: %', mismatch;
+  END IF;
+
+  IF to_regprocedure('public.ecommerce_update_order_shipment(uuid,timestamptz,text,text,text,text,boolean)') IS NOT NULL
+    OR EXISTS (SELECT 1 FROM pg_catalog.pg_attribute
+      WHERE attrelid = orders AND NOT attisdropped
+        AND attname IN ('dispatch_carrier','tracking_code','tracking_url','shipping_status',
+          'shipped_at','in_transit_at','delivered_at'))
+    OR EXISTS (SELECT 1 FROM pg_catalog.pg_constraint
+      WHERE conrelid = orders AND conname IN ('ecommerce_orders_shipping_status_ck',
+        'ecommerce_orders_tracking_format_ck','ecommerce_orders_shipment_scope_ck')) THEN
+    RAISE EXCEPTION 'Stage 17 precheck: shipment objects already exist; full or partial installation';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = 'service_role' AND rolbypassrls)
+    OR NOT has_schema_privilege('service_role', 'public', 'USAGE')
+    OR pg_has_role('anon', 'service_role', 'USAGE')
+    OR pg_has_role('authenticated', 'service_role', 'USAGE') THEN
+    RAISE EXCEPTION 'Stage 17 precheck: service_role or inherited application privileges do not match expectations';
+  END IF;
+
+  SELECT string_agg(tgname, ', ' ORDER BY tgname) INTO mismatch
+    FROM pg_catalog.pg_trigger WHERE tgrelid = orders AND NOT tgisinternal
+      AND tgenabled <> 'D' AND (tgtype::int & 16) <> 0;
+  IF mismatch IS NOT NULL THEN
+    RAISE EXCEPTION 'Stage 17 precheck: review existing UPDATE triggers before applying: %', mismatch;
+  END IF;
+END;
+$shipment_precheck$;
+
+
 ALTER TABLE public.ecommerce_orders
   ADD COLUMN dispatch_carrier text,
   ADD COLUMN tracking_code text,

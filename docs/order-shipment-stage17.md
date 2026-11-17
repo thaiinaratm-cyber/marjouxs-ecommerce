@@ -52,8 +52,21 @@ operacional anterior e nunca recebe campos de envio.
 ## Publicação e rollback
 
 A migration não foi aplicada em produção. Para uma publicação separadamente
-aprovada, verificar RLS/grants atuais, aplicar em transação e só então publicar
-o aplicativo. Para rollback operacional, voltar primeiro à versão anterior do
+aprovada, usar apenas a migration versionada; o pré-check travado nela é
+executado antes do DDL, na mesma transação. Ele exige o executor e owner
+esperados, RLS sem policies, colunas-base compatíveis, nenhum vestígio da
+instalação, os privilégios esperados e revisão prévia de triggers de UPDATE.
+Qualquer falha aborta a transação; não contornar o pré-check nem executar a
+migration duas vezes. O lock exclusivo de `ecommerce_orders` impede mudanças
+concorrentes entre a inspeção e o DDL. `lock_timeout = '5s'` limita cada espera
+por lock, não a duração total da transação.
+
+`npm test -- scripts/order-shipment-migration.test.ts` executa o SQL versionado
+em PostgreSQL local isolado (PGlite), sem credenciais. O teste fixa o SHA-256
+do SQL com finais LF; qualquer mudança deve passar por nova revisão antes de
+atualizar esse valor. Não há script de instalação separado.
+
+Para rollback operacional, voltar primeiro à versão anterior do
 aplicativo, mantendo as colunas e os dados. Se for necessário reverter a
 estrutura, exportar antes os campos logísticos, remover a RPC, os três CHECKs e
 as sete colunas em transação separadamente aprovada. Preservar o
