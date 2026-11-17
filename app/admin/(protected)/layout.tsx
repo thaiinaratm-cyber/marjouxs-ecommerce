@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ClipboardList, LogOut, Package, Plus } from "lucide-react";
+import { ClipboardList, LogOut, Package, Plus, ShoppingBag } from "lucide-react";
 import { logoutAction } from "@/app/admin/(protected)/actions";
 import { requireActiveAdmin } from "@/lib/admin/auth";
 
@@ -34,6 +34,9 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
             </Link>
             <Link href="/admin/pedidos" className="inline-flex h-10 items-center gap-2 rounded-md border border-black/10 px-3 text-sm font-semibold text-ink transition hover:border-gold hover:text-gold">
               <ClipboardList size={16} aria-hidden="true" />Pedidos
+            </Link>
+            <Link href="/admin/recuperacao" className="inline-flex h-10 items-center gap-2 rounded-md border border-black/10 px-3 text-sm font-semibold text-ink transition hover:border-gold hover:text-gold">
+              <ShoppingBag size={16} aria-hidden="true" />Recuperação
             </Link>
             <form action={logoutAction}>
               <button

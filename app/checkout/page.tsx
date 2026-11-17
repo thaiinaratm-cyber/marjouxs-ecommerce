@@ -48,6 +48,7 @@ import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
 import { normalizePostalCode, POSTAL_CODE_MESSAGES } from "@/lib/checkout/postal-code";
 import { prepareBrowserCheckoutIntent } from "@/lib/checkout/intent";
 import { checkoutRedirect, checkoutResumeRequired, type CheckoutIdentity } from "@/lib/checkout/checkout-redirect";
+import { recordBrowserCheckoutRecovery } from "@/lib/recovery/browser";
 import type { ShippingQuoteOption, ValidatedCart } from "@/types/checkout";
 
 type PostalCodeLookupStatus =
@@ -151,6 +152,8 @@ export default function CheckoutPage() {
   const [priceReviewAccepted, setPriceReviewAccepted] = useState(false);
   const [validationRevision, setValidationRevision] = useState(0);
   const [pendingResume, setPendingResume] = useState<{ revision: object; identity: CheckoutIdentity } | null>(null);
+  const [recoveryPhone, setRecoveryPhone] = useState("");
+  const [recoveryContactAllowed, setRecoveryContactAllowed] = useState(false);
   const checkoutAttempt = useRef<object | null>(null);
   const submissionLocked = useRef(false);
   const trackedCheckout = useRef(false);
@@ -197,6 +200,21 @@ export default function CheckoutPage() {
     [apiItems, customer, address, deliveryMethod, selectedShipping, totalCents, validatedCart]
   );
   const resume = pendingResume?.revision === checkoutRevision ? pendingResume.identity : null;
+  const { phone, name } = customer;
+
+  useEffect(() => {
+    if (!isReady || !recoveryPhone || recoveryPhone !== phone || isValidating || isSubmitting ||
+      (apiItems.length > 0 && !validatedCart)) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      void recordBrowserCheckoutRecovery({
+        phone, name, contactAllowed: recoveryContactAllowed, deliveryMethod,
+        items: apiItems, lineIds: lines.map(line => line.lineId)
+      }, controller.signal);
+    }, 550);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [apiItems, deliveryMethod, isReady, isSubmitting, isValidating, lines, name, phone,
+    recoveryContactAllowed, recoveryPhone, validatedCart]);
 
   useLayoutEffect(() => () => { checkoutAttempt.current = null; }, [checkoutRevision]);
 
@@ -534,6 +552,11 @@ export default function CheckoutPage() {
         setPendingResume(null);
         throw new Error("A tentativa anterior não corresponde a esta sacola. Confira o pedido antes de continuar.");
       }
+      void recordBrowserCheckoutRecovery({
+        phone: normalizedCustomer.phone, name: normalizedCustomer.name,
+        contactAllowed: recoveryContactAllowed, deliveryMethod, items: paymentItems,
+        lineIds: lines.map(line => line.lineId), requestId: intent.requestId
+      });
       const response = await fetch("/api/payments/infinitepay/create", {
         method: "POST",
         cache: "no-store",
@@ -1003,6 +1026,7 @@ export default function CheckoutPage() {
                   onChange={(event) =>
                     updateCustomerField("phone", formatBrazilianPhone(event.target.value))
                   }
+                  onBlur={event => setRecoveryPhone(event.currentTarget.value)}
                   maxLength={15}
                   placeholder="(11) 99999-9999"
                   aria-invalid={Boolean(fieldErrors.phone)}
@@ -1045,6 +1069,12 @@ export default function CheckoutPage() {
                   className={getFieldClass(Boolean(fieldErrors.cpf))}
                 />
                 <FieldError field="cpf" errors={fieldErrors} />
+              </label>
+              <label className="flex min-h-11 items-center gap-3 text-sm text-ink sm:col-span-2">
+                <input type="checkbox" checked={recoveryContactAllowed}
+                  onChange={event => setRecoveryContactAllowed(event.target.checked)}
+                  className="size-4 shrink-0 accent-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" />
+                A Marjouxs pode me chamar no WhatsApp para ajudar com esta compra (opcional).
               </label>
             </div>
           </section>
