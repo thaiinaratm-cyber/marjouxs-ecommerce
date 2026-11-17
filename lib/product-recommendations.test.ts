@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { selectRelatedProducts } from "@/lib/product-recommendations";
+import { resolveDatabaseRecommendations, selectRelatedProducts } from "@/lib/product-recommendations";
 import type { Product } from "@/types/product";
 
 function product(id: string, overrides: Partial<Product> = {}): Product {
@@ -76,5 +76,52 @@ describe("selectRelatedProducts", () => {
 
     expect(selectRelatedProducts(current, candidates, 2)).toHaveLength(2);
     expect(selectRelatedProducts(current, candidates, 0)).toEqual([]);
+  });
+
+  it("não sugere infantil a adultos, produtos indisponíveis ou categorias sem afinidade", () => {
+    const current = product("current", { subcategory: "Masculino" });
+    expect(selectRelatedProducts(current, [
+      product("infantil", { name: "Anel infantil" }),
+      product("unavailable", { stockStatus: "Indisponível" }),
+      product("wrong", { category: "Relógios" })
+    ])).toEqual([]);
+  });
+
+  it("usa faixa de preço apenas para empatar produtos compatíveis e mantém itens sem preço quando adequados", () => {
+    const current = product("current");
+    const closer = product("z-closer", { price: 1000 });
+    const distant = product("a-distant", { price: 2900 });
+    const quote = product("b-quote", { price: null, priceLabel: "Sob orçamento" });
+    const candidates = [distant, closer, quote];
+    expect(selectRelatedProducts(current, candidates)).toEqual([closer, distant, quote]);
+    const unpriced = selectRelatedProducts({ ...current, price: null }, candidates);
+    expect(unpriced).toEqual([distant, quote, closer]);
+    expect(unpriced[1].price).toBeNull();
+    expect(selectRelatedProducts(current, candidates.slice().reverse())).toEqual([closer, distant, quote]);
+  });
+});
+
+describe("database recommendation projection", () => {
+  const current = product("current");
+  const one = product("one");
+  const two = product("two", { price: null, images: [] });
+  it("keeps the manual order with no automatic completion, including quote-only targets", () => {
+    expect(resolveDatabaseRecommendations(current, [one, two], [
+      { mode: "automatic", related_slug: one.slug },
+      { mode: "manual", related_slug: two.slug }, { mode: "manual", related_slug: one.slug }
+    ])).toEqual({ mode: "manual", products: [two, one] });
+    expect(resolveDatabaseRecommendations(current, [one, two], [
+      { mode: "manual", related_slug: two.slug }, { mode: "automatic", related_slug: one.slug }
+    ])).toEqual({ mode: "manual", products: [two] });
+  });
+  it("does not expose deactivated, self or stale targets and omits manual recommendations when none remain", () => {
+    expect(resolveDatabaseRecommendations(current, [one, current], [
+      { mode: "manual", related_slug: null }, { mode: "manual", related_slug: "unknown" },
+      { mode: "manual", related_slug: current.slug }, { mode: "automatic", related_slug: one.slug }
+    ])).toEqual({ mode: "manual", products: [] });
+  });
+  it("shows the vetted fallback when there are no manual rows", () => {
+    expect(resolveDatabaseRecommendations(current, [one], [{ mode: "automatic", related_slug: one.slug }]))
+      .toEqual({ mode: "automatic", products: [one] });
   });
 });

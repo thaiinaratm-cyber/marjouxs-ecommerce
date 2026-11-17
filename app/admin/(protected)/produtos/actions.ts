@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireActiveAdmin } from "@/lib/admin/auth";
 import { revalidateAdminProduct } from "@/lib/admin/revalidate";
 import { catalogImageUrl } from "@/lib/catalog/image-url";
+import { parseRelationIds, setProductRelations, validRelationTargets } from "@/lib/admin/product-relations";
 import {
   parseAdminProductForm,
   validateProductActivation,
@@ -135,13 +136,17 @@ export async function createDraftProductAction(formData: FormData): Promise<Admi
     return { message: "Revise a classificação do produto.", fieldErrors: { categoryId: "Confirme a categoria selecionada.", subcategoryId: "Confirme se a subcategoria pertence à categoria.", materialId: "Confirme o material selecionado." } };
   }
 
+  const related = parseRelationIds(formData.getAll("relatedProductIds"));
+  if (!related || (related.length > 0 && !(await validRelationTargets(supabase, related)))) {
+    return { message: "Revise os produtos relacionados. Selecione até oito produtos ativos e disponíveis, sem repetição." };
+  }
   const { data, error } = await supabase
     .from("ecommerce_products")
     .insert({
       ...productPayload(parsed.data),
       is_active: false
     })
-    .select("id")
+    .select("id,version")
     .single();
 
   if (error || !data) {
@@ -151,8 +156,9 @@ export async function createDraftProductAction(formData: FormData): Promise<Admi
       : { message: "Não foi possível criar o rascunho. Seus dados foram preservados." };
   }
 
+  const status = related.length ? await setProductRelations(data.id, Number(data.version), [], related) : null;
   revalidateAdminProduct(data.id);
-  return { redirectTo: `/admin/produtos/${data.id}?created=1` };
+  return { redirectTo: `/admin/produtos/${data.id}?created=1${status && status !== "saved" ? "&relacoes=partial" : ""}` };
 }
 
 export async function updateProductAction(formData: FormData): Promise<AdminProductFormState> {

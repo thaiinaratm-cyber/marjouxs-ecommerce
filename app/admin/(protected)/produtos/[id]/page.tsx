@@ -10,6 +10,9 @@ import { DeactivateProductForm } from "@/components/admin/deactivate-product-for
 import { ProductForm } from "@/components/admin/product-form";
 import { ProductImageManager } from "@/components/admin/product-image-manager";
 import { ProductImageUpload } from "@/components/admin/product-image-upload";
+import { RelatedProductsEditor } from "@/components/admin/related-products-editor";
+import { saveProductRelationsAction } from "@/app/admin/(protected)/produtos/relation-actions";
+import { getAdminProductRelations } from "@/lib/admin/product-relations";
 import { requireActiveAdmin } from "@/lib/admin/auth";
 import { getAdminTaxonomy } from "@/lib/admin/catalog";
 import { ADMIN_PRODUCT_IMAGE_BUCKET } from "@/lib/admin/product-form";
@@ -27,6 +30,13 @@ const errors: Record<string, string> = {
   save: "Não foi possível salvar as alterações.",
   version_conflict: "Este produto foi alterado em outra sessão. Recarregue a página antes de salvar.",
   taxonomy: "A categoria, subcategoria ou material selecionado não é válido."
+};
+const relationMessages: Record<string, string> = {
+  saved: "Produtos relacionados salvos.",
+  conflict: "O produto ou a seleção mudou em outra sessão. Confira a versão atual.",
+  invalid: "Revise a seleção e remova os produtos indisponíveis.",
+  failed: "Não foi possível salvar os relacionados.",
+  partial: "O rascunho foi criado, mas os relacionados não foram salvos. Tente configurá-los nesta página."
 };
 
 type ProductDetailPageProps = {
@@ -52,6 +62,8 @@ export default async function AdminProductDetailPage({ params: pendingParams, se
   if (imagesResult.error) throw new Error("admin_product_images_unavailable");
 
   const product = productResult.data;
+  const relations = await getAdminProductRelations(supabase, product.id);
+  const relationMessage = searchParams?.relacoes ? relationMessages[searchParams.relacoes] : null;
   const images = imagesResult.data ?? [];
   const error = searchParams?.error ? errors[searchParams.error] : null;
   const success = searchParams?.created
@@ -165,6 +177,17 @@ export default async function AdminProductDetailPage({ params: pendingParams, se
           </div>
         </aside>
       </div>
+      <section id="produtos-relacionados" className="mt-7 scroll-mt-6 rounded-lg border border-black/10 bg-white p-5 sm:p-7">
+        {relationMessage ? <p role="status" className="mb-4 text-sm font-semibold text-ink">{relationMessage}</p> : null}
+        {relations ? <form action={saveProductRelationsAction}>
+          <input type="hidden" name="productId" value={product.id} />
+          <input type="hidden" name="version" value={product.version} />
+          {relations.map(item => <input key={item.id} type="hidden" name="expectedRelatedIds" value={item.id} />)}
+          <RelatedProductsEditor productId={product.id} initial={relations} key={`${product.version}:${relations.map(item => item.id).join(",")}`} />
+          <button type="submit" className="mt-4 min-h-11 rounded bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-gold">Salvar relacionados</button>
+        </form> : <><h2 className="font-serif text-xl font-semibold">Produtos relacionados</h2>
+          <p className="mt-2 text-sm text-taupe">Não foi possível carregar os produtos relacionados.</p></>}
+      </section>
     </div>
   );
 }

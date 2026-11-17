@@ -207,7 +207,7 @@ export default async function ProductPage({ params: pendingParams }: { params: P
         </section>
       </div>
 
-      <RelatedProducts products={related} />
+      <RelatedProducts products={related.products} mode={related.mode} />
 
     </section>
   );

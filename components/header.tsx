@@ -484,7 +484,7 @@ export function Header({ catalogSource = "static" }: { catalogSource?: CatalogSo
               Categorias <ChevronDown size={15} />
             </Link>
             <div
-              className={`absolute left-1/2 top-full z-50 w-[min(94vw,1080px)] -translate-x-1/2 pt-3 transition duration-200 ease-out motion-reduce:transform-none motion-reduce:transition-none ${
+              className={`absolute left-1/2 top-full z-50 w-[min(94vw,1080px)] -translate-x-1/2 pt-3 transition duration-200 ease-out motion-reduce:translate-y-0 motion-reduce:transition-none ${
                 isMegaOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"
               }`}
             >

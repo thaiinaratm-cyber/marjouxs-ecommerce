@@ -9,7 +9,9 @@ import { readPublicDatabaseCatalog } from "@/lib/catalog/database-products";
 import { normalizePublicDatabaseCatalog } from "@/lib/catalog/normalize-public";
 import { resolvePublicCatalog } from "@/lib/catalog/resolve";
 import { searchProducts } from "@/lib/product-discovery";
-import { selectRelatedProducts } from "@/lib/product-recommendations";
+import { MAX_FALLBACK_CANDIDATES, resolveDatabaseRecommendations, selectRelatedProducts,
+  type RecommendationRow, type RelatedProductsResult } from "@/lib/product-recommendations";
+import { getSupabaseAdmin } from "@/lib/checkout/supabase";
 import { getRingProductSubcategorySlug, matchesRingMaterial, type RingMaterialSlug, type RingSubcategorySlug } from "@/lib/ring-filters";
 import { getVisibleProducts } from "@/lib/products";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
@@ -62,8 +64,24 @@ export async function searchPublicProducts(query: string, limit?: number) {
   return searchProducts(await getPublicProducts(), query, limit);
 }
 
-export async function getPublicRelatedProducts(product: Product, limit = 4) {
-  return selectRelatedProducts(product, await getPublicProducts(), limit);
+export async function getPublicRelatedProducts(product: Product, limit = 4): Promise<RelatedProductsResult> {
+  if (getCatalogSource() === "static") {
+    return { mode: "automatic", products: selectRelatedProducts(product, await getPublicProducts(), limit) };
+  }
+  // Reuse the PDP catalog snapshot; the RPC checks current availability in one batch.
+  const catalog = await getPublicCatalog();
+  const fallback = selectRelatedProducts(product, catalog, MAX_FALLBACK_CANDIDATES).map(candidate => candidate.slug);
+  try {
+    const { data, error } = await getSupabaseAdmin().rpc("ecommerce_get_product_recommendations", {
+      p_slug: product.slug, p_fallback: fallback
+    }).abortSignal(AbortSignal.timeout(2500));
+    if (!error && Array.isArray(data)) {
+      return resolveDatabaseRecommendations(product, catalog, data as RecommendationRow[], limit);
+    }
+  } catch {
+    // Do not replace a potentially curated selection with automatic suggestions on read failure.
+  }
+  return { mode: "automatic", products: [] };
 }
 
 export async function getPublicRingProducts(material: RingMaterialSlug, subcategory?: RingSubcategorySlug) {

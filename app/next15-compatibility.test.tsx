@@ -22,7 +22,7 @@ describe("Next 15 asynchronous request props", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.product.mockResolvedValue(product);
-    mocks.related.mockResolvedValue([]);
+    mocks.related.mockResolvedValue({ mode: "automatic", products: [] });
     mocks.category.mockResolvedValue([]);
     mocks.rings.mockResolvedValue([]);
   });

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createDraftProductAction } from "@/app/admin/(protected)/produtos/actions";
 import { ProductForm } from "@/components/admin/product-form";
+import { RelatedProductsEditor } from "@/components/admin/related-products-editor";
 import { requireActiveAdmin } from "@/lib/admin/auth";
 import { getAdminTaxonomy } from "@/lib/admin/catalog";
 
@@ -36,7 +37,8 @@ export default async function NewAdminProductPage({ searchParams: pendingSearchP
 
       {error ? <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{error}</div> : null}
 
-      <div className="mt-7"><ProductForm action={createDraftProductAction} taxonomy={taxonomy} submitLabel="Salvar como rascunho" /></div>
+      <div className="mt-7"><ProductForm action={createDraftProductAction} taxonomy={taxonomy} submitLabel="Salvar como rascunho"
+        afterFields={<div className="mt-7 border-t border-black/10 pt-6"><RelatedProductsEditor /></div>} /></div>
     </div>
   );
 }

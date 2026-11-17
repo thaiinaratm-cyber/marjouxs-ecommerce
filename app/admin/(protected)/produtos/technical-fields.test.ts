@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), from: vi.fn(), insert: vi.fn(), update: vi.fn(), redirect: vi.fn() }));
 vi.mock("@/lib/admin/auth", () => ({ requireActiveAdmin: mocks.auth }));
+vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/admin/revalidate", () => ({ revalidateAdminProduct: vi.fn() }));
 

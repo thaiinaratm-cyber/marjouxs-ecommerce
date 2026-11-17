@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/admin/auth", () => ({ requireActiveAdmin: mocks.requireActiveAdmin }));
+vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath, revalidateTag: mocks.revalidateTag }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 

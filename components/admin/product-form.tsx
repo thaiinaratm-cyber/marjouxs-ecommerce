@@ -7,11 +7,12 @@ import { ProductFields, type AdminProductFieldValues } from "@/components/admin/
 import type { AdminTaxonomy } from "@/lib/admin/catalog";
 import type { AdminProductFormState } from "@/lib/admin/product-form";
 
-export function ProductForm({ action, taxonomy, values, children, submitLabel }: {
+export function ProductForm({ action, taxonomy, values, children, afterFields, submitLabel }: {
   action: (data: FormData) => Promise<AdminProductFormState>;
   taxonomy: AdminTaxonomy;
   values?: AdminProductFieldValues;
   children?: ReactNode;
+  afterFields?: ReactNode;
   submitLabel: string;
 }) {
   const [state, setState] = useState<AdminProductFormState>({});
@@ -52,6 +53,7 @@ export function ProductForm({ action, taxonomy, values, children, submitLabel }:
     {children}
     {state.message ? <div role="alert" className="mb-6 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">{state.message}</div> : null}
     <ProductFields taxonomy={taxonomy} values={values} fieldErrors={state.fieldErrors} />
+    {afterFields}
     <div className="mt-7 flex justify-end"><button disabled={pending} type="submit" className="inline-flex min-h-11 items-center gap-2 rounded-md bg-ink px-5 text-sm font-bold text-white transition hover:bg-gold disabled:opacity-60">
       <Save size={17} aria-hidden="true" />{pending ? "Salvando…" : submitLabel}
     </button></div>

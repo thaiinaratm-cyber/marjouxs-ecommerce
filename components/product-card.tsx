@@ -1,8 +1,10 @@
 import { ArrowRight } from "lucide-react";
-import { AnalyticsLink } from "@/components/analytics-link";
+import { AnalyticsAnchor, AnalyticsLink } from "@/components/analytics-link";
 import { ProductImage } from "@/components/product-image";
 import { ProductPrice } from "@/components/product-price";
-import { createSelectItemEvent } from "@/lib/analytics";
+import { createSelectItemEvent, createWhatsappClickEvent } from "@/lib/analytics";
+import { hasValidPrice } from "@/lib/product-pricing";
+import { buildQuoteUrl } from "@/lib/whatsapp";
 import type { Product } from "@/types/product";
 
 function getProductBadge(product: Product) {
@@ -16,11 +18,13 @@ function getProductBadge(product: Product) {
 export function ProductCard({
   product,
   itemListName = "Produtos",
-  source = "product_grid"
+  source = "product_grid",
+  quoteAction = false
 }: {
   product: Product;
   itemListName?: string;
   source?: string;
+  quoteAction?: boolean;
 }) {
   const badge = getProductBadge(product);
   const selectItemEvent = createSelectItemEvent(product, itemListName, source);
@@ -77,6 +81,13 @@ export function ProductCard({
           >
             Ver produto <ArrowRight size={16} />
           </AnalyticsLink>
+          {quoteAction && !hasValidPrice(product) && product.allowWhatsappQuote ? (
+            <AnalyticsAnchor href={buildQuoteUrl(product)}
+              analyticsEvents={createWhatsappClickEvent(source, product)} target="_blank" rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center justify-center rounded border border-black/15 px-3 text-center text-sm font-semibold text-ink hover:border-gold focus-visible:outline-gold">
+              Consultar pelo WhatsApp
+            </AnalyticsAnchor>
+          ) : null}
         </div>
       </div>
     </article>
