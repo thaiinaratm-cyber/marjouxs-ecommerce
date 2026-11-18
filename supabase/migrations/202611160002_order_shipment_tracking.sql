@@ -1,6 +1,7 @@
 -- Stage 17. Apply only with a separately approved production release.
 BEGIN;
 SET LOCAL lock_timeout = '5s';
+SET LOCAL search_path = '';
 
 -- Run inside the approved migration transaction, before its ALTER TABLE.
 -- This gate changes no rows and creates no objects. Do not run DDL in 17B.
@@ -33,12 +34,14 @@ BEGIN
       ('updated_at', 'timestamptz'::regtype, true), ('shipping_carrier', 'text'::regtype, false)
     ) AS e(name, data_type, require_not_null)
     LEFT JOIN pg_catalog.pg_attribute a ON a.attrelid = orders AND a.attname = e.name AND NOT a.attisdropped
-    WHERE a.atttypid IS DISTINCT FROM e.data_type::oid OR (e.require_not_null AND NOT a.attnotnull);
+    WHERE a.atttypid IS DISTINCT FROM e.data_type::oid OR (e.require_not_null AND NOT a.attnotnull)
+      OR (e.name = 'updated_at' AND a.atttypmod NOT IN (-1, 6));
   IF mismatch IS NOT NULL THEN
     RAISE EXCEPTION 'Stage 17 precheck: missing/incompatible orders columns: %', mismatch;
   END IF;
 
   IF to_regprocedure('public.ecommerce_update_order_shipment(uuid,timestamptz,text,text,text,text,boolean)') IS NOT NULL
+    OR to_regprocedure('public.ecommerce_orders_touch_updated_at()') IS NOT NULL
     OR EXISTS (SELECT 1 FROM pg_catalog.pg_attribute
       WHERE attrelid = orders AND NOT attisdropped
         AND attname IN ('dispatch_carrier','tracking_code','tracking_url','shipping_status',
@@ -56,15 +59,62 @@ BEGIN
     RAISE EXCEPTION 'Stage 17 precheck: service_role or inherited application privileges do not match expectations';
   END IF;
 
-  SELECT string_agg(tgname, ', ' ORDER BY tgname) INTO mismatch
-    FROM pg_catalog.pg_trigger WHERE tgrelid = orders AND NOT tgisinternal
-      AND tgenabled <> 'D' AND (tgtype::int & 16) <> 0;
+  -- Compare the full catalog definitions in a fixed search_path; normalize
+  -- only CRLF from the audited PL/pgSQL source bodies.
+  WITH expected(trigger_name, function_signature, events, trigger_events, function_sha256, function_config) AS (VALUES
+    ('ecommerce_orders_10_touch_updated_at', 'public.ecommerce_touch_updated_at()', 19, 'UPDATE',
+      '68af8100b43e9560f91962c89ff40e66cd1b778f1a1378eb65620868d653506b', 'search_path=public, pg_temp'),
+    ('ecommerce_orders_90_protect_paid', 'public.ecommerce_protect_paid_order()', 27, 'DELETE OR UPDATE',
+      'ea3ee1e480ff8d5579cf8d756e8aaa9e6d07b99ecdd8c142fd679f8a3d037f9a', 'search_path=""')
+  ), actual AS (
+    SELECT * FROM pg_catalog.pg_trigger WHERE tgrelid = orders AND NOT tgisinternal
+  )
+  SELECT string_agg(coalesce(e.trigger_name, t.tgname::text), ', ' ORDER BY coalesce(e.trigger_name, t.tgname::text))
+    INTO mismatch
+    FROM expected e FULL JOIN actual t ON t.tgname = e.trigger_name
+    LEFT JOIN pg_catalog.pg_proc p ON p.oid = t.tgfoid
+    WHERE e.trigger_name IS NULL
+      OR t.oid IS NULL
+      OR t.tgtype IS DISTINCT FROM e.events
+      OR t.tgenabled IS DISTINCT FROM 'O'
+      OR t.tgfoid IS DISTINCT FROM to_regprocedure(e.function_signature)::oid
+      OR pg_catalog.pg_get_triggerdef(t.oid, false) IS DISTINCT FROM
+        ('CREATE TRIGGER ' || e.trigger_name || ' BEFORE ' || e.trigger_events ||
+          ' ON public.ecommerce_orders FOR EACH ROW EXECUTE FUNCTION ' || e.function_signature)
+      OR pg_catalog.pg_get_userbyid(p.proowner) IS DISTINCT FROM 'postgres'
+      OR p.prosecdef IS DISTINCT FROM false
+      OR p.proconfig IS DISTINCT FROM ARRAY[e.function_config]
+      OR p.proacl IS DISTINCT FROM ARRAY['postgres=X/postgres'::aclitem]
+      OR pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(
+        pg_catalog.replace(pg_catalog.pg_get_functiondef(p.oid), chr(13) || chr(10), chr(10)), 'UTF8')), 'hex')
+        IS DISTINCT FROM e.function_sha256;
   IF mismatch IS NOT NULL THEN
-    RAISE EXCEPTION 'Stage 17 precheck: review existing UPDATE triggers before applying: %', mismatch;
+    RAISE EXCEPTION 'Stage 17 precheck: unexpected or changed orders triggers/functions: %', mismatch;
   END IF;
 END;
 $shipment_precheck$;
 
+CREATE FUNCTION public.ecommerce_orders_touch_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $touch$
+BEGIN
+  -- A version that cannot be incremented must fail closed.
+  IF NOT pg_catalog.isfinite(OLD.updated_at) THEN
+    RAISE EXCEPTION USING ERRCODE = '22008', MESSAGE = 'Order updated_at must be finite';
+  END IF;
+  NEW.updated_at := greatest(pg_catalog.clock_timestamp(), OLD.updated_at + interval '1 microsecond');
+  RETURN NEW;
+END;
+$touch$;
+
+REVOKE ALL ON FUNCTION public.ecommerce_orders_touch_updated_at() FROM PUBLIC, anon, authenticated, service_role;
+
+CREATE OR REPLACE TRIGGER ecommerce_orders_10_touch_updated_at
+  BEFORE UPDATE ON public.ecommerce_orders
+  FOR EACH ROW EXECUTE FUNCTION public.ecommerce_orders_touch_updated_at();
 
 ALTER TABLE public.ecommerce_orders
   ADD COLUMN dispatch_carrier text,
@@ -152,8 +202,7 @@ BEGIN
     in_transit_at = CASE WHEN current_stage <> p_status AND p_status = 'in_transit'
       THEN coalesce(in_transit_at, changed_at) ELSE in_transit_at END,
     delivered_at = CASE WHEN current_stage <> p_status AND p_status = 'delivered'
-      THEN coalesce(delivered_at, changed_at) ELSE delivered_at END,
-    updated_at = changed_at
+      THEN coalesce(delivered_at, changed_at) ELSE delivered_at END
   WHERE id = p_order_id;
 
   RETURN 'saved';

@@ -1,0 +1,48 @@
+[
+  {
+    "name": "ecommerce_orders_10_touch_updated_at",
+    "enabled": "O",
+    "owner": "postgres",
+    "function_name": "public.ecommerce_touch_updated_at",
+    "language": "plpgsql",
+    "security": "INVOKER",
+    "config": [
+      "search_path=public, pg_temp"
+    ],
+    "acl": [
+      "postgres=X/postgres"
+    ],
+    "effective_execute": {
+      "postgres": true,
+      "anon": false,
+      "authenticated": false,
+      "service_role": false
+    },
+    "md5": "0ec692110ca71ae9da0de7242802a450",
+    "trigger_ddl": "CREATE TRIGGER ecommerce_orders_10_touch_updated_at BEFORE UPDATE ON public.ecommerce_orders FOR EACH ROW EXECUTE FUNCTION ecommerce_touch_updated_at()",
+    "function_ddl": "CREATE OR REPLACE FUNCTION public.ecommerce_touch_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public', 'pg_temp'\nAS $function$\r\nbegin\r\n  new.updated_at := now();\r\n  return new;\r\nend;\r\n$function$\n"
+  },
+  {
+    "name": "ecommerce_orders_90_protect_paid",
+    "enabled": "O",
+    "owner": "postgres",
+    "function_name": "public.ecommerce_protect_paid_order",
+    "language": "plpgsql",
+    "security": "INVOKER",
+    "config": [
+      "search_path=\"\""
+    ],
+    "acl": [
+      "postgres=X/postgres"
+    ],
+    "effective_execute": {
+      "postgres": true,
+      "anon": false,
+      "authenticated": false,
+      "service_role": false
+    },
+    "md5": "80ebea540a83d583ad73fc50639e7570",
+    "trigger_ddl": "CREATE TRIGGER ecommerce_orders_90_protect_paid BEFORE DELETE OR UPDATE ON public.ecommerce_orders FOR EACH ROW EXECUTE FUNCTION ecommerce_protect_paid_order()",
+    "function_ddl": "CREATE OR REPLACE FUNCTION public.ecommerce_protect_paid_order()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\r\nbegin\r\n  if tg_op = 'DELETE' then\r\n    if old.payment_status = 'paid' then\r\n      raise exception\r\n        using\r\n          errcode = '55000',\r\n          message = 'Paid ecommerce orders cannot be deleted';\r\n    end if;\r\n\r\n    return old;\r\n  end if;\r\n\r\n  if old.payment_status = 'paid' then\r\n    if new.id is distinct from old.id\r\n       or new.order_sequence is distinct from old.order_sequence\r\n       or new.order_number is distinct from old.order_number\r\n       or new.public_token is distinct from old.public_token\r\n       or new.checkout_idempotency_key\r\n          is distinct from old.checkout_idempotency_key\r\n       or new.checkout_request_hash\r\n          is distinct from old.checkout_request_hash\r\n       or new.store_id is distinct from old.store_id\r\n       or new.customer_name is distinct from old.customer_name\r\n       or new.customer_phone is distinct from old.customer_phone\r\n       or new.customer_email is distinct from old.customer_email\r\n       or new.customer_cpf is distinct from old.customer_cpf\r\n       or new.delivery_method is distinct from old.delivery_method\r\n       or new.shipping_zip is distinct from old.shipping_zip\r\n       or new.shipping_street is distinct from old.shipping_street\r\n       or new.shipping_number is distinct from old.shipping_number\r\n       or new.shipping_complement is distinct from old.shipping_complement\r\n       or new.shipping_neighborhood is distinct from old.shipping_neighborhood\r\n       or new.shipping_city is distinct from old.shipping_city\r\n       or new.shipping_state is distinct from old.shipping_state\r\n       or new.shipping_provider is distinct from old.shipping_provider\r\n       or new.shipping_carrier is distinct from old.shipping_carrier\r\n       or new.shipping_service is distinct from old.shipping_service\r\n       or new.shipping_service_id is distinct from old.shipping_service_id\r\n       or new.shipping_quote_id is distinct from old.shipping_quote_id\r\n       or new.shipping_quoted_at is distinct from old.shipping_quoted_at\r\n       or new.shipping_deadline_days\r\n          is distinct from old.shipping_deadline_days\r\n       or new.subtotal_cents is distinct from old.subtotal_cents\r\n       or new.shipping_cents is distinct from old.shipping_cents\r\n       or new.discount_cents is distinct from old.discount_cents\r\n       or new.total_cents is distinct from old.total_cents\r\n       or new.payment_provider is distinct from old.payment_provider\r\n       or new.payment_method is distinct from old.payment_method\r\n       or new.payment_status is distinct from old.payment_status\r\n       or new.paid_at is distinct from old.paid_at\r\n       or new.created_at is distinct from old.created_at then\r\n      raise exception\r\n        using\r\n          errcode = '55000',\r\n          message = 'Paid ecommerce order financial data is immutable';\r\n    end if;\r\n  end if;\r\n\r\n  return new;\r\nend;\r\n$function$\n"
+  }
+]
