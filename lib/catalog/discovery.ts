@@ -2,7 +2,7 @@ import type { CategoryFilter } from "@/lib/category-navigation";
 import { formatCurrency } from "@/lib/format";
 import {
   getMaterialFilterOptions, matchesPriceRange, normalizePriceRange, productPriceRanges, readSearchTerm,
-  searchProducts, toFilterOptions, toProductFilterValue, type ProductFilterOption
+  searchProducts, toFilterOptions, toProductFilterValue, toPublicMaterialFilterValue, type ProductFilterOption
 } from "@/lib/product-discovery";
 import { hasValidPrice } from "@/lib/product-pricing";
 import { normalizeSortOrder, sortProducts } from "@/lib/product-sorting";
@@ -107,18 +107,21 @@ export function discoverCatalog(
   const rootSubcategories = alias
     ? [{ value: alias.slug, label: alias.label }, ...allSubcategories.filter((option) => option.value !== alias.slug)]
     : allSubcategories;
+  const materialParam = read(params, "material");
+  const requestedMaterial = materialParam && materialParam.length <= 100
+    ? toPublicMaterialFilterValue(materialParam) : undefined;
   const options: DiscoveryOptions = {
     categories,
     subcategories: {
       "": rootSubcategories,
       ...(!scoped ? Object.fromEntries(Array.from(byCategory, ([slug, labels]) => [slug, toFilterOptions(labels)])) : {})
     },
-    materials: getMaterialFilterOptions(products),
+    materials: getMaterialFilterOptions(products, requestedMaterial),
     availability: toFilterOptions(products.map(getAvailability)),
     hasCustomizableStone: products.some((product) => Boolean(product.stoneCustomization))
   };
   const subcategory = readFacet(editorialSlug, options.subcategories[category ?? ""] ?? []);
-  const material = readFacet(read(params, "material"), options.materials);
+  const material = readFacet(requestedMaterial, options.materials);
   const availability = readFacet(read(params, "disponibilidade"), options.availability);
   const queryTerm = readSearchTerm(read(params, "busca"));
   const priceRange = normalizePriceRange(read(params, "preco"));
@@ -140,7 +143,7 @@ export function discoverCatalog(
     if (category && toProductFilterValue(product.category) !== category) return false;
     if (subcategory && (alias?.slug === subcategory ? !matchesEditorialVariant(product, subcategory)
       : toProductFilterValue(product.subcategory) !== subcategory)) return false;
-    if (material && toProductFilterValue(product.material) !== material) return false;
+    if (material && toPublicMaterialFilterValue(product.material) !== material) return false;
     if (availability && toProductFilterValue(getAvailability(product)) !== availability) return false;
     if (stone && !product.stoneCustomization) return false;
     const priced = hasValidPrice(product);

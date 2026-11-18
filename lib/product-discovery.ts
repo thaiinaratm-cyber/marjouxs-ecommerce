@@ -85,11 +85,21 @@ export function matchesPriceRange(product: Product, selectedRange: ProductPriceR
   return true;
 }
 
-export function getMaterialFilterOptions(products: Product[]) {
+const silverFacet = { value: "prata", label: "Prata" };
+const silverMaterialSlugs = new Set([silverFacet.value, "prata-925", "prata-950"]);
+
+export function toPublicMaterialFilterValue(material: string) {
+  const slug = toProductFilterValue(material);
+  return silverMaterialSlugs.has(slug) ? silverFacet.value : slug;
+}
+
+export function getMaterialFilterOptions(products: Product[], requestedMaterial?: string) {
   const materials = products
     .filter((product) => product.category !== "Serviços" && product.stockStatus !== "Serviço")
-    .map((product) => product.material.trim())
-    .filter(Boolean);
+    .map(({ material }) => toPublicMaterialFilterValue(material) === silverFacet.value ? silverFacet.label : material.trim());
+
+  // Keep a recognized silver filter active even when there are no eligible products.
+  if (requestedMaterial === silverFacet.value) materials.push(silverFacet.label);
 
   return toFilterOptions(materials);
 }

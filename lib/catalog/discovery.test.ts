@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { catalogHref, discoverCatalog, hasDiscoveryParams, matchesEditorialVariant } from "@/lib/catalog/discovery";
 import { categoryFilters } from "@/lib/category-navigation";
+import { toPublicMaterialFilterValue } from "@/lib/product-discovery";
 import { getRingProductSubcategorySlug, matchesRingMaterial } from "@/lib/ring-filters";
 import type { Product } from "@/types/product";
 
@@ -21,6 +22,71 @@ const products = [
 ];
 
 const ids = (result: ReturnType<typeof discoverCatalog>) => result.products.map(({ id }) => id);
+
+const materialProducts = [
+  item("silver", "Elo Uno", { material: "Prata", category: "Correntes", subcategory: "Clássicas", price: 190 }),
+  item("silver925", "Elo Duplo", { material: "Prata 925", category: "Correntes", subcategory: "Clássicas", price: 250 }),
+  item("silver950", "Elo Triplo", { material: "Prata 950", category: "Correntes", subcategory: "Masculino", price: 340 }),
+  item("silverquote", "Elo Imperial", { material: "Prata 950", category: "Correntes", subcategory: "Clássicas",
+    price: null, priceLabel: "Sob orçamento" }),
+  item("gold", "Elo Solar", { material: "Ouro 18k", category: "Correntes" }),
+  item("coin", "Elo Moeda", { material: "Moeda" }),
+  item("plated", "Elo Banhado", { material: "Banhado a Ouro" }),
+  item("unrelated", "Elo Fosco", { material: "Aço prateado" })
+];
+
+describe("faceta pública de material", () => {
+  it.each([
+    ["Prata 925", "prata"], [" PRÁTA_950 ", "prata"], ["Prata", "prata"],
+    ["Ouro 18k", "ouro-18k"], ["Moeda", "moeda"], ["Banhado a Ouro", "banhado-a-ouro"],
+    ["Aço prateado", "aco-prateado"], ["Prata 999", "prata-999"]
+  ])("agrupa %s somente quando pertence à família explícita", (input, expected) => {
+    expect(toPublicMaterialFilterValue(input)).toBe(expected);
+  });
+
+  it.each(["prata", "prata-925", "prata-950"])("resolve %s como Prata sem reescrever o teor técnico", (material) => {
+    const result = discoverCatalog(materialProducts, { material, ordem: "menor-preco" });
+    expect(result.total).toBe(4);
+    expect(result.products).toEqual(materialProducts.slice(0, 4));
+    expect(result.options.materials).toEqual([
+      { label: "Aço prateado", value: "aco-prateado" }, { label: "Banhado a Ouro", value: "banhado-a-ouro" },
+      { label: "Moeda", value: "moeda" }, { label: "Ouro 18k", value: "ouro-18k" }, { label: "Prata", value: "prata" }
+    ]);
+    expect(result.chips).toContainEqual({ label: "Prata", remove: { material: undefined } });
+    expect(catalogHref("/produtos", result.query)).toBe("/produtos?material=prata&ordem=menor-preco");
+  });
+
+  it.each(["prata", "prata-925", "prata-950"])("mantém %s ativo e vazio quando nenhuma peça de prata é publicada", (material) => {
+    const result = discoverCatalog([materialProducts[4]], { material, pagina: "2" });
+    expect(result).toMatchObject({ total: 0, currentPage: 1, products: [], query: { material: "prata" } });
+    expect(result.options.materials).toContainEqual({ label: "Prata", value: "prata" });
+    expect(result.chips).toEqual([{ label: "Prata", remove: { material: undefined } }]);
+  });
+
+  it("aceita o alias 925 quando o catálogo tem somente Prata e Prata 950", () => {
+    const result = discoverCatalog([materialProducts[0], materialProducts[2], materialProducts[4]], { material: "prata-925" });
+    expect(ids(result)).toEqual(["silver", "silver950"]);
+    expect(result.query.material).toBe("prata");
+  });
+
+  it("continua ignorando materiais desconhecidos e não cria opções a partir deles", () => {
+    const result = discoverCatalog([materialProducts[4]], { material: "material-inexistente-xyz" });
+    expect(result.query.material).toBeUndefined();
+    expect(result.options.materials).toEqual([{ label: "Ouro 18k", value: "ouro-18k" }]);
+    expect(ids(result)).toEqual(["gold"]);
+  });
+
+  it("combina Prata com categoria, subcategoria, preço, orçamento, busca e ordenação", () => {
+    expect(ids(discoverCatalog(materialProducts, { material: "prata", categoria: "correntes",
+      subcategoria: "classicas", max_price: "300", busca: "elo", ordem: "maior-preco" })))
+      .toEqual(["silver925", "silver"]);
+    expect(ids(discoverCatalog(materialProducts, { material: "prata", tipo_preco: "sob-orcamento" }))).toEqual(["silverquote"]);
+    expect(ids(discoverCatalog(materialProducts, { material: "prata", busca: "prata 925" }))).toEqual(["silver925"]);
+    expect(ids(discoverCatalog(materialProducts, { material: "prata", busca: "prata 950", ordem: "menor-preco" })))
+      .toEqual(["silver950", "silverquote"]);
+    expect(discoverCatalog(materialProducts, { material: "prata", busca: "prata" }).total).toBe(4);
+  });
+});
 
 describe("catálogo com filtros no servidor", () => {
   it("ordena nome exato, prefixo, trecho e taxonomia", () => {
@@ -94,7 +160,7 @@ describe("catálogo com filtros no servidor", () => {
     expect(first.products).toHaveLength(24);
     expect(second.products).toHaveLength(7);
     expect(ids(second)[0]).toBe("24");
-    expect(catalogHref("/produtos", second.query)).toBe("/produtos?busca=alian%C3%A7a&material=prata-950&ordem=menor-preco&pagina=2");
+    expect(catalogHref("/produtos", second.query)).toBe("/produtos?busca=alian%C3%A7a&material=prata&ordem=menor-preco&pagina=2");
     expect(catalogHref("/produtos", { ...second.query, pagina: undefined })).not.toContain("pagina");
   });
 

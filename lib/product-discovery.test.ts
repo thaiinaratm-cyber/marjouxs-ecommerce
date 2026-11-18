@@ -71,7 +71,7 @@ describe("descoberta de produtos", () => {
     expect(discoverCatalog(products, { preco: "acima-2000" }).products.map((item) => item.id)).toEqual(["2001"]);
   });
 
-  it("oferece somente materiais de joias realmente presentes", () => {
+  it("oferece somente grupos de materiais de joias realmente presentes", () => {
     const options = getMaterialFilterOptions([
       product(),
       product({ id: "ouro", material: "Ouro 18k" }),
@@ -80,7 +80,7 @@ describe("descoberta de produtos", () => {
 
     expect(options).toEqual([
       { label: "Ouro 18k", value: "ouro-18k" },
-      { label: "Prata 950", value: "prata-950" }
+      { label: "Prata", value: "prata" }
     ]);
   });
 });
