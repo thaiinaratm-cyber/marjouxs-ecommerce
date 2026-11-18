@@ -1,5 +1,5 @@
 import { normalizeText } from "@/lib/format";
-import { getProductCommercialDetails } from "@/lib/product-merchandising";
+import { isMadeToOrder } from "@/lib/product-merchandising";
 import type { Product } from "@/types/product";
 
 const number = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 3 });
@@ -41,9 +41,7 @@ export function ProductCharacteristics({ product }: { product: Product }) {
       Number.isInteger(sizeMin) && Number.isInteger(sizeMax) && sizeMin > 0 && sizeMax >= sizeMin) {
     add("Faixa de aros", sizeMin === sizeMax ? number.format(sizeMin) : [sizeMin, sizeMax].join(" a "));
   }
-  const commercial = getProductCommercialDetails(product);
-  add("Disponibilidade", commercial.find(detail => detail.kind === "availability")?.value);
-  add("Produção", commercial.find(detail => detail.kind === "production")?.value);
+  add("Disponibilidade", isMadeToOrder(product) ? "Sob encomenda" : product.stockStatus);
   if (!details.length) return null;
 
   return (

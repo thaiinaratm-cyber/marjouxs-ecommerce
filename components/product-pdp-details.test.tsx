@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ProductCharacteristics } from "@/components/product-characteristics";
 import { ProductDescription } from "@/components/product-description";
+import { ProductFaq } from "@/components/product-faq";
+import { ProductTrustBlock } from "@/components/product-commercial-info";
 import { ProductPrice } from "@/components/product-price";
 import { ProductPurchaseActions } from "@/components/product-purchase-actions";
 import type { Product } from "@/types/product";
@@ -30,7 +32,7 @@ describe("detalhes da PDP", () => {
     expect(html).toContain("Largura");
     expect(html).toContain("4 mm");
     expect(html).toContain("18 cm");
-    expect(html).toContain("3 a 5 dias úteis");
+    expect(html).not.toContain("3 a 5 dias úteis");
     expect(html).not.toMatch(/frete|transporte/i);
   });
 
@@ -52,9 +54,35 @@ describe("detalhes da PDP", () => {
       <ProductCharacteristics product={item} />
     </>);
     expect(html).toContain("Preço sob consulta");
-    expect(html).toContain("WhatsApp");
+    expect(html).toContain("Solicitar orçamento no WhatsApp");
     expect(html).toContain("4 mm");
-    expect(html).not.toContain("COMPRAR AGORA");
+    expect(html).not.toMatch(/Comprar agora|12x|Pix/);
+  });
+
+  it("separa produção de transporte perto da compra sem inventar prazo de orçamento", () => {
+    const html = renderToStaticMarkup(<ProductTrustBlock product={product} />);
+    expect(html).toContain("Produção: 3 a 5 dias úteis");
+    expect(html).toContain("prazo de transporte é informado à parte");
+    expect(html).toContain('href="/politica-de-entrega"');
+    expect(renderToStaticMarkup(<ProductTrustBlock product={{ ...product, price: null }} />)).not.toContain("3 a 5 dias úteis");
+  });
+
+  it("usa accordion nativo com links reais e oculta o FAQ quando não há perguntas", () => {
+    const html = renderToStaticMarkup(<ProductFaq product={{ ...product, category: "Alianças", engravingAvailable: true }} />);
+    expect(html.match(/<summary/g)).toHaveLength(3);
+    expect(html).toContain('href="/guia-de-tamanhos"');
+    expect(html).toContain('href="/garantia-e-trocas"');
+    expect(html).not.toContain("cor da pedra");
+    expect(renderToStaticMarkup(<ProductFaq product={{ ...product, category: "Serviços" }} />)).toBe("");
+  });
+
+  it("mostra somente os aros disponíveis e não oferece gravação explicitamente desabilitada", () => {
+    const html = renderToStaticMarkup(<ProductPurchaseActions product={{
+      ...product, category: "Alianças", sizeMin: 12, sizeMax: 21, engravingAvailable: false
+    }} whatsappUrl="https://example.invalid" />);
+    expect(html).toContain("Aro 12");
+    expect(html).toContain("Aro 21");
+    expect(html).not.toMatch(/Aro 11|Aro 22|Gravação opcional/);
   });
 
   it("renderiza títulos e negrito sem um segundo H1", () => {

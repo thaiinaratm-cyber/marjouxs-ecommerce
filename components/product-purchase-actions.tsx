@@ -2,8 +2,9 @@
 
 import { MessageCircle, PenLine, Ruler, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { AnalyticsAnchor, AnalyticsLink } from "@/components/analytics-link";
+import { ProductMobileCta } from "@/components/product-mobile-cta";
 import { useCart } from "@/context/cart-context";
 import { createSizeGuideClickEvent, createWhatsappClickEvent } from "@/lib/analytics";
 import { isAlliance } from "@/lib/checkout/catalog";
@@ -13,7 +14,8 @@ import { hasValidPrice } from "@/lib/product-pricing";
 import { getStoneOptions, STONE_REQUIRED } from "@/lib/stone-customization";
 import type { CartCustomization, Product } from "@/types/product";
 
-const RING_SIZES = Array.from({ length: 28 }, (_, index) => index + 8);
+const ringSizes = Array.from({ length: 28 }, (_, index) => index + 8);
+const actionClass = "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-center text-sm font-semibold leading-tight text-white hover:bg-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold";
 
 export function ProductPurchaseActions({
   product,
@@ -26,6 +28,10 @@ export function ProductPurchaseActions({
   const router = useRouter();
   const alliance = isAlliance(product);
   const canCheckout = hasValidPrice(product);
+  const canQuote = !canCheckout && product.allowWhatsappQuote;
+  const canEngrave = alliance && product.engravingAvailable !== false;
+  const engravingIncluded = product.engravingAvailable === true && product.engravingIncluded === true;
+  const sizes = ringSizes.filter((size) => size >= (product.sizeMin ?? 8) && size <= (product.sizeMax ?? 35));
   const [ring1Size, setRing1Size] = useState("");
   const [ring2Size, setRing2Size] = useState("");
   const [ring1Engraving, setRing1Engraving] = useState("");
@@ -33,44 +39,11 @@ export function ProductPurchaseActions({
   const [stone, setStone] = useState("");
   const stoneOptions = getStoneOptions(product);
   const [message, setMessage] = useState("");
-  const [showMobileCta, setShowMobileCta] = useState(false);
-  const primaryCtaRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const primaryCta = primaryCtaRef.current;
-
-    if (!primaryCta || !canCheckout) {
-      return;
-    }
-
-    let animationFrame = 0;
-
-    const updateMobileCta = () => {
-      if (animationFrame) {
-        return;
-      }
-
-      animationFrame = window.requestAnimationFrame(() => {
-        const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-        const hasPassedPrimaryCta = primaryCta.getBoundingClientRect().bottom <= 0;
-        setShowMobileCta(isMobile && hasPassedPrimaryCta);
-        animationFrame = 0;
-      });
-    };
-
-    updateMobileCta();
-    window.addEventListener("scroll", updateMobileCta, { passive: true });
-    window.addEventListener("resize", updateMobileCta);
-
-    return () => {
-      window.removeEventListener("scroll", updateMobileCta);
-      window.removeEventListener("resize", updateMobileCta);
-      window.cancelAnimationFrame(animationFrame);
-    };
-  }, [canCheckout]);
+  const primaryCtaRef = useRef<HTMLDivElement>(null);
 
   function addProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canCheckout) return;
     setMessage("");
 
     const selectedStone = stoneOptions.some(option => option.id === stone) ? stone : "";
@@ -88,8 +61,8 @@ export function ProductPurchaseActions({
 
       customization = {
         type: "ring_pair",
-        ring1: { size: Number(ring1Size), engraving: ring1Engraving.trim() || null },
-        ring2: { size: Number(ring2Size), engraving: ring2Engraving.trim() || null },
+        ring1: { size: Number(ring1Size), engraving: canEngrave ? ring1Engraving.trim() || null : null },
+        ring2: { size: Number(ring2Size), engraving: canEngrave ? ring2Engraving.trim() || null : null },
         ...(selectedStone ? { stone_color: selectedStone } : {})
       };
     }
@@ -102,11 +75,20 @@ export function ProductPurchaseActions({
     setMessage("Não foi possível adicionar este produto à sacola.");
   }
 
+  const whatsappEvents = createWhatsappClickEvent("product_page", product);
+  if (!canCheckout && !canQuote) return null;
+
   return (
-    <form onSubmit={addProduct} className="mt-6 grid gap-4">
+    <form data-pdp-actions data-pdp-inquiry={product.allowWhatsappQuote ? "" : undefined} onSubmit={addProduct} className="mt-6 grid gap-4">
       {alliance && canCheckout ? (
-        <div className="rounded-lg border border-gold/25 bg-pearl p-4 sm:p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Escolha as numerações</p>
+        <section className="rounded-lg border border-gold/25 bg-pearl p-4 sm:p-5" aria-labelledby="alliance-sizes-title">
+          <h2 id="alliance-sizes-title" className="font-serif text-lg font-semibold text-ink">Escolha os dois aros</h2>
+          {engravingIncluded || product.jewelryBoxIncluded === true ? (
+            <p className="mt-1 text-sm text-taupe">
+              {engravingIncluded && product.jewelryBoxIncluded === true ? "Gravação e caixinha inclusas."
+                : engravingIncluded ? "Gravação inclusa." : "Caixinha inclusa."}
+            </p>
+          ) : null}
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {[
               {
@@ -126,30 +108,30 @@ export function ProductPurchaseActions({
             ].map((ring) => (
               <fieldset key={ring.label} className="grid gap-3">
                 <legend className="font-serif text-lg font-semibold text-ink">{ring.label}</legend>
-                <label className="grid gap-1.5 text-sm font-medium text-ink">
+                <label className="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
                   Aro
                   <select
                     required
                     value={ring.size}
                     onChange={(event) => ring.setSize(event.target.value)}
-                    className="h-11 rounded-md border border-black/10 bg-white px-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/15"
+                    className="h-11 w-full min-w-0 scroll-mt-40 rounded-md border border-black/10 bg-white px-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/25"
                   >
                     <option value="">Selecione</option>
-                    {RING_SIZES.map((size) => (
+                    {sizes.map((size) => (
                       <option key={size} value={size}>Aro {size}</option>
                     ))}
                   </select>
                 </label>
-                <label className="grid gap-1.5 text-sm font-medium text-ink">
+                {canEngrave ? <label className="grid min-w-0 gap-1.5 text-sm font-medium text-ink">
                   Gravação opcional
                   <input
                     value={ring.engraving}
                     maxLength={MAX_ENGRAVING_LENGTH}
                     onChange={(event) => ring.setEngraving(event.target.value)}
-                    className="h-11 rounded-md border border-black/10 bg-white px-3 text-sm outline-none transition placeholder:text-taupe focus:border-gold focus:ring-2 focus:ring-gold/15"
+                    className="h-11 w-full min-w-0 rounded-md border border-black/10 bg-white px-3 text-base outline-none transition placeholder:text-taupe focus:border-gold focus:ring-2 focus:ring-gold/25"
                     placeholder="Nome, data ou símbolo"
                   />
-                </label>
+                </label> : null}
               </fieldset>
             ))}
           </div>
@@ -160,7 +142,7 @@ export function ProductPurchaseActions({
           >
             <Ruler size={17} /> Ver Guia de Tamanhos
           </AnalyticsLink>
-        </div>
+        </section>
       ) : null}
 
       {alliance && canCheckout ? (
@@ -178,9 +160,9 @@ export function ProductPurchaseActions({
                 <p className="mt-1 text-sm text-ink">
                   {ring.size ? `Aro: ${ring.size}` : "Selecione o aro"}
                 </p>
-                <p className="mt-0.5 break-words text-sm leading-5 text-taupe">
+                {canEngrave ? <p className="mt-0.5 break-words text-sm leading-5 text-taupe">
                   Gravação: {ring.engraving.trim() || "Sem gravação"}
-                </p>
+                </p> : null}
               </div>
             ))}
           </div>
@@ -189,7 +171,7 @@ export function ProductPurchaseActions({
 
       {canCheckout ? (
         product.stoneCustomization ? (
-          <fieldset id="product-stone-options" tabIndex={-1} className="grid gap-2 scroll-mt-40">
+          <fieldset id="product-stone-options" tabIndex={-1} aria-describedby={message === STONE_REQUIRED ? "product-stone-error" : undefined} className="min-w-0 scroll-mt-40">
             <legend className="mb-2 text-sm font-semibold text-ink">Escolha a cor da pedra</legend>
             <div className="flex flex-wrap gap-2">
               {stoneOptions.map(option => (
@@ -202,63 +184,63 @@ export function ProductPurchaseActions({
                 </label>
               ))}
             </div>
+            {message === STONE_REQUIRED ? <p id="product-stone-error" className="mt-2 text-sm text-red-700" role="alert">{message}</p> : null}
             {!stoneOptions.length ? <p className="text-sm text-taupe">Nenhuma cor disponível no momento.</p> : null}
           </fieldset>
         ) : null
       ) : null}
 
-      {canCheckout ? (
-        <button
-          ref={primaryCtaRef}
-          type="submit"
-          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-gold"
-        >
-          <ShoppingBag size={18} /> COMPRAR AGORA
-        </button>
-      ) : null}
+      <div ref={primaryCtaRef}>
+        {canCheckout ? (
+          <button type="submit" className={`${actionClass} w-full`}>
+            <ShoppingBag aria-hidden="true" size={18} /> Comprar agora
+          </button>
+        ) : (
+          <AnalyticsAnchor href={whatsappUrl} analyticsEvents={whatsappEvents} target="_blank" rel="noopener noreferrer"
+            className={`${actionClass} w-full`}>
+            <MessageCircle aria-hidden="true" size={18} /> Solicitar orçamento no WhatsApp
+          </AnalyticsAnchor>
+        )}
+      </div>
 
-      {message ? (
+      {message && message !== STONE_REQUIRED ? (
         <p className="text-sm text-red-700" role="alert">
           {message}
         </p>
       ) : null}
 
-      {product.allowWhatsappQuote ? (
+      {canCheckout && product.allowWhatsappQuote ? (
         <p className="flex items-start gap-2 text-xs leading-5 text-taupe">
-          <MessageCircle className="mt-0.5 shrink-0 text-gold" size={15} />
+          <MessageCircle aria-hidden="true" className="mt-0.5 shrink-0 text-gold" size={15} />
           <span>
             {alliance
               ? "Deseja comprar somente uma aliança ou precisa de ajuda? "
               : "Precisa de ajuda? "}
             <AnalyticsAnchor
               href={whatsappUrl}
-              analyticsEvents={createWhatsappClickEvent("product_page", product)}
+              analyticsEvents={whatsappEvents}
               target="_blank"
               rel="noreferrer"
-              className="font-semibold text-ink transition hover:text-gold"
+              className="inline-flex min-h-8 items-center font-semibold text-ink underline decoration-gold underline-offset-4 hover:text-gold"
             >
-              Fale com nossa equipe pelo WhatsApp.
+              Falar com a Marjouxs
             </AnalyticsAnchor>
           </span>
         </p>
       ) : null}
 
-      {showMobileCta && canCheckout && product.price ? (
-        <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-black/10 bg-white/95 shadow-[0_-8px_24px_rgba(29,27,25,0.08)] backdrop-blur lg:hidden">
-          <div className="mx-auto flex max-w-lg items-center gap-3 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
-            <div className="min-w-0 shrink-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-taupe">Preço</p>
-              <p className="whitespace-nowrap text-base font-semibold text-ink">{formatCurrency(product.price)}</p>
-            </div>
-            <button
-              type="submit"
-              className="inline-flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-xs font-semibold text-white shadow-sm transition active:bg-gold"
-            >
-              <ShoppingBag aria-hidden="true" size={17} /> COMPRAR AGORA
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <ProductMobileCta primary={primaryCtaRef} label={canCheckout && product.price !== null ? formatCurrency(product.price) : "Sob consulta"}>
+        {canCheckout ? (
+          <button type="submit" className={`${actionClass} min-w-0 flex-[1_1_8rem]`}>
+            <ShoppingBag aria-hidden="true" className="shrink-0" size={17} /> Comprar agora
+          </button>
+        ) : (
+          <AnalyticsAnchor href={whatsappUrl} analyticsEvents={whatsappEvents} target="_blank" rel="noopener noreferrer"
+            className={`${actionClass} min-w-0 flex-[1_1_8rem]`}>
+            <MessageCircle aria-hidden="true" className="shrink-0" size={17} /> Falar no WhatsApp
+          </AnalyticsAnchor>
+        )}
+      </ProductMobileCta>
     </form>
   );
 }

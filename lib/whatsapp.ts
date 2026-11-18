@@ -10,6 +10,11 @@ export function buildDefaultWhatsappUrl(
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+export function buildProductInquiryUrl(product: Pick<Product, "name" | "slug">, quote: boolean) {
+  const request = quote ? "Gostaria de solicitar um orçamento para" : "Gostaria de tirar uma dúvida sobre";
+  return buildDefaultWhatsappUrl(`Olá, Marjouxs! ${request} ${product.name}.\n${STORE_URL}/produtos/${encodeURIComponent(product.slug)}`);
+}
+
 export type CheckoutPayload = {
   name: string;
   whatsapp: string;

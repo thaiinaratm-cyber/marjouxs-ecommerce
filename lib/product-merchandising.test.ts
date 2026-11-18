@@ -1,108 +1,51 @@
 import { describe, expect, it } from "vitest";
-import {
-  getProductCommercialDetails,
-  getProductionDeadline,
-  getProductTrustBenefits
-} from "@/lib/product-merchandising";
+import { getProductionDeadline, getProductFaqTopics, isMadeToOrder } from "@/lib/product-merchandising";
+import { buildProductInquiryUrl } from "@/lib/whatsapp";
 import type { Product } from "@/types/product";
 
-function product(overrides: Partial<Product> = {}): Product {
-  return {
-    id: "produto-teste",
-    name: "Produto teste",
-    slug: "produto-teste",
-    category: "Anéis",
-    subcategory: "Feminino",
-    material: "Ouro 18k",
-    price: 990,
-    priceLabel: "R$ 990,00",
-    installments: "Até 12x",
-    description: "Anel em Ouro 18k com acabamento polido.",
-    images: ["/produtos/produto-teste.jpg"],
-    featured: false,
-    isCustomOrder: false,
-    allowWhatsappQuote: true,
-    stockStatus: "Disponível",
-    ...overrides
-  };
-}
+const product: Product = {
+  id: "produto-teste", name: "Anel de teste", slug: "anel-teste", category: "Anéis", subcategory: "",
+  material: "Ouro 18k", price: 990, priceLabel: "R$ 990,00", installments: "Até 12x",
+  description: "", images: [], featured: false, isCustomOrder: false, allowWhatsappQuote: true, stockStatus: "Disponível"
+};
 
-describe("merchandising da página de produto", () => {
-  it("aplica o prazo global a todas as joias sem usar prazo diferente da descrição", () => {
-    const item = product({
-      description: "Peça feita sob encomenda. Confeccionamos diversos modelos em até 3 dias."
-    });
-
-    expect(getProductionDeadline(item)).toBe("3 a 5 dias úteis");
-    expect(getProductionDeadline(product())).toBe("3 a 5 dias úteis");
-    expect(getProductionDeadline(product({ category: "Serviços", stockStatus: "Serviço" }))).toBeNull();
+describe("informações comerciais da PDP", () => {
+  it("reaproveita o prazo global só para joias compráveis", () => {
+    expect(getProductionDeadline(product)).toBe("3 a 5 dias úteis");
+    expect(getProductionDeadline({ ...product, description: "Confeccionado em até 3 dias.", stockStatus: "Sob encomenda" }))
+      .toBe("3 a 5 dias úteis");
+    for (const unavailable of [
+      { ...product, price: null },
+      { ...product, category: "Relógios" },
+      { ...product, stockStatus: "Indisponível" },
+      { ...product, category: "Serviços", stockStatus: "Serviço" }
+    ] satisfies Product[]) expect(getProductionDeadline(unavailable)).toBeNull();
   });
 
-  it("monta os dados comerciais reais de uma aliança", () => {
-    const details = getProductCommercialDetails(product({
-      category: "Alianças",
-      subcategory: "Alianças Ouro 18k",
-      isCustomOrder: true,
-      stockStatus: "Sob encomenda",
-      description: "Aliança feita sob encomenda em até 3 dias. Gravação dos nomes e caixinha inclusas."
-    }));
-
-    expect(details).toEqual(expect.arrayContaining([
-      { kind: "material", label: "Material", value: "Ouro 18k" },
-      { kind: "availability", label: "Disponibilidade", value: "Sob encomenda" },
-      { kind: "sizing", label: "Numeração", value: "Escolha os dois aros abaixo" },
-      { kind: "production", label: "Prazo de confecção", value: "3 a 5 dias úteis" },
-      { kind: "pair", label: "Valor", value: "Referente ao par" },
-      {
-        kind: "included",
-        label: "Inclusos",
-        value: "Gravação dos nomes e caixinha de joia"
-      }
-    ]));
+  it("mantém o reconhecimento legado de encomenda e preserva status explicitamente indisponível", () => {
+    expect(isMadeToOrder({ ...product, description: "Peça confeccionada sob encomenda." })).toBe(true);
+    expect(isMadeToOrder({ ...product, description: "Peça confeccionada sob encomenda.", stockStatus: "Indisponível" })).toBe(false);
   });
 
-  it("não inventa gravação, embalagem ou garantia para produto comum", () => {
-    const kinds = getProductCommercialDetails(product()).map((detail) => detail.kind);
-
-    expect(kinds).toEqual(["material", "availability", "production"]);
+  it("usa só perguntas aplicáveis e não promete gravação ou pedra sem configuração", () => {
+    expect(getProductFaqTopics(product)).toEqual(["sizing", "policies"]);
+    expect(getProductFaqTopics({ ...product, category: "Pulseiras" })).toEqual(["policies"]);
+    expect(getProductFaqTopics({ ...product, category: "Alianças", engravingAvailable: true, stoneCustomization: { options: ["esmeralda"] } }))
+      .toEqual(["sizing", "engraving", "stone", "policies"]);
+    expect(getProductFaqTopics({ ...product, category: "Alianças", engravingAvailable: false, stoneCustomization: { options: ["invalid"] } }))
+      .toEqual(["sizing", "policies"]);
+    expect(getProductFaqTopics({ ...product, price: null, stoneCustomization: { options: ["cristal"] } }))
+      .toEqual(["sizing", "policies"]);
+    expect(getProductFaqTopics({ ...product, category: "Serviços", stockStatus: "Serviço" })).toEqual([]);
+    expect(getProductFaqTopics({ ...product, price: null, allowWhatsappQuote: false })).toEqual([]);
   });
 
-  it("reconhece sob encomenda quando essa informação já está na descrição", () => {
-    const details = getProductCommercialDetails(product({
-      description: "Produto personalizado e confeccionado sob encomenda."
-    }));
-
-    expect(details.find((detail) => detail.kind === "availability")?.value).toBe("Sob encomenda");
-    expect(getProductTrustBenefits(product({
-      description: "Produto personalizado e confeccionado sob encomenda."
-    }))).toContainEqual({ kind: "custom", label: "Produto sob encomenda" });
-  });
-
-  it("preserva indisponível mesmo quando a descrição menciona sob encomenda", () => {
-    const unavailableProduct = product({
-      stockStatus: "Indisponível",
-      description: "Produto personalizado e confeccionado sob encomenda."
-    });
-    const details = getProductCommercialDetails(unavailableProduct);
-
-    expect(details.find((detail) => detail.kind === "availability")?.value).toBe("Indisponível");
-    expect(getProductTrustBenefits(unavailableProduct)).not.toContainEqual({
-      kind: "custom",
-      label: "Produto sob encomenda"
-    });
-  });
-
-  it("limita o bloco de confiança a quatro benefícios relevantes", () => {
-    const benefits = getProductTrustBenefits(product({
-      isCustomOrder: true,
-      stockStatus: "Sob encomenda"
-    }));
-
-    expect(benefits).toEqual([
-      { kind: "secure", label: "Pagamento seguro" },
-      { kind: "custom", label: "Produto sob encomenda" },
-      { kind: "installments", label: "Até 12x" },
-      { kind: "pix", label: "10% OFF no Pix" }
-    ]);
+  it("abre apenas uma mensagem contextual com produto e URL pública", () => {
+    const contact = new URL(buildProductInquiryUrl(product, true));
+    expect(contact.hostname).toBe("wa.me");
+    expect(contact.searchParams.get("text")).toBe(
+      "Olá, Marjouxs! Gostaria de solicitar um orçamento para Anel de teste.\nhttps://marjouxsjoias.com.br/produtos/anel-teste"
+    );
+    expect(new URL(buildProductInquiryUrl(product, false)).searchParams.get("text")).toContain("tirar uma dúvida");
   });
 });

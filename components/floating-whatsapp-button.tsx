@@ -10,6 +10,7 @@ export function FloatingWhatsappButton() {
 
   return (
     <a
+      data-floating-whatsapp
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"

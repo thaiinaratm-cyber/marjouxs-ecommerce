@@ -1,117 +1,35 @@
 import { normalizeText } from "@/lib/format";
-import { hasIncludedEngravingAndBox, hasValidPrice } from "@/lib/product-pricing";
+import { hasValidPrice } from "@/lib/product-pricing";
 import { JEWELRY_PRODUCTION_DEADLINE } from "@/lib/production";
+import { getStoneOptions } from "@/lib/stone-customization";
 import type { Product } from "@/types/product";
 
-export type ProductCommercialDetailKind =
-  | "material"
-  | "availability"
-  | "sizing"
-  | "production"
-  | "pair"
-  | "included"
-  | "warranty";
-
-export type ProductCommercialDetail = {
-  kind: ProductCommercialDetailKind;
-  label: string;
-  value: string;
-};
-
-export type ProductTrustBenefitKind =
-  | "secure"
-  | "custom"
-  | "installments"
-  | "pix"
-  | "store"
-  | "aftercare";
-
-export type ProductTrustBenefit = {
-  kind: ProductTrustBenefitKind;
-  label: string;
-};
-
 export function isMadeToOrder(product: Product) {
-  if (product.stockStatus === "Indisponível" || product.stockStatus === "Serviço") {
-    return false;
-  }
+  if (product.stockStatus === "Indisponível" || product.stockStatus === "Serviço") return false;
 
-  return (
-    product.isCustomOrder ||
-    product.stockStatus === "Sob encomenda" ||
-    normalizeText(product.description).includes("sob encomenda")
-  );
+  return product.isCustomOrder || product.stockStatus === "Sob encomenda" ||
+    normalizeText(product.description).includes("sob encomenda");
+}
+
+export function isPhysicalProduct(product: Product) {
+  return product.category !== "Serviços" && product.stockStatus !== "Serviço" && product.stockStatus !== "Indisponível";
 }
 
 export function getProductionDeadline(product: Product) {
-  return product.category === "Serviços" || product.stockStatus === "Serviço"
-    ? null
-    : JEWELRY_PRODUCTION_DEADLINE;
+  return isPhysicalProduct(product) && product.category !== "Relógios" && hasValidPrice(product)
+    ? JEWELRY_PRODUCTION_DEADLINE
+    : null;
 }
 
-function getWarrantyDescription(product: Product) {
-  const sentence = product.description
-    .split(/(?<=[.!?])\s+|\n+/)
-    .find((item) => normalizeText(item).includes("garantia"));
+export function getProductFaqTopics(product: Product) {
+  const topics: Array<"sizing" | "engraving" | "stone" | "policies"> = [];
+  if (!isPhysicalProduct(product) || (!hasValidPrice(product) && !product.allowWhatsappQuote)) return topics;
 
-  return sentence?.trim().replace(/[.!?]+$/, "") ?? null;
-}
-
-export function getProductCommercialDetails(product: Product) {
-  const alliance = product.category === "Alianças";
-  const productionDeadline = getProductionDeadline(product);
-  const warrantyDescription = getWarrantyDescription(product);
-  const details: Array<ProductCommercialDetail | null> = [
-    product.material
-      ? { kind: "material", label: "Material", value: product.material }
-      : null,
-    product.stockStatus
-      ? {
-          kind: "availability",
-          label: "Disponibilidade",
-          value:
-            product.stockStatus === "Indisponível"
-              ? product.stockStatus
-              : isMadeToOrder(product)
-                ? "Sob encomenda"
-                : product.stockStatus
-        }
-      : null,
-    alliance
-      ? { kind: "sizing", label: "Numeração", value: "Escolha os dois aros abaixo" }
-      : null,
-    productionDeadline
-      ? { kind: "production", label: "Prazo de confecção", value: productionDeadline }
-      : null,
-    alliance
-      ? { kind: "pair", label: "Valor", value: "Referente ao par" }
-      : null,
-    hasIncludedEngravingAndBox(product)
-      ? {
-          kind: "included",
-          label: "Inclusos",
-          value: "Gravação dos nomes e caixinha de joia"
-        }
-      : null,
-    warrantyDescription
-      ? { kind: "warranty", label: "Garantia", value: warrantyDescription }
-      : null
-  ];
-
-  return details.filter((detail): detail is ProductCommercialDetail => Boolean(detail));
-}
-
-export function getProductTrustBenefits(product: Product) {
-  const benefits: Array<ProductTrustBenefit | null> = [
-    { kind: "secure", label: "Pagamento seguro" },
-    isMadeToOrder(product) ? { kind: "custom", label: "Produto sob encomenda" } : null,
-    hasValidPrice(product) ? { kind: "installments", label: "Até 12x" } : null,
-    hasValidPrice(product) ? { kind: "pix", label: "10% OFF no Pix" } : null,
-    { kind: "store", label: "Loja física em Arujá" },
-    { kind: "aftercare", label: "Atendimento pós-venda" }
-  ];
-
-  return benefits
-    .filter((benefit): benefit is ProductTrustBenefit => Boolean(benefit))
-    .slice(0, 4);
+  if (product.category === "Alianças" || product.category === "Anéis") topics.push("sizing");
+  if (hasValidPrice(product)) {
+    if (product.category === "Alianças" && product.engravingAvailable === true) topics.push("engraving");
+    if (getStoneOptions(product).length) topics.push("stone");
+  }
+  topics.push("policies");
+  return topics;
 }

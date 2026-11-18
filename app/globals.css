@@ -27,6 +27,20 @@ a {
   text-decoration: none;
 }
 
+body:has([data-pdp-mobile-cta], [data-pdp-inquiry]) [data-floating-whatsapp] {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  html:has([data-pdp-actions]) {
+    scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+
+  body:has([data-pdp-actions]) {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+}
+
 ::selection {
   background: #b88a44;
   color: #ffffff;
