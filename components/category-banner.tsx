@@ -9,6 +9,29 @@ type CategoryBannerProps = {
   className?: string;
 };
 
+function CategoryBannerBenefits({ badge, note, className }: Pick<CategoryBannerContent, "badge" | "note"> & {
+  className: string;
+}) {
+  if (!badge && !note) return null;
+
+  return (
+    <div className={`flex min-w-0 flex-col items-start gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 ${className}`}>
+      {badge ? (
+        <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-gold/35 bg-white/85 px-3 py-1 text-xs font-semibold text-ink shadow-sm">
+          <BadgePercent aria-hidden="true" size={14} strokeWidth={1.7} className="text-gold" />
+          {badge}
+        </span>
+      ) : null}
+      {note ? (
+        <span className="inline-flex min-w-0 items-start gap-1.5 text-xs leading-5 text-ink/70">
+          <Clock3 aria-hidden="true" size={14} strokeWidth={1.7} className="mt-0.5 shrink-0 text-gold" />
+          <span>{note}</span>
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 export function CategoryBanner({ banner, page, className = "" }: CategoryBannerProps) {
   const image = page ? getCategoryBannerImage(page) : undefined;
 
@@ -30,7 +53,13 @@ export function CategoryBanner({ banner, page, className = "" }: CategoryBannerP
           height={image.height}
           sizes="(max-width: 1279px) 100vw, 1216px"
           priority
+          unoptimized
           className="block h-auto w-full object-contain"
+        />
+        <CategoryBannerBenefits
+          badge={banner.badge}
+          note={banner.note}
+          className="border-t border-black/10 bg-white px-4 py-3 sm:px-6"
         />
       </section>
     );
@@ -55,20 +84,7 @@ export function CategoryBanner({ banner, page, className = "" }: CategoryBannerP
           {banner.description ? (
             <p className="mt-2 max-w-2xl text-sm leading-6 text-taupe">{banner.description}</p>
           ) : null}
-          <div className="mt-4 flex min-w-0 flex-col items-start gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-            {banner.badge ? (
-              <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-gold/35 bg-white/85 px-3 py-1 text-xs font-semibold text-ink shadow-sm">
-                <BadgePercent aria-hidden="true" size={14} strokeWidth={1.7} className="text-gold" />
-                {banner.badge}
-              </span>
-            ) : null}
-            {banner.note ? (
-              <span className="inline-flex min-w-0 items-start gap-1.5 text-xs leading-5 text-ink/70">
-                <Clock3 aria-hidden="true" size={14} strokeWidth={1.7} className="mt-0.5 shrink-0 text-gold" />
-                <span>{banner.note}</span>
-              </span>
-            ) : null}
-          </div>
+          <CategoryBannerBenefits badge={banner.badge} note={banner.note} className="mt-4" />
         </div>
 
         {banner.image ? (

@@ -3,18 +3,19 @@ import path from "node:path";
 
 export type CategoryBannerPage = {
   categorySlug: string;
+  subcategorySlug?: string | string[];
+  materialSlug?: string | string[];
   variantSlug?: string;
   pathname?: string;
 };
 
 type BannerAsset = { file: string; alt: string };
 
-// Exact category, category:subcategory, or pathname keys. Keep original filenames.
-// No parent banner is inherited by a subcategory without its own matching asset.
+// Existing artwork is scoped to a selection, not to the category root.
 const bannerAssets: Record<string, BannerAsset> = {
   "aliancas:banhado-a-ouro": { file: "aliancas-banhado-a-ouro.png", alt: "Alianças banhadas a ouro — Marjouxs" },
   "aliancas:moeda": { file: "alianças-moeda.png", alt: "Alianças de moeda — Marjouxs" },
-  "aliancas:ouro-18k-750": { file: "aliancas-ouro18k.png", alt: "Alianças em Ouro 18k — Marjouxs" },
+  "aliancas:ouro-18k": { file: "aliancas-ouro18k.png", alt: "Alianças em Ouro 18k — Marjouxs" },
   "aliancas:prata-950": { file: "alianças-prata950.png", alt: "Alianças em Prata 950 — Marjouxs" },
   "aneis:ouro-18k": { file: "aneis-ouro18k.png", alt: "Anéis em Ouro 18k — Marjouxs" },
   "aneis:prata-950": { file: "aneis-prata950.png", alt: "Anéis em Prata 950 — Marjouxs" },
@@ -40,19 +41,57 @@ const bannerAssets: Record<string, BannerAsset> = {
   "relogios:relogios-masculinos": { file: "relogios-masculinos.png", alt: "Relógios masculinos — Marjouxs" }
 };
 
-// The supplied silver artwork is also approved for the existing Prata 925 pages.
-bannerAssets["correntes:prata-925"] = bannerAssets["correntes:prata-950"];
-bannerAssets["pulseiras:prata-925"] = bannerAssets["pulseiras:prata-950"];
+const subcategoryAliases: Record<string, string> = {
+  "aliancas:aliancas-banhado-a-ouro": "banhado-a-ouro",
+  "brincos:brincos-infantis": "infantil",
+  "pulseiras:pulseiras-infantis": "infantil"
+};
+
+const goldSubcategoryArtwork = new Set(["aneis:perola", "aneis:formatura", "brincos:infantil", "pulseiras:infantil"]);
+
+function readSlug(value?: string | string[]) {
+  const slug = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) ? slug : "";
+}
+
+function artworkMaterial(slug: string) {
+  if (slug === "prata" || slug === "prata-925") return "prata-950";
+  if (slug === "ouro-18k-750" || slug === "ouro-750") return "ouro-18k";
+  return slug;
+}
+
+function findBannerAsset({
+  categorySlug, subcategorySlug, materialSlug, variantSlug, pathname
+}: CategoryBannerPage) {
+  const category = readSlug(categorySlug);
+  const variant = artworkMaterial(readSlug(variantSlug));
+  if (pathname) {
+    // Preserve the legacy ring routes and their exact material/subcategory pair.
+    return bannerAssets[pathname.replace(/\/$/, "")] ?? bannerAssets[`${category}:${variant}`];
+  }
+
+  const selectedSubcategory = readSlug(subcategorySlug);
+  const subcategory = subcategoryAliases[`${category}:${selectedSubcategory}`] ?? artworkMaterial(selectedSubcategory);
+  const material = artworkMaterial(readSlug(materialSlug));
+  const subcategoryKey = `${category}:${subcategory}`;
+  const isGoldArtwork = goldSubcategoryArtwork.has(subcategoryKey);
+  const materialContradictsArtwork = isGoldArtwork && material && material !== "ouro-18k";
+
+  return (category === "aneis" && subcategory && material
+    ? bannerAssets[`/aneis/${material}/${subcategory}`]
+    : undefined)
+    ?? (materialContradictsArtwork
+      ? undefined
+      : bannerAssets[subcategoryKey]
+        ?? (category === "aneis" && isGoldArtwork ? bannerAssets[`/aneis/ouro-18k/${subcategory}`] : undefined))
+    ?? bannerAssets[`${category}:${material}`]
+    ?? bannerAssets[`${category}:${variant}`];
+}
 
 // Server-side only: check the actual public file and read its intrinsic PNG size.
 // Missing/unreadable files retain the existing textual presentation.
-export function getCategoryBannerImage({ categorySlug, variantSlug, pathname }: CategoryBannerPage) {
-  const category = categorySlug.trim().toLowerCase();
-  const variant = variantSlug?.trim().toLowerCase();
-  const route = pathname?.replace(/\/$/, "");
-  const asset = (route ? bannerAssets[route] : undefined)
-    ?? bannerAssets[variant ? `${category}:${variant}` : category];
-
+export function getCategoryBannerImage(page: CategoryBannerPage) {
+  const asset = findBannerAsset(page);
   if (!asset) return undefined;
 
   try {

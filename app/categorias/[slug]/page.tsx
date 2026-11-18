@@ -215,7 +215,11 @@ export default async function CategoryPage({
       <Reveal>
         <CategoryBanner
           banner={banner}
-          page={{ categorySlug: category.slug, variantSlug: bannerVariant }}
+          page={{
+            categorySlug: category.slug,
+            subcategorySlug: searchParams?.subcategoria,
+            materialSlug: searchParams?.material
+          }}
           className="mb-8"
         />
       </Reveal>
