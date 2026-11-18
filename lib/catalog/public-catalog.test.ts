@@ -131,7 +131,7 @@ describe("catálogo público controlado", () => {
     expect(rows).toHaveLength(2);
     expect(rows[1]).toMatchObject({ id: "manual", price: null, priceLabel: "Preço sob consulta", seoTitle: "Anel feminino | Marjouxs" });
     expect(rows[1].images[0]).toBe("https://example.supabase.co/storage/v1/object/public/ecommerce-product-images/manual/anel.jpg");
-    expect(searchProducts(rows, "anel feminino")).toHaveLength(1);
+    expect(searchProducts(rows, "anel feminino").map(({ id }) => id)).toEqual(["manual", product.id]);
     expect(selectRelatedProducts(rows[0], rows)).toHaveLength(1);
   });
 });

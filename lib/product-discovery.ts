@@ -34,30 +34,46 @@ export function normalizePriceRange(value?: string): ProductPriceRange {
   return productPriceRanges.some((range) => range.value === value) ? (value as ProductPriceRange) : "";
 }
 
-export function getProductSearchText(product: Product) {
-  return normalizeText(
-    [
-      product.name,
-      product.description,
-      product.category,
-      product.subcategory,
-      product.material,
-      product.slug,
-      ...(product.tags ?? [])
-    ].join(" ")
-  );
+function searchText(value: string) {
+  return normalizeText(value).replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+export function readSearchTerm(value?: string | string[]) {
+  return typeof value === "string" ? value.slice(0, 120).trim().replace(/\s+/g, " ") : "";
 }
 
 export function searchProducts(products: Product[], query: string, limit?: number) {
-  const normalizedQuery = normalizeText(query).trim();
+  const normalizedQuery = searchText(readSearchTerm(query));
 
   if (!normalizedQuery) return [];
 
-  const matches = products.filter((product) => getProductSearchText(product).includes(normalizedQuery));
+  const tokens = normalizedQuery.split(" ");
+  const matches = products.flatMap((product) => {
+    const name = searchText(product.name);
+    const slug = searchText(product.slug);
+    const taxonomy = searchText([product.category, product.subcategory, product.material].join(" "));
+    if (!tokens.every((token) => [name, slug, taxonomy].some((text) => text.includes(token)))) return [];
+
+    const rank = name === normalizedQuery ? 0
+      : name.startsWith(normalizedQuery) ? 1
+      : name.includes(normalizedQuery) ? 2
+      : tokens.every((token) => name.includes(token)) || slug.includes(normalizedQuery) ? 3
+      : 4;
+
+    return [{ product, rank }];
+  }).sort((a, b) => a.rank - b.rank || compareProductNames(a.product, b.product))
+    .map(({ product }) => product);
   return typeof limit === "number" ? matches.slice(0, limit) : matches;
 }
 
-function matchesPriceRange(product: Product, selectedRange: ProductPriceRange) {
+const productCollator = new Intl.Collator("pt-BR", { sensitivity: "base" });
+
+export function compareProductNames(first: Product, second: Product) {
+  return productCollator.compare(first.name, second.name) ||
+    (first.id < second.id ? -1 : first.id > second.id ? 1 : 0);
+}
+
+export function matchesPriceRange(product: Product, selectedRange: ProductPriceRange) {
   if (!selectedRange) return true;
   if (!hasValidPrice(product) || product.price === null) return false;
 
@@ -69,43 +85,23 @@ function matchesPriceRange(product: Product, selectedRange: ProductPriceRange) {
   return true;
 }
 
-export function filterCatalogProducts({
-  products,
-  query = "",
-  category = "",
-  material = "",
-  priceRange = ""
-}: {
-  products: Product[];
-  query?: string;
-  category?: string;
-  material?: string;
-  priceRange?: ProductPriceRange;
-}) {
-  const normalizedQuery = normalizeText(query).trim();
-
-  return products.filter((product) => {
-    const matchesQuery = normalizedQuery
-      ? getProductSearchText(product).includes(normalizedQuery)
-      : true;
-    const matchesCategory = category
-      ? toProductFilterValue(product.category) === category
-      : true;
-    const matchesMaterial = material
-      ? toProductFilterValue(product.material) === material
-      : true;
-
-    return matchesQuery && matchesCategory && matchesMaterial && matchesPriceRange(product, priceRange);
-  });
-}
-
 export function getMaterialFilterOptions(products: Product[]) {
   const materials = products
     .filter((product) => product.category !== "Serviços" && product.stockStatus !== "Serviço")
     .map((product) => product.material.trim())
     .filter(Boolean);
 
-  return Array.from(new Set(materials))
-    .sort((first, second) => first.localeCompare(second, "pt-BR"))
-    .map((label) => ({ label, value: toProductFilterValue(label) }));
+  return toFilterOptions(materials);
+}
+
+export type ProductFilterOption = { label: string; value: string };
+
+export function toFilterOptions(labels: string[]): ProductFilterOption[] {
+  const options = new Map<string, string>();
+  for (const label of labels) {
+    const value = toProductFilterValue(label);
+    if (value && !options.has(value)) options.set(value, label);
+  }
+  return Array.from(options, ([value, label]) => ({ value, label }))
+    .sort((first, second) => productCollator.compare(first.label, second.label));
 }

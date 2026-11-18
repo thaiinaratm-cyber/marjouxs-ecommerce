@@ -24,7 +24,7 @@ export function CategoryBanner({ banner, page, className = "" }: CategoryBannerP
           {banner.description ? <p>{banner.description}</p> : null}
         </div>
         <Image
-          src={image.src}
+          src={encodeURI(image.src)}
           alt={image.alt}
           width={image.width}
           height={image.height}

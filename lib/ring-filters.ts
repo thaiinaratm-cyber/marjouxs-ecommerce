@@ -1,5 +1,6 @@
 import { getProductsByCategory } from "@/lib/products";
-import { normalizeText } from "@/lib/format";
+import { matchesEditorialVariant } from "@/lib/catalog/discovery";
+import { toProductFilterValue } from "@/lib/product-discovery";
 import type { Product } from "@/types/product";
 
 export type RingMaterialSlug = "ouro-18k" | "prata-950";
@@ -30,10 +31,6 @@ export const ringMaterialGroups: {
   }
 ];
 
-function productSearchText(product: Product) {
-  return normalizeText([product.name, product.material, product.subcategory, product.description, product.images.join(" ")].join(" "));
-}
-
 export function getRingMaterialGroup(slug: string) {
   return ringMaterialGroups.find((group) => group.slug === slug);
 }
@@ -47,33 +44,13 @@ export function isRingMaterialSlug(value: string): value is RingMaterialSlug {
   return value === "ouro-18k" || value === "prata-950";
 }
 
-export function getRingProductSubcategorySlug(product: Product): RingSubcategorySlug {
-  const text = productSearchText(product);
-
-  if (text.includes("formatura")) {
-    return "formatura";
-  }
-
-  if (text.includes("perola")) {
-    return "perola";
-  }
-
-  if (text.includes("masculino")) {
-    return "masculino";
-  }
-
-  return "feminino";
+export function getRingProductSubcategorySlug(product: Product): RingSubcategorySlug | undefined {
+  const slug = toProductFilterValue(product.subcategory);
+  return ringMaterialGroups[0].subcategories.find((item) => item.slug === slug)?.slug;
 }
 
 export function matchesRingMaterial(product: Product, materialSlug: RingMaterialSlug) {
-  const material = normalizeText(product.material);
-  const text = productSearchText(product);
-
-  if (materialSlug === "ouro-18k") {
-    return material === "ouro 18k" || text.includes("ouro 18k") || text.includes("ouro-18k") || text.includes("18k");
-  }
-
-  return material === "prata 950" || text.includes("prata 950") || text.includes("prata-950");
+  return matchesEditorialVariant(product, materialSlug);
 }
 
 export function getRingProducts(materialSlug: RingMaterialSlug, subcategorySlug?: RingSubcategorySlug) {

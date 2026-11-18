@@ -20,15 +20,13 @@ import {
   X,
   type LucideIcon
 } from "lucide-react";
-import { FormEvent, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import { CartDrawer } from "@/components/cart-drawer";
 import { formatCurrency } from "@/lib/format";
 import { trackCategoryClick, trackSearch, trackSelectItem } from "@/lib/analytics";
-import { getVisibleProducts } from "@/lib/products";
-import { searchProducts } from "@/lib/product-discovery";
+import { readSearchTerm } from "@/lib/product-discovery";
 import { getInstallmentsText, hasValidPrice } from "@/lib/product-pricing";
 import { useCart } from "@/context/cart-context";
-import type { CatalogSource } from "@/lib/catalog/config";
 import type { Product } from "@/types/product";
 
 const navItems = [
@@ -163,30 +161,21 @@ const serviceItems = [
   { label: "Troca de bateria", href: "/servicos#troca-de-bateria" }
 ];
 
-const searchableProducts = getVisibleProducts();
-
-function SearchBarWithSuggestions({ onSearch, catalogSource }: { onSearch?: () => void; catalogSource: CatalogSource }) {
+function SearchBarWithSuggestions({ onSearch }: { onSearch?: () => void }) {
   const router = useRouter();
   const [term, setTerm] = useState("");
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
-  const [databaseSuggestions, setDatabaseSuggestions] = useState<Product[]>([]);
+  const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [suggestionsUnavailable, setSuggestionsUnavailable] = useState(false);
   const searchRef = useRef<HTMLFormElement>(null);
   const suggestionsId = useId();
-  const trimmedTerm = term.trim();
-  const deferredTerm = useDeferredValue(trimmedTerm);
+  const trimmedTerm = readSearchTerm(term);
   const shouldShowSuggestions = trimmedTerm.length >= 2 && isSuggestionsOpen;
-  const staticSuggestions = useMemo(() => {
-    return catalogSource === "static" && deferredTerm.length >= 2
-      ? searchProducts(searchableProducts, deferredTerm, 6)
-      : [];
-  }, [catalogSource, deferredTerm]);
-  const suggestions = catalogSource === "database" ? databaseSuggestions : staticSuggestions;
 
   useEffect(() => {
-    if (catalogSource !== "database" || trimmedTerm.length < 2) {
-      setDatabaseSuggestions([]);
+    if (!shouldShowSuggestions) {
+      setSuggestions([]);
       setIsLoadingSuggestions(false);
       setSuggestionsUnavailable(false);
       return;
@@ -194,7 +183,7 @@ function SearchBarWithSuggestions({ onSearch, catalogSource }: { onSearch?: () =
 
     const controller = new AbortController();
     setIsLoadingSuggestions(true);
-    setDatabaseSuggestions([]);
+    setSuggestions([]);
     setSuggestionsUnavailable(false);
     const timer = window.setTimeout(async () => {
       try {
@@ -203,10 +192,10 @@ function SearchBarWithSuggestions({ onSearch, catalogSource }: { onSearch?: () =
         });
         if (!response.ok) throw new Error("suggestions_unavailable");
         const data = await response.json() as { products: Product[] };
-        setDatabaseSuggestions(data.products);
+        if (!controller.signal.aborted) setSuggestions(data.products);
       } catch {
         if (!controller.signal.aborted) {
-          setDatabaseSuggestions([]);
+          setSuggestions([]);
           setSuggestionsUnavailable(true);
         }
       } finally {
@@ -218,7 +207,7 @@ function SearchBarWithSuggestions({ onSearch, catalogSource }: { onSearch?: () =
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [catalogSource, trimmedTerm]);
+  }, [shouldShowSuggestions, trimmedTerm]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -244,7 +233,6 @@ function SearchBarWithSuggestions({ onSearch, catalogSource }: { onSearch?: () =
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const trimmedTerm = term.trim();
     setIsSuggestionsOpen(false);
 
     if (!trimmedTerm) {
@@ -269,6 +257,7 @@ function SearchBarWithSuggestions({ onSearch, catalogSource }: { onSearch?: () =
         }}
         onFocus={() => setIsSuggestionsOpen(trimmedTerm.length >= 2)}
         placeholder="O que você está procurando?"
+        maxLength={120}
         autoComplete="off"
         role="combobox"
         aria-autocomplete="list"
@@ -362,7 +351,7 @@ function MenuTitle({ category }: { category: CategoryMenuItem }) {
   );
 }
 
-export function Header({ catalogSource = "static" }: { catalogSource?: CatalogSource }) {
+export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMegaOpen, setIsMegaOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -418,7 +407,7 @@ export function Header({ catalogSource = "static" }: { catalogSource?: CatalogSo
           </Link>
 
           <div className="hidden justify-self-center md:block md:w-full md:max-w-xl">
-            <SearchBarWithSuggestions onSearch={closeMenus} catalogSource={catalogSource} />
+            <SearchBarWithSuggestions onSearch={closeMenus} />
           </div>
 
           <div className="flex items-center gap-2 justify-self-end">
@@ -458,7 +447,7 @@ export function Header({ catalogSource = "static" }: { catalogSource?: CatalogSo
         </div>
 
         <div className="md:hidden">
-          <SearchBarWithSuggestions onSearch={() => setIsOpen(false)} catalogSource={catalogSource} />
+          <SearchBarWithSuggestions onSearch={() => setIsOpen(false)} />
         </div>
 
         <nav className="hidden items-center justify-center gap-7 lg:flex">

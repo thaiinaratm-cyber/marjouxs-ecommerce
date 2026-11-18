@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { discoverCatalog } from "@/lib/catalog/discovery";
 import {
-  filterCatalogProducts,
   getMaterialFilterOptions,
   searchProducts
 } from "@/lib/product-discovery";
@@ -36,12 +36,13 @@ describe("descoberta de produtos", () => {
     expect(searchProducts(products, "inexistente")).toHaveLength(0);
   });
 
-  it("pesquisa descrição, categoria, subcategoria, material, slug e tags", () => {
+  it("pesquisa categoria, subcategoria, material e slug, sem usar a descrição longa", () => {
     const item = product({ tags: ["presente especial"] });
 
-    ["anatomico", "aliancas", "prata", "chanfrada", "presente"].forEach((term) => {
+    ["aliancas", "  ALIANÇA   prata ", "prata", "chanfrada", "de prata"].forEach((term) => {
       expect(searchProducts([item], term)).toHaveLength(1);
     });
+    expect(searchProducts([item], "anatômico")).toEqual([]);
   });
 
   it("combina categoria, material e faixa de preço", () => {
@@ -51,12 +52,9 @@ describe("descoberta de produtos", () => {
       product({ id: "anel-prata", category: "Anéis", material: "Prata 950", price: 290 })
     ];
 
-    expect(filterCatalogProducts({
-      products,
-      category: "aneis",
-      material: "prata-950",
-      priceRange: "ate-300"
-    }).map((item) => item.id)).toEqual(["anel-prata"]);
+    expect(discoverCatalog(products, {
+      categoria: "aneis", material: "prata-950", preco: "ate-300"
+    }).products.map((item) => item.id)).toEqual(["anel-prata"]);
   });
 
   it("mantém as faixas de preço sem sobreposição nos limites", () => {
@@ -68,9 +66,9 @@ describe("descoberta de produtos", () => {
       product({ id: "2001", price: 2001 })
     ];
 
-    expect(filterCatalogProducts({ products, priceRange: "ate-300" }).map((item) => item.id)).toEqual(["300"]);
-    expect(filterCatalogProducts({ products, priceRange: "300-500" }).map((item) => item.id)).toEqual(["301", "500"]);
-    expect(filterCatalogProducts({ products, priceRange: "acima-2000" }).map((item) => item.id)).toEqual(["2001"]);
+    expect(discoverCatalog(products, { preco: "ate-300" }).products.map((item) => item.id)).toEqual(["300"]);
+    expect(discoverCatalog(products, { preco: "300-500" }).products.map((item) => item.id)).toEqual(["301", "500"]);
+    expect(discoverCatalog(products, { preco: "acima-2000" }).products.map((item) => item.id)).toEqual(["2001"]);
   });
 
   it("oferece somente materiais de joias realmente presentes", () => {

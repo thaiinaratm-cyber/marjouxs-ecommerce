@@ -121,6 +121,8 @@ export function normalizePublicDatabaseCatalog(
 
     const specifications = technicalDetails(row);
     const stoneCustomization = readStoneConfiguration(row.stone_customization_enabled, row.stone_options);
+    const displayAvailability = stockStatus(row, legacy);
+    const actualAvailability = stockStatus(row);
     products.push({
       id: publicId,
       name: row.name,
@@ -148,7 +150,8 @@ export function normalizePublicDatabaseCatalog(
       featured: row.is_featured,
       isCustomOrder: row.is_custom_order,
       allowWhatsappQuote: row.allow_whatsapp_quote,
-      stockStatus: stockStatus(row, legacy),
+      stockStatus: displayAvailability,
+      ...(displayAvailability !== actualAvailability ? { catalogAvailability: actualAvailability } : {}),
       saleUnit: row.sale_unit as "pair" | "unit",
       engravingAvailable: row.engraving_available,
       engravingIncluded: row.engraving_included,

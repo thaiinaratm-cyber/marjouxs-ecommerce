@@ -52,6 +52,7 @@ export type Product = {
   isCustomOrder: boolean;
   allowWhatsappQuote: boolean;
   stockStatus: StockStatus;
+  catalogAvailability?: StockStatus;
   saleUnit?: "pair" | "unit";
   engravingAvailable?: boolean;
   engravingIncluded?: boolean;

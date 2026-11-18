@@ -9,7 +9,7 @@ import { Reveal } from "@/components/reveal";
 import { createSizeGuideClickEvent } from "@/lib/analytics";
 import { getPublicRingProducts } from "@/lib/catalog";
 import { getCategoryBanner } from "@/lib/category-banners";
-import { normalizeSortOrder } from "@/lib/product-sorting";
+import { discoverCatalog, hasDiscoveryParams, type CatalogParams } from "@/lib/catalog/discovery";
 import {
   absoluteUrl,
   DEFAULT_SOCIAL_IMAGE,
@@ -23,13 +23,6 @@ import {
   type RingSubcategorySlug
 } from "@/lib/ring-filters";
 
-type RingSearchParams = {
-  busca?: string;
-  material?: string;
-  preco?: string;
-  ordem?: string;
-};
-
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -37,7 +30,7 @@ export async function generateMetadata({
   searchParams: pendingSearchParams
 }: {
   params: Promise<{ material: string; tipo?: string[] }>;
-  searchParams?: Promise<RingSearchParams>;
+  searchParams?: Promise<CatalogParams>;
 }) {
   const params = await pendingParams;
   const searchParams = await pendingSearchParams;
@@ -67,9 +60,7 @@ export async function generateMetadata({
       : `/aneis/${params.material}`
   );
   const image = absoluteUrl(bannerProduct?.images[0] ?? DEFAULT_SOCIAL_IMAGE);
-  const hasNavigationalFilters = Boolean(
-    searchParams?.busca || searchParams?.material || searchParams?.preco || searchParams?.ordem
-  );
+  const hasNavigationalFilters = hasDiscoveryParams(searchParams);
 
   return {
     title: `${title} | Marjouxs Joalheria`,
@@ -108,7 +99,7 @@ export default async function RingCategoryPage({
   searchParams: pendingSearchParams
 }: {
   params: Promise<{ material: string; tipo?: string[] }>;
-  searchParams?: Promise<RingSearchParams>;
+  searchParams?: Promise<CatalogParams>;
 }) {
   const params = await pendingParams;
   const searchParams = await pendingSearchParams;
@@ -127,8 +118,9 @@ export default async function RingCategoryPage({
     notFound();
   }
 
-  const sortOrder = normalizeSortOrder(searchParams?.ordem);
   const products = await getPublicRingProducts(materialSlug, subcategory?.slug);
+  const pathname = `/aneis/${group.slug}${subcategory ? `/${subcategory.slug}` : ""}`;
+  const discovery = discoverCatalog(products, searchParams, { scoped: true, lockSubcategory: Boolean(subcategory) });
   const bannerProduct = products[0] ?? (await getPublicRingProducts(materialSlug))[0];
   const title = subcategory ? `Anéis ${group.label} ${subcategory.label}` : `Anéis ${group.label}`;
   const subtitle = subcategory
@@ -220,12 +212,8 @@ export default async function RingCategoryPage({
       </Reveal>
 
       <ProductFilters
-        initialQuery={searchParams?.busca}
-        initialMaterial={searchParams?.material}
-        initialPriceRange={searchParams?.preco}
-        initialOrder={sortOrder}
-        products={products}
-        showCategoryFilter={false}
+        pathname={pathname}
+        discovery={discovery}
         emptyMessage="Nenhum anel encontrado nesta seleção."
         itemListName={title}
         source="category_page"
