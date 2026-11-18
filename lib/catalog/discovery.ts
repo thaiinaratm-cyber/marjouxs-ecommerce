@@ -53,6 +53,15 @@ function readFacet(value: string | undefined, options: ProductFilterOption[]) {
   return options.some((option) => option.value === slug) ? slug : undefined;
 }
 
+function withSelectedMenuFacet(
+  options: ProductFilterOption[], requested: string | undefined, menuOptions: ProductFilterOption[] = []
+) {
+  if (!requested || readFacet(requested, options)) return options;
+  const selected = readFacet(requested, menuOptions);
+  const option = menuOptions.find(({ value }) => value === selected);
+  return option ? [...options, option] : options;
+}
+
 function priceBound(value?: string) {
   if (!value || !/^\d{1,9}(?:[.,]\d{1,2})?$/.test(value)) return undefined;
   return String(Number(value.replace(",", ".")));
@@ -81,8 +90,9 @@ function getAvailability(product: Product) {
 export function discoverCatalog(
   products: Product[],
   params: CatalogParams = {},
-  { scoped = false, lockSubcategory = false, editorial = [] }: {
+  { scoped = false, lockSubcategory = false, editorial = [], menuFacets }: {
     scoped?: boolean; lockSubcategory?: boolean; editorial?: CategoryFilter[];
+    menuFacets?: { subcategories: ProductFilterOption[]; materials: ProductFilterOption[] };
   } = {}
 ) {
   const categories = scoped ? [] : toFilterOptions(products.map((product) => product.category));
@@ -106,7 +116,7 @@ export function discoverCatalog(
   const alias = existingVariant ?? (editorialSlug && aliasProduct ? { slug: editorialSlug, label: aliasProduct.material } : undefined);
   const rootSubcategories = alias
     ? [{ value: alias.slug, label: alias.label }, ...allSubcategories.filter((option) => option.value !== alias.slug)]
-    : allSubcategories;
+    : withSelectedMenuFacet(allSubcategories, editorialSlug, menuFacets?.subcategories);
   const materialParam = read(params, "material");
   const requestedMaterial = materialParam && materialParam.length <= 100
     ? toPublicMaterialFilterValue(materialParam) : undefined;
@@ -116,7 +126,7 @@ export function discoverCatalog(
       "": rootSubcategories,
       ...(!scoped ? Object.fromEntries(Array.from(byCategory, ([slug, labels]) => [slug, toFilterOptions(labels)])) : {})
     },
-    materials: getMaterialFilterOptions(products, requestedMaterial),
+    materials: withSelectedMenuFacet(getMaterialFilterOptions(products, requestedMaterial), requestedMaterial, menuFacets?.materials),
     availability: toFilterOptions(products.map(getAvailability)),
     hasCustomizableStone: products.some((product) => Boolean(product.stoneCustomization))
   };

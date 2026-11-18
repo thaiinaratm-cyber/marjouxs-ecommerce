@@ -17,13 +17,13 @@ import {
   Sparkles,
   Watch,
   Wrench,
-  X,
-  type LucideIcon
+  X
 } from "lucide-react";
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import { CartDrawer } from "@/components/cart-drawer";
 import { formatCurrency } from "@/lib/format";
 import { trackCategoryClick, trackSearch, trackSelectItem } from "@/lib/analytics";
+import { categoryMenu, type CategoryMenuItem } from "@/lib/catalog/category-menu";
 import { readSearchTerm } from "@/lib/product-discovery";
 import { getInstallmentsText, hasValidPrice } from "@/lib/product-pricing";
 import { useCart } from "@/context/cart-context";
@@ -37,118 +37,17 @@ const navItems = [
   { href: "/contato", label: "Contato" }
 ];
 
-type CategoryMenuItem = {
-  label: string;
-  href: string;
-  icon: LucideIcon;
-  subcategories: {
-    label: string;
-    href: string;
-    children?: { label: string; href: string }[];
-  }[];
+const categoryIcons = {
+  aliancas: Blend, aneis: Gem, brincos: Sparkles, correntes: Link2,
+  pulseiras: Infinity, braceletes: Eclipse, pingentes: Diamond, relogios: Watch
 };
-
-const categoryMenu: CategoryMenuItem[] = [
-  {
-    label: "Alianças",
-    href: "/categorias/aliancas",
-    icon: Blend,
-    subcategories: [
-      { label: "Ouro 18k/750", href: "/categorias/aliancas?subcategoria=ouro-18k-750" },
-      { label: "Prata 950", href: "/categorias/aliancas?subcategoria=prata-950" },
-      { label: "Banhado a Ouro", href: "/categorias/aliancas?subcategoria=banhado-a-ouro" },
-      { label: "Moeda", href: "/categorias/aliancas?subcategoria=moeda" }
-    ]
-  },
-  {
-    label: "Anéis",
-    href: "/categorias/aneis",
-    icon: Gem,
-    subcategories: [
-      {
-        label: "Ouro 18k",
-        href: "/aneis/ouro-18k",
-        children: [
-          { label: "Masculino", href: "/aneis/ouro-18k/masculino" },
-          { label: "Feminino", href: "/aneis/ouro-18k/feminino" },
-          { label: "Pérola", href: "/aneis/ouro-18k/perola" },
-          { label: "Formatura", href: "/aneis/ouro-18k/formatura" }
-        ]
-      },
-      {
-        label: "Prata 950",
-        href: "/aneis/prata-950",
-        children: [
-          { label: "Masculino", href: "/aneis/prata-950/masculino" },
-          { label: "Feminino", href: "/aneis/prata-950/feminino" }
-        ]
-      }
-    ]
-  },
-  {
-    label: "Brincos",
-    href: "/categorias/brincos",
-    icon: Sparkles,
-    subcategories: [
-      { label: "Ouro 18k", href: "/categorias/brincos?subcategoria=ouro-18k" },
-      { label: "Prata 950", href: "/categorias/brincos?subcategoria=prata-950" },
-      { label: "Infantil", href: "/categorias/brincos?subcategoria=infantil" }
-    ]
-  },
-  {
-    label: "Correntes",
-    href: "/categorias/correntes",
-    icon: Link2,
-    subcategories: [
-      { label: "Ouro 18k", href: "/categorias/correntes?subcategoria=ouro-18k" },
-      { label: "Prata 925", href: "/categorias/correntes?subcategoria=prata-925" }
-    ]
-  },
-  {
-    label: "Pulseiras",
-    href: "/categorias/pulseiras",
-    icon: Infinity,
-    subcategories: [
-      { label: "Ouro 18k", href: "/categorias/pulseiras?subcategoria=ouro-18k" },
-      { label: "Prata 925", href: "/categorias/pulseiras?subcategoria=prata-925" },
-      { label: "Infantil", href: "/categorias/pulseiras?subcategoria=infantil" }
-    ]
-  },
-  {
-    label: "Braceletes",
-    href: "/categorias/braceletes",
-    icon: Eclipse,
-    subcategories: [
-      { label: "Ouro 18k", href: "/categorias/braceletes?subcategoria=ouro-18k" },
-      { label: "Prata 950", href: "/categorias/braceletes?subcategoria=prata-950" }
-    ]
-  },
-  {
-    label: "Pingentes",
-    href: "/categorias/pingentes",
-    icon: Diamond,
-    subcategories: [
-      { label: "Ouro 18k", href: "/categorias/pingentes?subcategoria=ouro-18k" },
-      { label: "Prata 950", href: "/categorias/pingentes?subcategoria=prata-950" }
-    ]
-  },
-  {
-    label: "Relógios",
-    href: "/categorias/relogios",
-    icon: Watch,
-    subcategories: [
-      { label: "Relógios masculinos", href: "/categorias/relogios?subcategoria=relogios-masculinos" },
-      { label: "Relógios femininos", href: "/categorias/relogios?subcategoria=relogios-femininos" }
-    ]
-  }
-];
-
 const desktopCategoryColumns = [
-  [categoryMenu[0], categoryMenu[4]],
-  [categoryMenu[1]],
-  [categoryMenu[2], categoryMenu[5]],
-  [categoryMenu[3], categoryMenu[6], categoryMenu[7]]
-];
+  ["aliancas", "pulseiras"],
+  ["aneis", "braceletes"],
+  ["correntes", "relogios"],
+  ["pingentes", "brincos"]
+].map((column) => column.map((slug) => categoryMenu.find((category) => category.slug === slug)!));
+const menuFocus = "rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold";
 
 const serviceItems = [
   { label: "Consertos de joias", href: "/servicos#consertos-de-joias" },
@@ -341,13 +240,45 @@ function SearchBarWithSuggestions({ onSearch }: { onSearch?: () => void }) {
 }
 
 function MenuTitle({ category }: { category: CategoryMenuItem }) {
-  const Icon = category.icon;
+  const Icon = categoryIcons[category.slug];
 
   return (
     <span className="inline-flex items-center gap-2">
-      <Icon className="text-gold" size={16} strokeWidth={1.7} />
+      <Icon className="shrink-0 text-gold" size={16} strokeWidth={1.7} aria-hidden="true" />
       <span>{category.label}</span>
     </span>
+  );
+}
+
+function CategoryMenuLinks({ category, mobile = false, onSelect }: {
+  category: CategoryMenuItem;
+  mobile?: boolean;
+  onSelect: (href: string) => void;
+}) {
+  const linkStyle = `flex min-w-0 items-center text-sm leading-5 hover:text-gold ${menuFocus} ${mobile ? "min-h-11 py-1" : "min-h-6"}`;
+
+  return (
+    <ul className={mobile ? "grid" : "mt-2 grid gap-0.5"}>
+      {category.links.map((link) => (
+        <li key={link.href}>
+          <Link href={link.href} onClick={() => onSelect(link.href)}
+            className={`${linkStyle} ${link.children ? "font-semibold text-ink" : "text-ink/80"}`}>
+            {link.label}
+          </Link>
+          {link.children && (
+            <ul aria-label={link.label} className="ml-1.5 border-l border-gold/30 pl-3">
+              {link.children.map((child) => (
+                <li key={child.href}>
+                  <Link href={child.href} onClick={() => onSelect(child.href)} className={`${linkStyle} text-taupe`}>
+                    {child.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -356,6 +287,9 @@ export function Header() {
   const [isMegaOpen, setIsMegaOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const megaMenuRef = useRef<HTMLDivElement>(null);
+  const megaTriggerRef = useRef<HTMLAnchorElement>(null);
+  const desktopMenuId = useId();
+  const mobileMenuId = useId();
   const pathname = usePathname();
   const { totalItems } = useCart();
 
@@ -385,6 +319,9 @@ export function Header() {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsMegaOpen(false);
+        if (megaMenuRef.current?.contains(document.activeElement) && document.activeElement !== megaTriggerRef.current) {
+          megaTriggerRef.current?.focus();
+        }
       }
     }
 
@@ -439,7 +376,9 @@ export function Header() {
               type="button"
               onClick={() => setIsOpen((current) => !current)}
               className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-ink lg:hidden"
-              aria-label="Abrir menu"
+              aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={isOpen}
+              aria-controls={mobileMenuId}
             >
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -450,7 +389,7 @@ export function Header() {
           <SearchBarWithSuggestions onSearch={() => setIsOpen(false)} />
         </div>
 
-        <nav className="hidden items-center justify-center gap-7 lg:flex">
+        <nav className="relative hidden items-center justify-center gap-7 lg:flex">
           <Link href="/" onClick={closeMenus} className="text-sm font-medium text-ink/75 transition hover:text-gold">
             Home
           </Link>
@@ -460,19 +399,29 @@ export function Header() {
 
           <div
             ref={megaMenuRef}
-            className="relative"
             onMouseEnter={() => setIsMegaOpen(true)}
-            onMouseLeave={() => setIsMegaOpen(false)}
-            onFocus={() => setIsMegaOpen(true)}
+            onMouseLeave={(event) => {
+              if (!event.currentTarget.contains(document.activeElement)) setIsMegaOpen(false);
+            }}
+            onFocus={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setIsMegaOpen(true);
+            }}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setIsMegaOpen(false);
+            }}
           >
             <Link
+              ref={megaTriggerRef}
               href="/categorias"
               onClick={closeMenus}
-              className="inline-flex items-center gap-1 text-sm font-medium text-ink/75 transition hover:text-gold"
+              aria-expanded={isMegaOpen}
+              aria-controls={desktopMenuId}
+              className={`inline-flex items-center gap-1 text-sm font-medium text-ink/75 transition hover:text-gold ${menuFocus}`}
             >
               Categorias <ChevronDown size={15} />
             </Link>
             <div
+              id={desktopMenuId}
               className={`absolute left-1/2 top-full z-50 w-[min(94vw,1080px)] -translate-x-1/2 pt-3 transition duration-200 ease-out motion-reduce:translate-y-0 motion-reduce:transition-none ${
                 isMegaOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"
               }`}
@@ -481,38 +430,12 @@ export function Header() {
                 {desktopCategoryColumns.map((column, columnIndex) => (
                   <div key={columnIndex} className="grid min-w-0 content-start gap-3.5">
                     {column.map((category) => (
-                      <div key={category.href} className="min-w-0">
-                        <Link href={category.href} onClick={() => handleCategoryClick(category.label, "mega_menu", category.href)} className="font-serif text-lg font-semibold leading-tight text-ink transition duration-150 hover:text-gold">
+                      <section key={category.href} aria-label={category.label} className="min-w-0">
+                        <Link href={category.href} onClick={() => handleCategoryClick(category.label, "mega_menu", category.href)} className={`font-serif text-lg font-semibold leading-tight text-ink hover:text-gold ${menuFocus}`}>
                           <MenuTitle category={category} />
                         </Link>
-                        <div className="mt-3 grid gap-1">
-                          {category.subcategories.map((subcategory) => (
-                            <div key={subcategory.href} className="grid gap-1">
-                              <Link
-                                href={subcategory.href}
-                                onClick={() => handleCategoryClick(category.label, "mega_menu", subcategory.href)}
-                                className="text-sm font-normal leading-5 text-ink/80 transition duration-150 hover:translate-x-[3px] hover:text-gold"
-                              >
-                                {subcategory.label}
-                              </Link>
-                              {subcategory.children ? (
-                                <div className="grid gap-1 pl-3">
-                                  {subcategory.children.map((child) => (
-                                    <Link
-                                      key={child.href}
-                                      href={child.href}
-                                      onClick={() => handleCategoryClick(category.label, "mega_menu", child.href)}
-                                      className="text-sm font-normal leading-5 text-taupe transition duration-150 hover:translate-x-[3px] hover:text-gold"
-                                    >
-                                      {child.label}
-                                    </Link>
-                                  ))}
-                                </div>
-                              ) : null}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                        <CategoryMenuLinks category={category} onSelect={(href) => handleCategoryClick(category.label, "mega_menu", href)} />
+                      </section>
                     ))}
                   </div>
                 ))}
@@ -548,7 +471,7 @@ export function Header() {
       </div>
 
       {isOpen && (
-        <nav className="marjouxs-scrollbar max-h-[calc(100svh-8.5rem)] overflow-y-auto overscroll-contain border-t border-black/10 bg-pearl px-4 py-3 pb-28 lg:hidden">
+        <nav id={mobileMenuId} aria-label="Menu principal" className="marjouxs-scrollbar max-h-[calc(100svh-8.5rem)] overflow-y-auto overscroll-contain border-t border-black/10 bg-pearl px-4 py-3 pb-28 lg:hidden">
           <div className="mx-auto grid max-w-7xl gap-2">
             <Link href="/acompanhar-pedido" onClick={closeMenus}
               className="inline-flex min-h-11 items-center gap-2 rounded-md px-3 py-3 text-sm font-medium text-ink hover:bg-champagne">
@@ -567,49 +490,26 @@ export function Header() {
             ))}
 
             <details className="rounded-md px-3 py-2.5">
-              <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-ink">
-                Categorias <ChevronDown size={16} />
+              <summary className={`flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-medium text-ink ${menuFocus}`}>
+                Categorias <ChevronDown size={16} aria-hidden="true" />
               </summary>
-              <div className="mt-3 grid gap-3">
+              <div className="mt-1 grid">
                 {categoryMenu.map((category) => (
-                  <div key={category.href} className="grid gap-2 border-t border-black/10 pt-2.5">
-                    <Link
-                      href={category.href}
-                      onClick={() => handleCategoryClick(category.label, "mobile_menu", category.href)}
-                      className="font-serif text-lg font-semibold text-ink"
-                    >
+                  <details key={category.href} className="group/category border-t border-black/10">
+                    <summary className={`flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 font-serif text-lg font-semibold text-ink ${menuFocus}`}>
                       <MenuTitle category={category} />
-                    </Link>
-                    <div className="grid gap-2 pl-2">
-                      {category.subcategories.map((subcategory) => (
-                        <div key={subcategory.href} className="grid gap-1.5">
-                          <Link
-                            href={subcategory.href}
-                            onClick={() => handleCategoryClick(category.label, "mobile_menu", subcategory.href)}
-                            className="py-0.5 text-sm font-normal text-ink/80 transition hover:text-gold"
-                          >
-                            {subcategory.label}
-                          </Link>
-                          {subcategory.children ? (
-                            <div className="grid gap-1.5 pl-3">
-                              {subcategory.children.map((child) => (
-                                <Link
-                                  key={child.href}
-                                  href={child.href}
-                                  onClick={() => handleCategoryClick(category.label, "mobile_menu", child.href)}
-                                  className="py-0.5 text-sm font-normal text-taupe transition hover:text-gold"
-                                >
-                                  {child.label}
-                                </Link>
-                              ))}
-                            </div>
-                          ) : null}
-                        </div>
-                      ))}
+                      <ChevronDown size={16} aria-hidden="true" className="shrink-0 group-open/category:rotate-180" />
+                    </summary>
+                    <div className="pb-2 pl-3">
+                      <Link href={category.href} onClick={() => handleCategoryClick(category.label, "mobile_menu", category.href)}
+                        className={`flex min-h-11 items-center text-sm font-semibold text-ink/80 hover:text-gold ${menuFocus}`}>
+                        Ver todos: {category.label}
+                      </Link>
+                      <CategoryMenuLinks mobile category={category} onSelect={(href) => handleCategoryClick(category.label, "mobile_menu", href)} />
                     </div>
-                  </div>
+                  </details>
                 ))}
-                <div className="grid gap-2 rounded-md border border-black/10 bg-champagne/55 p-3">
+                <div className="mt-3 grid gap-2 rounded-md border border-black/10 bg-champagne/55 p-3">
                   <p className="font-serif text-lg font-semibold text-ink">
                     <span className="inline-flex items-center gap-2">
                       <Wrench className="text-gold" size={16} strokeWidth={1.7} /> Serviços

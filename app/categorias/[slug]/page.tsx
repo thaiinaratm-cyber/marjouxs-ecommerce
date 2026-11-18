@@ -8,6 +8,7 @@ import { Reveal } from "@/components/reveal";
 import { getCategoryBanner } from "@/lib/category-banners";
 import { categoryFilters, getCategoryFilterHref } from "@/lib/category-navigation";
 import { getPublicProductsByCategory } from "@/lib/catalog";
+import { getCategoryMenuFacets } from "@/lib/catalog/category-menu";
 import { catalogHref, discoverCatalog, hasDiscoveryParams, matchesEditorialVariant, type CatalogParams } from "@/lib/catalog/discovery";
 import { getCategoryBySlug } from "@/lib/products";
 import {
@@ -172,13 +173,14 @@ export default async function CategoryPage({
   const categoryProducts = await getPublicProductsByCategory(category.name);
   const pathname = `/categorias/${category.slug}`;
   const filterOptions = categoryFilters[category.slug] ?? [];
-  const discovery = discoverCatalog(categoryProducts, searchParams, { scoped: true, editorial: filterOptions });
+  const discoveryOptions = { scoped: true, editorial: filterOptions, menuFacets: getCategoryMenuFacets(category.slug) };
+  const discovery = discoverCatalog(categoryProducts, searchParams, discoveryOptions);
   const selectedSubcategory = discovery.query.subcategoria;
   const bannerVariant = selectedSubcategory || discovery.query.material || "";
   const selectedBannerFilter = filterOptions.find((filter) => filter.slug === bannerVariant);
   const bannerProducts = bannerVariant
     ? discoverCatalog(categoryProducts, { subcategoria: selectedSubcategory, material: discovery.query.material },
-        { scoped: true, editorial: filterOptions }).products
+        discoveryOptions).products
     : categoryProducts;
   const bannerProduct = bannerProducts[0] ?? categoryProducts[0];
   const banner = getCategoryBanner({
